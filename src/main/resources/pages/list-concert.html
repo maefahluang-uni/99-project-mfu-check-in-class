@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concert List</title>
+    <!-- Add Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fff; /* Set background color to white */
+            color: #000; /* Set text color to black */
+            font-family: Arial, sans-serif; /* Choose a suitable font */
+            padding: 20px; /* Add some padding to the body */
+        }
+
+        h1 {
+            color: #333; /* Set heading color to a darker shade */
+        }
+
+        .container {
+            max-width: 800px; /* Set a max-width for the container */
+            margin: 0 auto; /* Center the container on the page */
+        }
+
+        .btn-primary,
+        .btn-danger,
+        .btn-warning {
+            color: #fff; /* Set text color for buttons to white */
+        }
+
+        .table {
+            background-color: #fff; /* Set background color of the table to white */
+            color: #000; /* Set text color of the table to black */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Concert List</h1>
+        <a href="/add-concert/" class="btn btn-primary mb-3">Add Concert</a>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Delete</th>
+                    <th>Update</th>
+                    <th>Title</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="concert : ${concerts}">
+                    <td>
+                        <a class="btn btn-danger" th:href="@{/delete-concert/{id}(id=${concert.id})}">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a class="btn btn-warning" th:href="@{/concerts/{id}(id=${concert.id})}">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </td>
+                    <td th:text="${concert.title}"></td>
+                    <td th:text="${concert.date}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Bootstrap and Font Awesome JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+</body>
+</html>
