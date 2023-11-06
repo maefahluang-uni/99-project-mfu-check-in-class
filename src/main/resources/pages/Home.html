@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home</title>
+    </head>
+    <body>
+        <h1>Profile Information</h1>
+        <ul>
+            <li><button>Check-in</button></li>
+            <li><button>Course</button></li>
+            <li><button>Contact</button></li>
+        </ul>
+        
+        <h2>List of Profile Information</h2>
+        <ul th:if="${usertype.equals('STUDENT')}">
+            <li>Name: <span th:text="${userdata.getName()}"></span></li>
+            <li>ID: <span th:text="${userdata.getID()}"></span></li>
+            <li>Status: <span th:text="${usertype}"></span> CURRENT</li>
+            <li>Program: <span th:text="${userdata.getProgram()}"></span></li>
+            <li>School: <span th:text="${userdata.getSchool()}"></span></li>
+            <li>Department: <span th:text="${userdata.getDeparment()}"></span></li>
+            <li>Advisor: <span th:text="${userdata.getAdvisorID()}"></span></li>
+        </ul>
+        <ul th:if="${usertype.equals('LECTURER')}">
+
+        </ul>
+        <ul th:if="${usertype.equals('ADMIN')}">
+
+        </ul>
+    </body>
+</html>

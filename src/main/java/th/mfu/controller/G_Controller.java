@@ -3,6 +3,7 @@ package th.mfu.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import th.mfu.model.*;
+import th.mfu.model.interfaces.*;
 import th.mfu.service.*;
 import th.mfu.repository.*;
 
@@ -44,143 +46,101 @@ public class G_Controller {
     @Autowired
     private StudentRepository StudentRepo;
 
+    @GetMapping("/home")
+    public String HomePage(Model model, HttpServletResponse response, HttpServletRequest request) {
+        User Myself = userService.VerifyJwtToken(request);
+        if (Myself instanceof Student) {
+            Student STUDENT = (Student) Myself;
+            model.addAttribute("usertype", "STUDENT");
+            model.addAttribute("userdata", STUDENT);
+        } else if (Myself instanceof Lecturer) {
+            Lecturer LECTURER = (Lecturer) Myself;
+            model.addAttribute("usertype", "LECTURER");
+            model.addAttribute("userdata", LECTURER);
+        } else if (Myself instanceof Admin) {
+            Admin ADMIN = (Admin) Myself;
+            model.addAttribute("usertype", "ADMIN");
+            model.addAttribute("userdata", ADMIN);
+        }
+        return "Home";
+    }
+
     @GetMapping("/login")
-    public String Login(Model model, HttpServletRequest request) {
+    public String LoginPage(Model model, HttpServletResponse response, HttpServletRequest request) {
         return "Login";
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(Model model, HttpServletResponse response, @RequestParam String username, @RequestParam String password) {
-        if (userService.Authenticate(username, password)) {
+    public ResponseEntity<HashMap<String, Object>> Login(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam String userid, @RequestParam String password) {
+        if (userService.Authenticate(userid, password)) {
             // User authenticated successfully, redirect to the home page
-            String jwtToken = userService.GenerateJwtToken(username);
-            // System.out.println(jwtToken);
+            String jwtToken = userService.GenerateJwtToken(userid);
             Cookie cookie = new Cookie("accessToken", jwtToken);
             cookie.setMaxAge(60 * 15); // unit: seconds
             cookie.setPath("/");
             response.addCookie(cookie);
-            return ResponseEntity.status(HttpStatus.FOUND)
-                .header("Location", "/home")
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("redirect", "/home");
+                }});
+        } else {
+            // Authentication failed, show an error message
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new HashMap<String, Object>() {{
+                    put("success", "false");
+                    put("message", "Incorrect username or password.");
+                }});
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<HashMap<String, Object>> register(Model model, HttpServletResponse response, HttpServletRequest request,
+        @RequestParam String usertype) {
+            /*
+             * http://localhost:8100/register?usertype=LECTURER
+             * {
+             *  USER_ID: 1111
+             *  PASSWORD: "1234"
+             *  ...
+             *  School: "abc"
+             * }
+             */
+        User Myself = userService.VerifyJwtToken(request);
+        if (Myself.getRole() == "ADMIN") { // or using "Myself instanceof Admin"
+            if (usertype == "STUDENT") {
+                
+            } else if (usertype == "LECTURER") {
+                // Get form-data
+                String USER_ID = request.getParameter("USER_ID");
+                String PASSWORD = request.getParameter("PASSWORD");
+                String NAME = request.getParameter("NAME");
+                String Department = request.getParameter("Department");
+                String School = request.getParameter("School");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(null);
         } else {
             // Authentication failed, show an error message
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Authentication failed");
+                .body(new HashMap<String, Object>() {{
+                    put("success", "false");
+                    put("message", "AUTHORIZATION failed please try relogin.");
+                }});
         }
+    }
+
+    @GetMapping("/check-in")
+    public String CheckInPage(Model model, HttpServletResponse response, HttpServletRequest request) {
+        return "Check-in";
     }
     
-    @GetMapping("/home")
-    public String Home() {
-        return "Home";
+    @GetMapping("/course")
+    public String CoursePage(Model model, HttpServletResponse response, HttpServletRequest request) {
+        return "Course";
     }
 
-    // @GetMapping("/test")
-    // public ResponseEntity<String> A(Model model) {
-    //     return ResponseEntity.ok("This is plain text.");
-    // }
-
-    // @GetMapping("/home")
-    // public String HomePage() {
-    //     return "Home";
-    // }
-    // @PostMapping("/login")
-    // public String LoginAuthentication(Model model) {
-    //     return "Login";
-    // }
-
-    // @GetMapping("/login")
-    // public void loginPage(HttpServletResponse response) {
-    //     try {
-    //         // Read the content of the three files and combine them
-    //         String file1Content = readResource("templates/partials/head.ejs");
-    //         String file2Content = readResource("templates/partials/Login.html");
-    //         String file3Content = readResource("templates/Footer.html");
-    //         String combinedHtml = file1Content + file2Content + file3Content;
-    //         response.setContentType("text/html; charset=UTF-8"); // Set the character encoding
-    //         try (OutputStream outputStream = response.getOutputStream()) {
-    //             outputStream.write(combinedHtml.getBytes(StandardCharsets.UTF_8));
-    //         }
-    //     } catch (IOException e) {
-    //         // Handle the exception gracefully, e.g., log it and return an error response.
-    //         e.printStackTrace();
-    //         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    //     }
-    // }
-
-    // private String readResource(String filePath) throws IOException {
-    //     ClassPathResource resource = new ClassPathResource(filePath);
-    //     try (InputStream inputStream = resource.getInputStream()) {
-    //         return StreamUtils.copyToString(inputStream, Charset.defaultCharset());
-    //     }
-    // }
-
-
-    @GetMapping("/images/{imageName:.+}")
-    public ResponseEntity<Resource> getImage(@PathVariable String imageName) {
-        Resource resource = new ClassPathResource("images/" + imageName);
-        if (resource.exists()) {
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE)
-                    .body(resource);
-        }
-        return ResponseEntity.notFound().build();
+    @GetMapping("/contact")
+    public String ContactPage(Model model, HttpServletResponse response, HttpServletRequest request) {
+        return "Contact";
     }
-
-    @GetMapping("/css/{fileName}.css")
-    public void CSS(@PathVariable String fileName, HttpServletResponse response) {
-        String filePath = ("/css/" + fileName + ".css"); // start at resources
-        response.setContentType("text/css");
-        try (InputStream inputStream = getClass().getResourceAsStream(filePath);
-            OutputStream outputStream = response.getOutputStream()) {
-            if (inputStream != null) {
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
-            } else {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    // @GetMapping("/concerts")
-    // public String listConcerts(Model model) {
-    //     model.addAttribute("concerts", repository.findAll());
-    //     return "list-concert";
-    // }
-
-    // @GetMapping("/add-concert")
-    // public String addAConcertForm(Model model) {
-    //     model.addAttribute("concert", new Concert());
-    //     return "add-concert-form";
-    // }
-
-    // @PostMapping("/concerts")
-    // public String saveConcert(@ModelAttribute Concert concert) {
-    //     repository.save(concert);
-    //     return "redirect:/concerts";
-    // }
-
-    // @GetMapping("/concerts/{id}")
-    // public String getConcert(Model model, @PathVariable Long id) {
-    //     Concert concert = repository.findById(id).get();
-    //     model.addAttribute("concert", concert);
-    //     return "add-concert-form";
-    // }
-
-    // @GetMapping("/delete-concert/{id}")
-    // public String deleteConcert(@PathVariable long id) {
-    //     repository.deleteById(id);
-    //     return "redirect:/concerts";
-    // }
-
-    // @GetMapping("/delete-concert")
-    // public String removeAllConcerts() {
-    //     repository.deleteAll();
-    //     return "redirect:/concerts";
-    // }
 }

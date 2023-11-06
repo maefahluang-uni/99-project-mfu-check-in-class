@@ -16,7 +16,7 @@ public class Interceptor implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(cookieInterceptor())
                 .addPathPatterns("/**") // Apply the interceptor to all paths
-                .excludePathPatterns("/css/**")
+                .excludePathPatterns("/css/**") // static folder
                 .excludePathPatterns("/js/**")
                 .excludePathPatterns("/images/**");
     }

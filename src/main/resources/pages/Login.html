@@ -29,14 +29,14 @@
         // }
         //console.log("XD")
         function login() {
-            const username = document.getElementById('username').value;
+            const userid = document.getElementById('userid').value;
             const password = document.getElementById('password').value;
-            axios.post('/login', { username, password })
+            axios.post('/login', { userid, password })
                 .then(response => {
                     window.location.href = '/home';
                 })
                 .catch(error => {
-                    document.getElementById('error-message').textContent = "Incorrect username or password.";
+                    document.getElementById('error-message').textContent = "Incorrect userid or password.";
                 });
         }
       </script>
@@ -49,8 +49,8 @@
           <div class="title">Sign in</div>
           <span class="inputs">
               <span class="inputf">
-              <input type="username" class="input" placeholder="Username" name="username"/>
-              <span class="label">Username</span>
+              <input type="userid" class="input" placeholder="Username" name="userid"/>
+              <span class="label">Userid</span>
               <span class="material-symbols-outlined icon">account_circle</span>
               </span>
               <span class="inputf">
@@ -70,28 +70,32 @@
           </form>
       </div>    
       <script> <!-- animation login buttom-->
-
           var btn = document.querySelector(".btn");
           var inputs = document.querySelectorAll(".input");
           btn.onclick = async function () {
             event.preventDefault(); // Prevent the form submission for now
-            const username = document.querySelector('input[name="username"]').value;
+            const userid = document.querySelector('input[name="userid"]').value;
             const password = document.querySelector('input[name="password"]').value;
-            const query = new URLSearchParams(Object.entries({ username, password })).toString();
-            const response = axios.post('/login?' + query);
-            response.text().then((table) => {
-                try {table = JSON.parse(table)} catch(e) {}
-                if (table.redirect) { window.location.href = table.redirect; }
-                btn.classList.toggle("active");
-                if (!table.success) {
-                    setTimeout(() => {
+            const query = { userid, password };
+            btn.classList.toggle("active");
+            axios.post('/login', new URLSearchParams(query), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            }).then(response => {
+                const data = response.data;
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            }).catch(error => {
+                console.log(error)
+                setTimeout(() => {
                     btn.classList.toggle("active");
                     inputs[1].classList.toggle("active");
-                    }, 1500);
-                    setTimeout(() => {
+                }, 1500);
+                setTimeout(() => {
                     inputs[1].classList.toggle("active");
-                    }, 3000);
-                } 
+                }, 3000);
             });
           };
       </script>
