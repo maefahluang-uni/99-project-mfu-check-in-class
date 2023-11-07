@@ -1,0 +1,272 @@
+/* reset all start */
+*{
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  list-style: none;
+  box-sizing: border-box;
+}
+/* reset all end */
+/* nav section start */
+nav{
+  background: #850000;
+  height: 85px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+/* left topbar start */
+div.logonav{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+div.logonav img{
+  margin-left: 20px;
+  margin-right: 25px;
+}
+div.flex-logonav{
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  text-align: left;
+}
+div.flex-logonav h4{
+  color: #fff;
+  font-size: 32px;
+  font-weight: bold;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+div.flex-logonav p{
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: -20px;
+}
+nav div.line90deg{
+  width: 60px;
+  height: 2px;
+  background: #fff;
+  transform: rotate(90deg);
+  margin-left: -195px;
+}
+nav div.line{
+  margin-left: -20px;
+  width: 100px;
+  height: 2px;
+  background: #fff;
+}
+/* left topbar end */
+
+/* nav section end */
+
+/* login section start */
+
+.loginbox {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5%;
+}
+
+form {
+  width: 400px;
+  height: 450px;
+  box-sizing: border-box;
+  border-radius: 5mm;
+  padding: 40px 30px;
+  backdrop-filter: blur(5px) saturate(160%);
+  -webkit-backdrop-filter: blur(5px) saturate(160%);
+  background: #850000; 
+  border: 1px solid #630000;
+  position: relative;
+}
+
+.title {
+  width: 100%;
+  font-family: poppins;
+  font-size: 30px;
+  text-align: center;
+  margin-top: 100px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.inputs {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.inputf {
+  width: 100%;
+  height: fit-content;
+  box-sizing: border-box;
+  margin: 15px 0;
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  height: 45px;
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 0.55mm solid rgb(255, 255, 255);
+  background: none;
+  padding: 0 15px;
+  font-family: poppins;
+  font-size: 15px;
+  color: white;
+  outline: none;
+}
+
+.input::placeholder {
+  color: rgb(241, 232, 232);
+}
+
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: poppins;
+  opacity: 0;
+  z-index: -1;
+  transition: 0.25s ease-out;
+}
+
+.input:focus + .label {
+  top: -20px;
+  opacity: 1;
+  z-index: 1;
+}
+
+.input:focus::placeholder {
+  opacity: 0;
+}
+
+.input:not(:placeholder-shown) + .label {
+  top: -20px;
+  opacity: 1;
+  z-index: 1;
+}
+
+.icon {
+  color: white;
+  position: absolute;
+  right: 0px;
+  top: 50%;
+  transform: translate(0, -50%);
+  font-size: 18px;
+}
+
+.btn {
+  width: 100%;
+  height: 40px;
+  background: white;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 6mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.btn span {
+  color: rgb(40, 40, 40);
+  font-family: poppins;
+  font-size: 16px;
+}
+
+.text {
+  width: 100%;
+  font-family: poppins;
+  font-size: 13px;
+  text-align: center;
+  color: rgb(240, 240, 240);
+}
+
+.text a {
+  color: white;
+  font-weight: 600;
+}
+
+.dots {
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 1px;
+  animation: load 0.5s ease-out infinite alternate var(--delay);
+}
+
+@keyframes load {
+  0% {
+    background: rgb(0, 0, 0);
+  }
+  50%,
+  100% {
+    background: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.btn .dots {
+  display: none;
+}
+
+.btn span {
+  display: block;
+}
+
+.btn.active .dots {
+  display: flex;
+}
+
+.btn.active span {
+  display: none;
+}
+
+.input.active {
+  animation: shake 0.25s ease-in-out 3;
+}
+
+@keyframes shake {
+  0% {
+    margin-left: 0px;
+  }
+  25% {
+    margin-left: 5px;
+  }
+  75% {
+    margin-left: -5px;
+  }
+  100% {
+    margin-left: 0px;
+  }
+}
+.logocenter {
+  position: absolute;
+  top: calc(25% - 90px);
+  left: calc(50% - 50px);
+  margin-bottom: 20px;
+}
+/* login section end */
+

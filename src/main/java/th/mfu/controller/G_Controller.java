@@ -62,12 +62,12 @@ public class G_Controller {
             model.addAttribute("usertype", "ADMIN");
             model.addAttribute("userdata", ADMIN);
         }
-        return "Home";
+        return "HomeV2";
     }
 
     @GetMapping("/login")
     public String LoginPage(Model model, HttpServletResponse response, HttpServletRequest request) {
-        return "Login";
+        return "LoginV2";
     }
 
     @PostMapping("/login")
@@ -142,5 +142,21 @@ public class G_Controller {
     @GetMapping("/contact")
     public String ContactPage(Model model, HttpServletResponse response, HttpServletRequest request) {
         return "Contact";
+    }
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        request.getSession().invalidate();
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    cookie.setValue("");
+                    cookie.setPath("/");
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                }
+            }
+        }
+        return "redirect:/login";
     }
 }

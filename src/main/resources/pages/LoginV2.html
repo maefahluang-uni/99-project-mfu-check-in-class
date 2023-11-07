@@ -1,0 +1,112 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--<script src="cross.js"></script>-->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="/css/style(LoginV2).css">
+    <!--Google Fonts and Icons-->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp|Material+Icons+Two+Tone|Material+Symbols+Outlined"
+      rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="text/javascript">
+      function login() {
+          const userid = document.getElementById('userid').value;
+          const password = document.getElementById('password').value;
+          axios.post('/login', { userid, password })
+              .then(response => {
+                  window.location.href = '/home';
+              })
+              .catch(error => {
+                  document.getElementById('error-message').textContent = "Incorrect userid or password.";
+              });
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Nav section Start -->
+    <div class="content">
+      <!-- Main content goes here -->
+      <nav>
+        <!--left topbar start-->
+        <div class="logonav">
+          <img src="/images/MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
+          <div class="flex-logonav"><h4>MFU</h4><br><p>Check-in Class</p></div>
+          <div class="line90deg"></div>
+          <div class="line"></div>
+        </div>
+        <!--left topbar end-->
+      </nav>      
+          <!-- Login section Start-->
+    <div class="loginbox">
+      <form action="/login" method="POST">
+        <img class="logocenter" src="/images/MFU-LOGO.png" alt="logo" width="100px" height="100px"/>
+        <div class="title">Sign in</div>
+        <span class="inputs">
+          <span class="inputf">
+            <input type="userid" class="input" placeholder="Username" name="userid"/>
+            <span class="label">Username</span>
+            <span class="material-symbols-outlined icon">account_circle</span>
+          </span>
+          <span class="inputf">
+            <input type="password" class="input" placeholder="Password" name="password"/>
+            <span class="label">Password</span>
+            <span class="material-icons icon">lock</span>
+          </span>
+        </span><br><br>
+        <button type="submit" class="btn">
+          <span>Login</span>
+          <div class="dots">
+            <div class="dot" style="--delay: 0s"></div>
+            <div class="dot" style="--delay: 0.25s"></div>
+            <div class="dot" style="--delay: 0.5s"></div>
+          </div>
+        </button>
+      </form>
+    </div>
+    <script> <!-- animation login buttom-->
+      var btn = document.querySelector(".btn");
+      var inputs = document.querySelectorAll(".input");
+      btn.onclick = async function () {
+        event.preventDefault(); // Prevent the form submission for now
+        const userid = document.querySelector('input[name="userid"]').value;
+        const password = document.querySelector('input[name="password"]').value;
+        const query = { userid, password };
+        btn.classList.toggle("active");
+        axios.post('/login', new URLSearchParams(query), {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        }).then(response => {
+            const data = response.data;
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        }).catch(error => {
+            console.log(error)
+            setTimeout(() => {
+                btn.classList.toggle("active");
+                inputs[1].classList.toggle("active");
+            }, 1500);
+            setTimeout(() => {
+                inputs[1].classList.toggle("active");
+            }, 3000);
+        });
+      };
+  </script>
+    <!-- Login section End -->
+      <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
+
+    <!-- Nav section End -->
+  </body>
+</html>

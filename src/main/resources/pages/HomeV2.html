@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- <script src="cross.js"></script> -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>home page</title>
+    <link rel="stylesheet" href="/css/style(home).css">
+    <!--Google Fonts and Icons-->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp|Material+Icons+Two+Tone|Material+Symbols+Outlined"
+      rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  </head>
+  <body>
+    <!--sidebar start-->
+    <div class="overlay" id="overlay"></div>
+    <div class="sidebar" id="sidebar">
+      <!-- Sidebar content goes here -->
+      <div class="sidebar_box">
+        <div class="topsidebarbg"></div>
+        <div class="sidebar_menu">
+          <div class="logoside">
+            <img src="/images/MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
+            <div class="flex-logoside"><h4>MFU</h4><br><p>Check-in Class</p></div>
+            <div class="line90deg"></div>
+            <div class="line"></div>
+          </div>
+          <div class="menu">
+          <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+          <li><a href="#"><i class="far fa-calendar-check"></i>Check-in</a></li>
+          <li><a href="#"><i class="fas fa-book-open"></i>Course</a></li>
+          <li><a href="/contact"><i class="fas fa-phone-volume"></i>Contract</a></li>
+          <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+          </div>
+        </div>
+        <div class="sidebarbg"></div>
+      </div>
+      <button onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="content">
+      <!-- Main content goes here -->
+      <nav>
+        <!--left topbar start-->
+        <div class="logonav">
+          <img src="/images/MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
+          <div class="flex-logonav"><h4>MFU</h4><br><p>Check-in Class</p></div>
+          <div class="line90deg"></div>
+          <div class="line"></div>
+        </div>
+        <!--left topbar end-->
+      </nav>
+              <!-- home page start-->
+              <!-- banner start -->
+              <div class="slider">
+                <button class="prevButton" id="prevButton" onclick="changeSlide('increment', -1)"><i class="far fa-arrow-alt-circle-left"></i></button>
+                <img id="img-1" src="/images/csm_05_0fa4cbddf9.jpg" alt="Image 1"/>
+                <img id="img-2" src="/images/csm_20210811075504_105A1191-01-2-2000px_3735850f4b.png" alt="Image 2"/>
+                <img id="img-3" src="/images/maxresdefault.jpg" alt="Image 3"/>
+                <button class="nextButton" id="nextButton" onclick="changeSlide('increment', 1)"><i class="far fa-arrow-alt-circle-right"></i></button>
+              </div>
+              <div class="navigation-button">
+                <span class="dot active" onclick="changeSlide('set', 0)"></span>
+                <span class="dot" onclick="changeSlide('set', 1)"></span>
+                <span class="dot" onclick="changeSlide('set', 2)"></span>
+              </div>
+              <script src="/js/banner.js"></script>
+              <!-- banner end -->
+              
+              <!-- home page content start -->
+              <div class="homecontent">
+                <div class="quickaccess">
+                  <li><a href="#"><i class="far fa-calendar-check"></i><p>Check-in</p></a></li>
+                  <li><a href="#"><i class="fas fa-book-open"></i><p>Course</p></a></li>
+                  <li><a href="/resources/contact.html"><i class="fas fa-phone-volume"></i><p>Contact</p></a></li>
+                </div>
+                <div class="profile">
+                  <i class="fas fa-user-circle"></i>
+                  <h2>Profile Information</h2>
+                  <ul th:if="${usertype.equals('STUDENT')}">
+                      <li>Name: <span th:text="${userdata.getName()}"></span></li>
+                      <li>ID: <span th:text="${userdata.getID()}"></span></li>
+                      <li>Status: <span th:text="${usertype}"></span> CURRENT</li>
+                      <li>Program: <span th:text="${userdata.getProgram()}"></span></li>
+                      <li>School: <span th:text="${userdata.getSchool()}"></span></li>
+                      <li>Department: <span th:text="${userdata.getDeparment()}"></span></li>
+                      <li>Advisor: <span th:text="${userdata.getAdvisorID()}"></span></li>
+                  </ul>
+                  <ul th:if="${usertype.equals('LECTURER')}">
+          
+                  </ul>
+                  <ul th:if="${usertype.equals('ADMIN')}">
+          
+                </div>
+              </div>
+              <!-- home page content end -->
+
+              <!-- homepage end -->
+        <!-- lower bar start-->
+        <div class="lowerbar">
+            <img src="/images/MFU-LOGO.png" alt="logo" width="90px" height="90px"/>
+            <div class="lowertext">
+                <div class="lowertext1">
+                    <p>Mae Fah Luang University<br>Check-in Class Center</p>
+                </div>
+                <div class="lowertext2">
+                    <h4>Contact</h4><div class="linecontact"></div><p>Mae Fah Luang University Sports Center<br>333 Village No. 1, Thasud Subdistrict, Mueang District Chiang Rai 57100<br>Phone: 0 5391 7821 <br>Email: check-in-class@mfu.ac.th</p>
+                </div>
+                <div class="lowertext3">
+                    <h4>Facebook/Follow</h4><div class="linefb"></div><p><i class="fab fa-facebook"></i>MFU Check-in Class Center</p>
+                </div>
+            </div>
+        </div>
+        <div class="lowertext4">
+            <p>@ 2023 - Powered by Center for Group Grade A Hunter</p>
+        </div>
+        <!-- lower bar end -->
+      <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
+    <script>
+      function openSidebar() {
+      document.getElementById("sidebar").classList.add("open");
+      document.getElementById("overlay").style.display = "block";
+      }
+      function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("overlay").style.display = "none";
+      }
+    </script>
+    <!--sidebar end-->
+  </body>
+</html>
