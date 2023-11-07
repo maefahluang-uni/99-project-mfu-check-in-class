@@ -56,6 +56,10 @@ public class G_Controller {
             Student STUDENT = (Student) Myself;
             model.addAttribute("usertype", "STUDENT");
             model.addAttribute("userdata", STUDENT);
+            if (STUDENT.getAdvisorID() != null) {
+                Lecturer advisor = LecturerRepo.findByID(STUDENT.getAdvisorID());
+                model.addAttribute("advisorName", advisor != null ? advisor.getName() : "N/A");
+            }
         } else if (Myself instanceof Lecturer) {
             Lecturer LECTURER = (Lecturer) Myself;
             model.addAttribute("usertype", "LECTURER");

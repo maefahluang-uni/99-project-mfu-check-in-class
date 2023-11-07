@@ -106,14 +106,26 @@
                       <li>Program <div></div><span th:text="${userdata.getProgram()}"></span></li>
                       <li>School <div></div><span th:text="${userdata.getSchool()}"></span></li>
                       <li>Department <div></div><span th:text="${userdata.getDepartment()}"></span></li>
-                      <li>Advisor: <div></div><span th:text="${userdata.getAdvisorID()}"></span></li>
+                      <li>Advisor <div></div><span th:text="${advisorName}"></span></li>
                     </div>
                   </ul>
                   <ul th:if="${usertype.equals('LECTURER')}">
-          
+                    <div class="info">
+                      <li class="name"><span th:text="${userdata.getName()}"></span></li>
+                      <li>Lecturer ID: <span th:text="${userdata.getID()}"></span></li>
+                      <li>Status: <span style="color: #00EA41;"><span th:text="${usertype}"></span> CURRENT</span></li>
+                    </div>
+                    <div class="detail">
+                      <li>School <div></div><span th:text="${userdata.getSchool()}"></span></li>
+                      <li>Department <div></div><span th:text="${userdata.getDepartment()}"></span></li>
+                    </div>
                   </ul>
                   <ul th:if="${usertype.equals('ADMIN')}">
-          
+                    <div class="info">
+                      <li class="name"><span th:text="${userdata.getName()}"></span></li>
+                      <li>Admin ID: <span th:text="${userdata.getID()}"></span></li>
+                      <li>Status: <span style="color: #00EA41;"><span th:text="${usertype}"></span> CURRENT</span></li>
+                    </div>
                 </div>
               </div>
               <!-- home page content end -->
