@@ -46,6 +46,9 @@ public class G_Controller {
     @Autowired
     private StudentRepository StudentRepo;
 
+    @Autowired
+    private LecturerRepository LecturerRepo;
+
     @GetMapping("/home")
     public String HomePage(Model model, HttpServletResponse response, HttpServletRequest request) {
         User Myself = userService.VerifyJwtToken(request);

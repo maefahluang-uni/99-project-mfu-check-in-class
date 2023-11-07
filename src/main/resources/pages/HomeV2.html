@@ -31,11 +31,20 @@
             <div class="line"></div>
           </div>
           <div class="menu">
-          <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
-          <li><a href="#"><i class="far fa-calendar-check"></i>Check-in</a></li>
-          <li><a href="#"><i class="fas fa-book-open"></i>Course</a></li>
-          <li><a href="/contact"><i class="fas fa-phone-volume"></i>Contract</a></li>
-          <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+            <ul th:if="${usertype.equals('STUDENT') or usertype.equals('LECTURER')}">
+              <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+              <li><a href="#"><i class="far fa-calendar-check"></i>Check-in</a></li>
+              <li><a href="#"><i class="fas fa-book-open"></i>Course</a></li>
+              <li><a href="/contact"><i class="fas fa-phone-volume"></i>Contract</a></li>
+              <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+            </ul>
+            <ul th:if="${usertype.equals('ADMIN')}">
+              <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+              <li><a href="#"><i class="fas fa-book-open"></i>Course</a></li>
+              <li><a href="#"><i class="fas fa-user-tie"></i>Lecturer</a></li>
+              <li><a href="#"><i class="fas fa-user-graduate"></i>Student</a></li>
+              <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+            </ul>
           </div>
         </div>
         <div class="sidebarbg"></div>
@@ -74,21 +83,31 @@
               <!-- home page content start -->
               <div class="homecontent">
                 <div class="quickaccess">
+                  <ul th:if="${usertype.equals('STUDENT') or usertype.equals('LECTURER')}">
                   <li><a href="#"><i class="far fa-calendar-check"></i><p>Check-in</p></a></li>
                   <li><a href="#"><i class="fas fa-book-open"></i><p>Course</p></a></li>
-                  <li><a href="/resources/contact.html"><i class="fas fa-phone-volume"></i><p>Contact</p></a></li>
+                  <li><a href="/contact"><i class="fas fa-phone-volume"></i><p>Contact</p></a></li>
+                  </ul>
+                  <ul th:if="${usertype.equals('ADMIN')}">
+                  <li><a href="#"><i class="fas fa-book-open"></i><p>Course</p></a></li>
+                  <li><a href="#"><i class="fas fa-user-tie"></i><p>Lecturer</p></a></li>
+                  <li><a href="#"><i class="fas fa-user-graduate"></i><p>Student</p></a></li>
+                  </ul>
                 </div>
                 <div class="profile">
-                  <i class="fas fa-user-circle"></i>
-                  <h2>Profile Information</h2>
+                  <i class="far fa-user-circle"></i>
                   <ul th:if="${usertype.equals('STUDENT')}">
-                      <li>Name: <span th:text="${userdata.getName()}"></span></li>
-                      <li>ID: <span th:text="${userdata.getID()}"></span></li>
-                      <li>Status: <span th:text="${usertype}"></span> CURRENT</li>
-                      <li>Program: <span th:text="${userdata.getProgram()}"></span></li>
-                      <li>School: <span th:text="${userdata.getSchool()}"></span></li>
-                      <li>Department: <span th:text="${userdata.getDeparment()}"></span></li>
-                      <li>Advisor: <span th:text="${userdata.getAdvisorID()}"></span></li>
+                    <div class="info">
+                      <li class="name"><span th:text="${userdata.getName()}"></span></li>
+                      <li>Student ID: <span th:text="${userdata.getID()}"></span></li>
+                      <li>Status: <span style="color: #00EA41;"><span th:text="${usertype}"></span> CURRENT</span></li>
+                    </div>
+                    <div class="detail">
+                      <li>Program <div></div><span th:text="${userdata.getProgram()}"></span></li>
+                      <li>School <div></div><span th:text="${userdata.getSchool()}"></span></li>
+                      <li>Department <div></div><span th:text="${userdata.getDepartment()}"></span></li>
+                      <li>Advisor: <div></div><span th:text="${userdata.getAdvisorID()}"></span></li>
+                    </div>
                   </ul>
                   <ul th:if="${usertype.equals('LECTURER')}">
           

@@ -16,7 +16,7 @@ public class Student implements User {
     private String Role = "STUDENT";
     private String Program;
     private String School;
-    private String Deparment;
+    private String Department;
     private Long AdvisorID; // Lecturer.ID
 
     public Long getID() { // interfaces.User
@@ -53,11 +53,11 @@ public class Student implements User {
     public void setSchool(String school) {
         School = school;
     }
-    public String getDeparment() {
-        return Deparment;
+    public String getDepartment() {
+        return Department;
     }
-    public void setDeparment(String deparment) {
-        Deparment = deparment;
+    public void setDepartment(String deparment) {
+        Department = deparment;
     }
     public Long getAdvisorID() {
         return AdvisorID;
