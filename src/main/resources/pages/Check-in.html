@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home</title>
+    </head>
+    <body>
+        <ul class="list" th:if="${userdata.getRole().equals('STUDENT')}">
+            <li th:each="courseInfo : ${mycourse}">
+                <strong>COURSEID:</strong> <span th:text="${courseInfo.course.getID()}"></span><br>
+                <strong>NAME:</strong> <span th:text="${courseInfo.course.getName()}"></span><br>
+                <strong>SECTION:</strong> <span th:text="${courseInfo.getSection()}"></span><br>
+                <strong>LOCATION:</strong> <span th:text="${courseInfo.getLocation()}"></span><br>
+                <strong>PERIOD:</strong> <span th:text="${courseInfo.getPeriod()}"></span><br>
+                <br>
+            </li>
+        </ul>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+                var userdata = /*[[${userdata}]]*/ 'default';
+                console.log(userdata);
+                var mycourse = /*[[${mycourse}]]*/ 'default';
+                console.log(mycourse);
+            /*]]>*/
+        </script>
+    </body>
+</html>

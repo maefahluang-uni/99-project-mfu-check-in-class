@@ -1,43 +1,31 @@
 package th.mfu.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-
-import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.*;
+import javax.servlet.http.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.*;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.*;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.*;
 
 import th.mfu.model.*;
 import th.mfu.model.interfaces.*;
 import th.mfu.service.*;
 import th.mfu.repository.*;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.util.StreamUtils;
 import org.springframework.core.io.Resource;
 
+// global-attribute: usertype, userdata (can see in all path // page)
+@EnableScheduling
 @Controller
 public class G_Controller {
     @Autowired
@@ -49,22 +37,34 @@ public class G_Controller {
     @Autowired
     private LecturerRepository LecturerRepo;
 
+    @Autowired
+    private CourseRepository CourseRepo;
+
+    @Autowired
+    private CourseSectionRepository CourseSectionRepo;
+
+    @Scheduled(fixedRate = 500) // unit is milliseconds
+    @GetMapping(value="/updator")
+    public void webUpdator() {
+        System.out.println("Hello!!!");
+    }
+
     @GetMapping("/home")
     public String HomePage(Model model, HttpServletResponse response, HttpServletRequest request) {
-        User Myself = userService.VerifyJwtToken(request);
-        if (Myself instanceof Student) {
-            Student STUDENT = (Student) Myself;
-            model.addAttribute("usertype", "STUDENT");
-            model.addAttribute("userdata", STUDENT);
-        } else if (Myself instanceof Lecturer) {
-            Lecturer LECTURER = (Lecturer) Myself;
-            model.addAttribute("usertype", "LECTURER");
-            model.addAttribute("userdata", LECTURER);
-        } else if (Myself instanceof Admin) {
-            Admin ADMIN = (Admin) Myself;
-            model.addAttribute("usertype", "ADMIN");
-            model.addAttribute("userdata", ADMIN);
-        }
+        // List<StudentSchedule> items = StudentScheduleRepo.findByStudentID(6531503070L);
+        // for (StudentSchedule item : items) {
+        //     System.out.println(item.getCourseSection().getCourse());
+        // }
+
+        // CourseSection sec = CourseSectionRepo.findByID(10000L);
+        // for (Student item : sec.student) {
+        //     System.out.println(item.getID());
+        // }
+
+        // List<CourseSection> items = CourseSectionRepo.findByStudentIDAndSemesterID(6531503070L, 6666L);
+        // for (CourseSection item : items) {
+        //     System.out.println(item);
+        // }
         return "HomeV2";
     }
 
@@ -134,18 +134,40 @@ public class G_Controller {
 
     @GetMapping("/check-in")
     public String CheckInPage(Model model, HttpServletResponse response, HttpServletRequest request) {
+        User Myself = (User) request.getAttribute("userdata");
+        if (Myself.getRole() == "STUDENT" || Myself.getRole() == "LECTURER") {
+            List<CourseSection> CourseCollection = CourseSectionRepo.findByStudentID(Myself.getID()); // it's a clone instance not effect direct to real entity
+            for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
+                for (Student v1 : v0.student) { v1.setPassword("FORBIDDEN"); }
+                for (Lecturer v2 : v0.lecturer) { v2.setPassword("FORBIDDEN"); }
+            }
+            model.addAttribute("mycourse", CourseCollection);
+        }
         return "Check-in";
     }
     
     @GetMapping("/course")
     public String CoursePage(Model model, HttpServletResponse response, HttpServletRequest request) {
+        User Myself = (User) request.getAttribute("userdata");
+        if (Myself.getRole() == "STUDENT" || Myself.getRole() == "LECTURER") {
+            List<CourseSection> CourseCollection = CourseSectionRepo.findByStudentID(Myself.getID()); // it's a clone instance not effect direct to real entity
+            for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
+                for (Student v1 : v0.student) { v1.setPassword("FORBIDDEN"); }
+                for (Lecturer v2 : v0.lecturer) { v2.setPassword("FORBIDDEN"); }
+            }
+            model.addAttribute("mycourse", CourseCollection);
+        }
         return "Course";
     }
 
     @GetMapping("/contact")
     public String ContactPage(Model model, HttpServletResponse response, HttpServletRequest request) {
+        User Myself = (User) request.getAttribute("userdata");
+        List<CourseSection> CourseCollection = CourseSectionRepo.findByStudentID(Myself.getID());
+        model.addAttribute("MyCourse", CourseCollection);
         return "Contact";
     }
+
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         request.getSession().invalidate();

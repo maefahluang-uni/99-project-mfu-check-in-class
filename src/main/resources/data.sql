@@ -1,9 +1,35 @@
-INSERT INTO Student (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, ADVISORID) VALUES
-(6531503070, 'basbas122zaza', 'basbas1234', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', 1150),
-(6531503074, 'asdsad', 'arty777', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', 1150);
+-- ID: SEMESTER_ID
+INSERT INTO SEMESTER (ID, ACADEMIC_YEAR, TERM, START_DATE, FINISH_DATE) VALUES
+(6666, 2023, 1, '8/16/2023', '12/16/2023'),
+(6667, 2023, 2, '1/16/2023', '4/16/2023');
 
-INSERT INTO Lecturer (ID, PASSWORD, NAME, SCHOOL, DEPARTMENT) VALUES
-(1150, '1234', 'Dr.Sujitra Arwatchananukul', 'School of Information Technology', 'Software Engineering');
+-- ID: COURSE_ID
+INSERT INTO COURSE (ID, NAME) VALUES
+(1305217, 'Database Systems');
+-- ID: SECTION_ID
+INSERT INTO COURSE_SECTION (ID, COURSE_ID, SECTION, LOCATION, PERIOD) VALUES 
+(10000, 1305217, 'LECT 1', 'C3 102', 'Fri, 13:00 - 14:50'),
+(10001, 1305217, 'LECT 2', 'C3 102', 'Wed, 13:00 - 14:50');
+INSERT INTO COURSE_SECTION_ON_SEMESTER (SECTION_ID, SEMESTER_ID) VALUES -- (type: RELATION TABLE)
+(10000, 6666),
+(10001, 6667);
 
-INSERT INTO Admin (ID, PASSWORD, NAME) VALUES
+-- ID: STUDENT_ID
+INSERT INTO STUDENT (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, jAdvisors) VALUES -- jAdvisors is fixed (not from schedule)
+(6531503070, 'basbas122zaza', 'basbas1234', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', '[1150]');
+INSERT INTO STUDENT_SCHEDULE (STUDENT_ID, SECTION_ID) VALUES -- (type: RELATION TABLE)
+(6531503070, 10000),
+(6531503070, 10001);
+
+
+-- ID: LECTURER_ID
+INSERT INTO LECTURER (ID, PASSWORD, NAME, SCHOOL, DEPARTMENT) VALUES
+(1150, '1122', 'Dr.Sujitra Arwatchananukul', 'School of Information Technology', 'Software Engineering');
+INSERT INTO LECTURER_SCHEDULE (LECTURER_ID, SECTION_ID) VALUES -- (type: RELATION TABLE)
+(1150, 10000),
+(1150, 10001);
+
+
+
+INSERT INTO ADMIN (ID, PASSWORD, NAME) VALUES
 (666, '1234', 'MOS888');
