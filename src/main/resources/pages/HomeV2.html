@@ -109,22 +109,38 @@
                       <li>Advisor <div></div><span th:text="${advisorName}"></span></li>
                     </div>
                   </ul>
+<<<<<<< HEAD
                   <ul th:if="${userdata.getRole().equals('LECTURER')}">
                     <div class="info">
                       <li class="name"><span th:text="${userdata.getName()}"></span></li>
                       <li>Lecturer ID: <span th:text="${userdata.getID()}"></span></li>
                       <li>Status: <span style="color: #00EA41;"><span th:text="${userdata.getRole()}"></span> CURRENT</span></li>
+=======
+                  <ul th:if="${usertype.equals('LECTURER')}">
+                    <div class="info">
+                      <li class="name"><span th:text="${userdata.getName()}"></span></li>
+                      <li>Lecturer ID: <span th:text="${userdata.getID()}"></span></li>
+                      <li>Status: <span style="color: #00EA41;"><span th:text="${usertype}"></span> CURRENT</span></li>
+>>>>>>> 64028f97632c01b1b64ebecdb8acb8e45ed3c0c6
                     </div>
                     <div class="detail">
                       <li>School <div></div><span th:text="${userdata.getSchool()}"></span></li>
                       <li>Department <div></div><span th:text="${userdata.getDepartment()}"></span></li>
                     </div>
                   </ul>
+<<<<<<< HEAD
                   <ul th:if="${userdata.getRole().equals('ADMIN')}">
                     <div class="info">
                       <li class="name"><span th:text="${userdata.getName()}"></span></li>
                       <li>Admin ID: <span th:text="${userdata.getID()}"></span></li>
                       <li>Status: <span style="color: #00EA41;"><span th:text="${userdata.getRole()}"></span> CURRENT</span></li>
+=======
+                  <ul th:if="${usertype.equals('ADMIN')}">
+                    <div class="info">
+                      <li class="name"><span th:text="${userdata.getName()}"></span></li>
+                      <li>Admin ID: <span th:text="${userdata.getID()}"></span></li>
+                      <li>Status: <span style="color: #00EA41;"><span th:text="${usertype}"></span> CURRENT</span></li>
+>>>>>>> 64028f97632c01b1b64ebecdb8acb8e45ed3c0c6
                     </div>
                 </div>
               </div>
