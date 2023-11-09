@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>QR-CODE</title>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+        <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+        <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+            }
+            #qrCodeContainer {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        </style>
+    </head>
+    <body th:if="${subject == null}">
+        <div id="messages">
+            <li>Your permission to open check-in authentication in this subject is denied.</li>
+        </div>
+    </body>
+    <body th:if="${subject != null}">
+        <div id="messages">
+            <li>Subject: <span th:text="${subject.getCourse().getName()}"></span></li>
+            <li>Section: <span th:text="${subject.getSection()}"></span></li>
+        </div>
+        <div id="qrCodeContainer"></div>
+        <script>
+            const socket = new SockJS('/websocket');
+            const stompClient = Stomp.over(socket);
+        
+            stompClient.connect({}, function (frame) {
+                stompClient.subscribe('/topic/qr-auth', function(message) {
+                    const qrCodeContainer = document.getElementById('qrCodeContainer');
+                    let qrCodeData = message.body
+                    qrCodeContainer.innerHTML = '';
+                    qrCodeData = ("https://check-in.mfu.ac.th/verify/" + qrCodeData);
+                    const qr = new QRCode(qrCodeContainer, {
+                        text: qrCodeData,
+                        width: 400,
+                        height: 400,
+                    });
+                });
+        
+                // Send a message to trigger the server to start broadcasting
+                stompClient.send("/app/request-current-qr-auth", {}, "");
+            });
+        </script>
+    </body>
+</html>

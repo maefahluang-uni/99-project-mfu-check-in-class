@@ -9,8 +9,9 @@ import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import java.util.Date;
-import java.util.HashMap;
+
+import java.security.SecureRandom;
+import java.util.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
@@ -48,6 +49,13 @@ public class UserService {
         return (user != null) && (user.getPassword().equals(password));
     }
 
+    public String GenerateQRToken(int Length) {
+        byte[] randomBytes = new byte[Length];
+        new SecureRandom().nextBytes(randomBytes);
+        String base64Url = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+        return base64Url.substring(0, Length);
+    }
+    
     public String GenerateJwtToken(String userid) {
         // Create a JWT token
         Date now = new Date();

@@ -6,8 +6,14 @@ import javax.servlet.http.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.*;
@@ -23,6 +29,10 @@ import th.mfu.repository.*;
 
 import org.springframework.util.StreamUtils;
 import org.springframework.core.io.Resource;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import java.util.concurrent.TimeUnit;
 
 // global-attribute: usertype, userdata (can see in all path // page)
 @EnableScheduling
@@ -42,11 +52,73 @@ public class G_Controller {
 
     @Autowired
     private CourseSectionRepository CourseSectionRepo;
+    
+    private final SimpMessagingTemplate MessagingService;
+    private String RecentQRCode;
+    private Cache<String, String> MemoryStoreQRCodes = CacheBuilder.newBuilder()
+                .expireAfterWrite(5, TimeUnit.SECONDS)
+                .build();
+    public G_Controller(SimpMessagingTemplate MessagingTemplate, UserService userService) {
+        this.RecentQRCode = userService.GenerateQRToken(1);
+        this.MessagingService = MessagingTemplate;
+    }
 
-    @Scheduled(fixedRate = 500) // unit is milliseconds
-    @GetMapping(value="/updator")
-    public void webUpdator() {
-        System.out.println("Hello!!!");
+    @Scheduled(fixedRate = 1000)
+    public void QRAuthUpdator() {
+        RecentQRCode = userService.GenerateQRToken(1);
+        MemoryStoreQRCodes.put(RecentQRCode, "VAILD"); // automatic clear on the memorystore
+        MessagingService.convertAndSend("/topic/qr-auth", RecentQRCode);
+    }
+    
+    @MessageMapping("/request-current-qr-auth")
+    @SendTo("/topic/qr-auth")
+    public String QRAuthListener() throws InterruptedException {
+        return RecentQRCode;
+    }
+
+    // http://localhost:8100/qr?instanceid=10000
+    @GetMapping("/qr") // for LECTURER open qrcode to check-in class (require instanceid: (CourseSection ID))
+    public String QRCodePage(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) throws Exception {
+        CourseSection subject = CourseSectionRepo.findByID(instanceid);
+        if (subject != null) {
+            User Myself = (User) request.getAttribute("userdata");
+            if (Myself instanceof Lecturer) {
+                Lecturer lecturer = (Lecturer) Myself;
+                boolean grantedAccess = false;
+                for (Lecturer v : subject.lecturer) {
+                    if (v.getID().longValue() == lecturer.getID().longValue()) { // Long.longValue() turn Object type to primitive type so then can compare.
+                        grantedAccess = true;
+                        break;
+                    }
+                }
+                if (grantedAccess) {
+                    model.addAttribute("subject", subject); // permission: allows
+                    return "QR";
+                }
+            }
+            model.addAttribute("subject", null); // permission: denied
+            return "QR";
+        } else {
+            throw new Exception(HttpStatus.NOT_FOUND + ": subject in database.");
+        }
+    }
+
+    @GetMapping("/qr/{key}") // for STUDENT scan qrcode to check-in class by key
+    public ResponseEntity<HashMap<String, Object>> QRCodeScan(Model model, HttpServletResponse response, HttpServletRequest request, @PathVariable String key) {
+        String Getsync = MemoryStoreQRCodes.getIfPresent(key);
+        if (Getsync != null) {
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("success", "true");
+                }});
+        } else {
+            // Authentication failed, show an error message
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new HashMap<String, Object>() {{
+                    put("success", "false");
+                    put("message", "QRCode-Key authentication is invaild, please try rescan.");
+                }});
+        }
     }
 
     @GetMapping("/home")

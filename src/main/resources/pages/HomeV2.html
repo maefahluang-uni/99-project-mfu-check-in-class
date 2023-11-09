@@ -33,7 +33,7 @@
           <div class="menu">
             <ul th:if="${userdata.getRole().equals('STUDENT') or userdata.getRole().equals('LECTURER')}">
               <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
-              <li><a href="#"><i class="far fa-calendar-check"></i>Check-in</a></li>
+              <li><a href="/check-in"><i class="far fa-calendar-check"></i>Check-in</a></li>
               <li><a href="/course"><i class="fas fa-book-open"></i>Course</a></li>
               <li><a href="/contact"><i class="fas fa-phone-volume"></i>Contract</a></li>
               <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
@@ -84,7 +84,7 @@
               <div class="homecontent">
                 <div class="quickaccess">
                   <ul th:if="${userdata.getRole().equals('STUDENT') or userdata.getRole().equals('LECTURER')}">
-                  <li><a href="#"><i class="far fa-calendar-check"></i><p>Check-in</p></a></li>
+                  <li><a href="/check-in"><i class="far fa-calendar-check"></i><p>Check-in</p></a></li>
                   <li><a href="/course"><i class="fas fa-book-open"></i><p>Course</p></a></li>
                   <li><a href="/contact"><i class="fas fa-phone-volume"></i><p>Contact</p></a></li>
                   </ul>
@@ -109,38 +109,22 @@
                       <li>Advisor <div></div><span th:text="${advisorName}"></span></li>
                     </div>
                   </ul>
-<<<<<<< HEAD
                   <ul th:if="${userdata.getRole().equals('LECTURER')}">
                     <div class="info">
                       <li class="name"><span th:text="${userdata.getName()}"></span></li>
                       <li>Lecturer ID: <span th:text="${userdata.getID()}"></span></li>
                       <li>Status: <span style="color: #00EA41;"><span th:text="${userdata.getRole()}"></span> CURRENT</span></li>
-=======
-                  <ul th:if="${usertype.equals('LECTURER')}">
-                    <div class="info">
-                      <li class="name"><span th:text="${userdata.getName()}"></span></li>
-                      <li>Lecturer ID: <span th:text="${userdata.getID()}"></span></li>
-                      <li>Status: <span style="color: #00EA41;"><span th:text="${usertype}"></span> CURRENT</span></li>
->>>>>>> 64028f97632c01b1b64ebecdb8acb8e45ed3c0c6
                     </div>
                     <div class="detail">
                       <li>School <div></div><span th:text="${userdata.getSchool()}"></span></li>
                       <li>Department <div></div><span th:text="${userdata.getDepartment()}"></span></li>
                     </div>
                   </ul>
-<<<<<<< HEAD
                   <ul th:if="${userdata.getRole().equals('ADMIN')}">
                     <div class="info">
                       <li class="name"><span th:text="${userdata.getName()}"></span></li>
                       <li>Admin ID: <span th:text="${userdata.getID()}"></span></li>
                       <li>Status: <span style="color: #00EA41;"><span th:text="${userdata.getRole()}"></span> CURRENT</span></li>
-=======
-                  <ul th:if="${usertype.equals('ADMIN')}">
-                    <div class="info">
-                      <li class="name"><span th:text="${userdata.getName()}"></span></li>
-                      <li>Admin ID: <span th:text="${userdata.getID()}"></span></li>
-                      <li>Status: <span style="color: #00EA41;"><span th:text="${usertype}"></span> CURRENT</span></li>
->>>>>>> 64028f97632c01b1b64ebecdb8acb8e45ed3c0c6
                     </div>
                 </div>
               </div>
