@@ -1,8 +1,5 @@
 steps:
  # Build the container image
- - name: 'maven:3.8.4-openjdk-11'
-  entrypoint: 'mvn'
-  args: ['install', '-DskipTests']
  - name: 'gcr.io/cloud-builders/docker'
    args: [ 'build', '-t', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/webdev-dockers/lab-cd:$COMMIT_SHA', '.' ]
  # Push the container image to Artifact Registry

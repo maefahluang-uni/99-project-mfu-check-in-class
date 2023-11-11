@@ -70,10 +70,10 @@
         </dependency>
 
         <!-- Add CloudSQL Starter for MySQL -->
-        <!-- <dependency>
+        <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>spring-cloud-gcp-starter-sql-mysql</artifactId>
-        </dependency> -->
+        </dependency>
         
         <!-- My External Libraries -->
         <dependency>
