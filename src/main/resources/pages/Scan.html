@@ -6,82 +6,118 @@
     <title>Camera</title>
     <style>
         body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f7f7f7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        #container {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            height: 100vh;
+            margin: 0;
         }
 
-        #cameraPreview {
-            width: 70%;
-            height: 70vh;
-            object-fit: cover;
-            margin: auto;
-            display: none;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
         }
 
-        #scanButton, #backButton {
-            margin-top: 1px;
-            padding: 10px 20px;
+        video {
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-width: 100%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        button {
+            margin-bottom: 10px;
+            padding: 10px;
             font-size: 16px;
             background-color: #3498db;
             color: #fff;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
-        #scanButton:hover, #backButton:hover {
+        button:hover {
             background-color: #2980b9;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <video id="cameraPreview" style="display: none;"></video><br>
-        <button id="scanButton">Refresh Scan</button><br>
-        <button id="backButton">Back</button>
+    <div id="loading"></div>
+    <div id="result"></div>
+    <div class="button-container">
+        <button id="ScanButton">Refresh Camera</button>
+        <button id="BackButton">BACK</button>
     </div>
-    <script th:inline="javascript">
-        const scanButton = document.getElementById('scanButton');
-        const cameraPreview = document.getElementById('cameraPreview');
-        async function openCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                cameraPreview.srcObject = stream;
-                cameraPreview.style.display = 'block';
-                cameraPreview.addEventListener('click', () => {
-                    stopCamera(stream);
-                });
-            } catch (error) {
-                console.error('Error accessing the camera:', error);
+    <script src="https://cdn.rawgit.com/cozmo/jsQR/master/dist/jsQR.js"></script>
+    <script>
+        var video;
+        var loadingText = document.getElementById('loading');
+        function showLoading() {
+            loadingText.innerText = 'Loading camera...';
+        }
+        function hideLoading() {
+            loadingText.innerText = '';
+        }
+        function RefreshCamera() {
+            showLoading();
+            if (video) {
+                var stream = video.srcObject;
+                var tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                document.body.removeChild(video);
             }
+            video = document.createElement('video');
+            document.body.insertBefore(video, document.body.firstChild);
+            function setVideoSize() {
+                var widthPercentage = window.innerWidth < 768 ? 100 : 80;
+                video.width = (widthPercentage / 100) * window.innerWidth;
+                video.height = video.width * (9 / 16);
+            }
+
+            window.addEventListener('resize', setVideoSize);
+            setVideoSize();
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function (stream) {
+                    hideLoading();
+                    video.srcObject = stream;
+                    video.play();
+                    function scan() {
+                        var canvas = document.createElement('canvas');
+                        canvas.width = video.width;
+                        canvas.height = video.height;
+                        var context = canvas.getContext('2d');
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                        var code = jsQR(imageData.data, imageData.width, imageData.height);
+                        if (code) {
+                            document.getElementById('result').innerText = 'QR Code detected: ' + code.data;
+                            stream.getTracks().forEach(track => track.stop());
+                            document.body.removeChild(video);
+                            window.removeEventListener('resize', setVideoSize);
+                        } else {
+                            requestAnimationFrame(scan);
+                        }
+                    }
+                    requestAnimationFrame(scan);
+                })
+                .catch(function (error) {
+                    hideLoading();
+                    console.error('Error accessing camera: ', error);
+                });
         }
-        function stopCamera(stream) {
-            const tracks = stream.getTracks();
-            tracks.forEach(track => track.stop());
-            cameraPreview.style.display = 'none';
-        }
-        openCamera();
-        scanButton.addEventListener('click', openCamera);
+        RefreshCamera();
+        document.getElementById('ScanButton').addEventListener('click', RefreshCamera);
     </script>
 </body>
 </html>
