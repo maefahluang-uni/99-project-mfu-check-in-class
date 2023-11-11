@@ -106,8 +106,7 @@
                 // Reload the page when the button is clicked
                 location.reload(true);
             });
-            
-            const socket = new SockJS('/websocket');
+            const socket = new SockJS('http://' + window.location.host + '/websocket');
             const stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 stompClient.subscribe('/topic/qr-auth/' + SUBJECT_ID, function(message) {
