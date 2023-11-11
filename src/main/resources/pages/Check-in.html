@@ -12,7 +12,8 @@
                 <strong>SECTION:</strong> <span th:text="${courseInfo.getSection()}"></span><br>
                 <strong>LOCATION:</strong> <span th:text="${courseInfo.getLocation()}"></span><br>
                 <strong>PERIOD:</strong> <span th:text="${courseInfo.getPeriod()}"></span><br>
-                <br>
+                <button id="scanButton">Scan</button><br>
+
             </li>
         </ul>
         <script th:inline="javascript">
@@ -22,6 +23,11 @@
                 var mycourse = /*[[${mycourse}]]*/ 'default';
                 console.log(mycourse);
             /*]]>*/
+
+            const scanButton = document.getElementById('scanButton');
+            scanButton.addEventListener('click', async () => {
+                window.location.href = "/scan";
+            });
         </script>
     </body>
 </html>

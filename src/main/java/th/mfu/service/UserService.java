@@ -14,10 +14,12 @@ import java.security.SecureRandom;
 import java.util.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Service
 public class UserService {
-    private String secretKey = "root";
+    private final String SECRET_KEY = "root";
+    private final int REMEBER_ME_LIFETIME = (60 * 15) * 1000; // 15 minutes if user didn't load any page in x minutes it'll logout user automaticly 
 
     @Autowired
     private StudentRepository StudentRepo;
@@ -45,11 +47,10 @@ public class UserService {
     public boolean Authenticate(String userid, String password) {
         Long __userid__ = Long.valueOf(userid);
         User user = FindByUserid(__userid__);
-        System.out.println(user);
         return (user != null) && (user.getPassword().equals(password));
     }
 
-    public String GenerateQRToken(int Length) {
+    public String GenerateBase64UrlToken(int Length) {
         byte[] randomBytes = new byte[Length];
         new SecureRandom().nextBytes(randomBytes);
         String base64Url = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
@@ -59,15 +60,15 @@ public class UserService {
     public String GenerateJwtToken(String userid) {
         // Create a JWT token
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + (1000 * (60 * 15))); // 1 hour expiration
+        Date expiration = new Date(now.getTime() + REMEBER_ME_LIFETIME);
         return Jwts.builder()
             .setSubject(userid) 
-            .setExpiration(expiration) // adding expdate as salt to perform good security.
-            .signWith(SignatureAlgorithm.HS256, secretKey.getBytes()) 
+            .setExpiration(expiration)
+            .signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes()) 
             .compact();
     }
 
-    public User VerifyJwtToken(HttpServletRequest request) {
+    public User VerifyJwtToken(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         HashMap<String, Cookie> cookieMap = new HashMap<>();
         if (cookies != null) {
@@ -80,14 +81,19 @@ public class UserService {
             if (accessToken != null) { // if still has cookie in chrome
                 String token = accessToken.getValue();
                 Claims cookie_data = Jwts.parser()
-                    .setSigningKey(secretKey.getBytes())
+                    .setSigningKey(SECRET_KEY.getBytes()) // verify if it from system generated or not.
                     .parseClaimsJws(token)
                     .getBody();
                 Long userid = Long.parseLong(cookie_data.getSubject());
                 Date now = new Date();
                 Date expired = cookie_data.getExpiration();
                 if (now.getTime() <= expired.getTime()) {
-                    return FindByUserid(userid);
+                    User _user_ = FindByUserid(userid);
+                    if (_user_ != null) {
+                        accessToken.setValue(GenerateJwtToken(userid.toString()));
+                        response.addCookie(accessToken);
+                        return _user_;
+                    }
                 }
             }
         } catch(Exception e) {}

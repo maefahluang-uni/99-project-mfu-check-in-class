@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #cameraPreview {
+            width: 70%;
+            height: 70vh;
+            object-fit: cover;
+            margin: auto;
+            display: none;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #scanButton, #backButton {
+            margin-top: 1px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #scanButton:hover, #backButton:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <video id="cameraPreview" style="display: none;"></video><br>
+        <button id="scanButton">Refresh Scan</button><br>
+        <button id="backButton">Back</button>
+    </div>
+    <script th:inline="javascript">
+        const scanButton = document.getElementById('scanButton');
+        const cameraPreview = document.getElementById('cameraPreview');
+        async function openCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                cameraPreview.srcObject = stream;
+                cameraPreview.style.display = 'block';
+                cameraPreview.addEventListener('click', () => {
+                    stopCamera(stream);
+                });
+            } catch (error) {
+                console.error('Error accessing the camera:', error);
+            }
+        }
+        function stopCamera(stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            cameraPreview.style.display = 'none';
+        }
+        openCamera();
+        scanButton.addEventListener('click', openCamera);
+    </script>
+</body>
+</html>

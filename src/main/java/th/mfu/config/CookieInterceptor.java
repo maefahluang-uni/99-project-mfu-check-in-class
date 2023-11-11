@@ -19,7 +19,7 @@ public class CookieInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String RequestURI = request.getRequestURI();
-        User Myself = userService.VerifyJwtToken(request);
+        User Myself = userService.VerifyJwtToken(request, response);
         boolean InvaildAccessToken = (Myself == null);
         if (InvaildAccessToken) {
             Cookie accessToken = new Cookie("accessToken", null);

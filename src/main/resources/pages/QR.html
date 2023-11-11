@@ -33,27 +33,63 @@
         <div id="messages">
             <li>Subject: <span th:text="${subject.getCourse().getName()}"></span></li>
             <li>Section: <span th:text="${subject.getSection()}"></span></li>
+            <li>Lifetime: <span id="qrLifetime"></span></li>
+            <li><button id="refreshButton">Refresh</button></li>
+            <li><button>Back</button></li>
         </div>
-        <div id="qrCodeContainer"></div>
-        <script>
+        <div id="qrCodeContainer">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            let SUBJECT_ID = /*[[${subject.getID()}]]*/ 'default';
+            /*]]>*/
+
+            function convertToClockFormat(minutes) {
+                if (typeof minutes !== 'number' || isNaN(minutes)) {
+                    return "Invalid input. Please provide a valid number.";
+                }
+                minutes = Math.floor(minutes);
+                // Calculate hours and minutes
+                const hours = Math.floor(minutes / 60);
+                const remainingMinutes = minutes % 60;
+                // Format the result
+                const formattedHours = String(hours).padStart(2, '0');
+                const formattedMinutes = String(remainingMinutes).padStart(2, '0');
+                return `${formattedHours}:${formattedMinutes}`;
+            }
+
+            document.getElementById('refreshButton').addEventListener('click', function() {
+                // Reload the page when the button is clicked
+                location.reload(true);
+            });
+            
             const socket = new SockJS('/websocket');
             const stompClient = Stomp.over(socket);
-        
             stompClient.connect({}, function (frame) {
-                stompClient.subscribe('/topic/qr-auth', function(message) {
+                stompClient.subscribe('/topic/qr-auth/' + SUBJECT_ID, function(message) {
+                    const qrLifetime = document.getElementById('qrLifetime');
                     const qrCodeContainer = document.getElementById('qrCodeContainer');
-                    let qrCodeData = message.body
+                    const response = JSON.parse(message.body);
+                    const body = response.body;
+                    qrLifetime.innerHTML = '-';
+                    if (body.gate_timeout) {
+                        qrLifetime.innerHTML = convertToClockFormat(((body.gate_timeout - Date.now()) / 1000)) + "s";
+                    }
                     qrCodeContainer.innerHTML = '';
-                    qrCodeData = ("https://check-in.mfu.ac.th/verify/" + qrCodeData);
-                    const qr = new QRCode(qrCodeContainer, {
-                        text: qrCodeData,
-                        width: 400,
-                        height: 400,
-                    });
+                    if (body.value) {
+                        let AUTHENTICATION_KEY = ("https://check-in.mfu.ac.th/verify/" + body.value);
+                        const qr = new QRCode(qrCodeContainer, {
+                            text: AUTHENTICATION_KEY,
+                            width: 400,
+                            height: 400,
+                        });
+                    }
+                    if (!body.success) {
+                        alert(body.message);
+                    }
                 });
         
                 // Send a message to trigger the server to start broadcasting
-                stompClient.send("/app/request-current-qr-auth", {}, "");
+                stompClient.send("/app/request-current-qr-auth/" + SUBJECT_ID, {}, "");
             });
         </script>
     </body>

@@ -25,4 +25,4 @@ images:
  - 'us-central1-docker.pkg.dev/${_PROJECT_ID}/webdev-dockers/lab-cd'
 
 substitutions:
-  _PROJECT_ID: 'xxxxxxx'
+  _PROJECT_ID: 'webdev-dockers-402310'

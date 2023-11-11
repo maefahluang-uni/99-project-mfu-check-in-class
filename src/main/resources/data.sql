@@ -17,6 +17,8 @@ INSERT INTO COURSE_SECTION_ON_SEMESTER (SECTION_ID, SEMESTER_ID) VALUES -- (type
 -- ID: STUDENT_ID
 INSERT INTO STUDENT (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, jAdvisors) VALUES -- jAdvisors is fixed (not from schedule)
 (6531503070, 'basbas122zaza', 'basbas1234', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', '[1150]');
+INSERT INTO STUDENT (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, jAdvisors) VALUES -- jAdvisors is fixed (not from schedule)
+(6531503074, 'a4412', 'artinwza007', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', '[1150]');
 INSERT INTO STUDENT_SCHEDULE (STUDENT_ID, SECTION_ID) VALUES -- (type: RELATION TABLE)
 (6531503070, 10000),
 (6531503070, 10001);
