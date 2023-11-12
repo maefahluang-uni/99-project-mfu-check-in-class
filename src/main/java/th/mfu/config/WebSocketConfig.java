@@ -13,11 +13,20 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(myHandler(), "/ws");
+        registry.addHandler(myHandler(), "/ws")
+                .setAllowedOrigins("*"); // Add allowed origins as needed
     }
 
     @Bean
     public MyHandler myHandler() {
         return new MyHandler();
+    }
+
+    @Bean
+    public ServletServerContainerFactoryBean createWebSocketContainer() {
+        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+        container.setMaxTextMessageBufferSize(8192);
+        container.setMaxBinaryMessageBufferSize(8192);
+        return container;
     }
 }
