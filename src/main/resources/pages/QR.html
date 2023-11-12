@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>QR-CODE</title>
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
         <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
         <style>
@@ -38,51 +38,6 @@
             <li><button>Back</button></li>
         </div>
         <div id="qrCodeContainer">
-        <!-- <script th:inline="javascript">
-            // import other necessary libraries
-            document.getElementById('refreshButton').addEventListener('click', function () {
-                // Reload the page when the button is clicked
-                location.reload(true);
-            });
-            const transport = new RSocketWebSocketClient({ url: 'ws://localhost:8100/rsocket' });
-            const client = new RSocketClient({ transport });
-            const SUBJECT_ID = /*[[${subject.getID()}]]*/ 'default';
-            client.connect().then(socket => {
-                socket.requestResponse({
-                    data: '',
-                    metadata: String.fromCharCode(SUBJECT_ID)
-                }).subscribe({
-                    onComplete: response => {
-                        const qrLifetime = document.getElementById('qrLifetime');
-                        const qrCodeContainer = document.getElementById('qrCodeContainer');
-                        const body = JSON.parse(response.data);
-                        qrLifetime.innerHTML = '-';
-                        if (body.gate_timeout) {
-                            qrLifetime.innerHTML = convertToClockFormat(((body.gate_timeout - Date.now()) / 1000)) + "s";
-                        }
-                        qrCodeContainer.innerHTML = '';
-                        if (body.value) {
-                            let AUTHENTICATION_KEY = ("https://check-in.mfu.ac.th/verify/" + body.value);
-                            const qr = new QRCode(qrCodeContainer, {
-                                text: AUTHENTICATION_KEY,
-                                width: 400,
-                                height: 400,
-                            });
-                        }
-
-                        if (!body.success) {
-                            alert(body.message);
-                        }
-                    }
-                });
-                // Send a message to trigger the server to start broadcasting
-                socket.fireAndForget({
-                    data: '',
-                    metadata: String.fromCharCode(SUBJECT_ID)
-                });
-            });
-        </script> -->
-        
         <script th:inline="javascript">
             /*<![CDATA[*/
             let SUBJECT_ID = /*[[${subject.getID()}]]*/ 'default';
