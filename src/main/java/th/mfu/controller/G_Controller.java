@@ -23,7 +23,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.*;
+import org.springframework.web.socket.WebSocketSession;
 
+import th.mfu.config.MyHandler;
 import th.mfu.model.*;
 import th.mfu.model.interfaces.*;
 import th.mfu.service.*;
@@ -59,44 +61,52 @@ public class G_Controller {
     private final int GATE_SAFE_TIMEOUT = 5; // TimeUnit.SECONDS
     private final int GATE_AUTO_TIMEOUT = ((60 * 10) + GATE_SAFE_TIMEOUT) * 1000; // TimeUnit.MILLISECONDS (5 minutes) ((+5 seconds safe for broadcasting state))
     private final int QR_CODE_AUTO_TIMEOUT = 5; // // TimeUnit.SECONDS (5 seconds is best option balance between real student in the class scan the qr and prevent some student send qr to others.)
-    private final SimpMessagingTemplate MessagingService;
+    //private final SimpMessagingTemplate MessagingService;
     private Cache<Long, Date> AUTHENTICATION_GATE = CacheBuilder.newBuilder().expireAfterWrite(GATE_AUTO_TIMEOUT, TimeUnit.MILLISECONDS).build();
     private Cache<String, Long> AUTHENTICATION_KEY = CacheBuilder.newBuilder().expireAfterWrite(QR_CODE_AUTO_TIMEOUT, TimeUnit.SECONDS).build();
     private Cache<Long, String> RECENT_KEY = CacheBuilder.newBuilder().expireAfterWrite(QR_CODE_AUTO_TIMEOUT, TimeUnit.SECONDS).build();
-    public G_Controller(SimpMessagingTemplate MessagingTemplate, UserService userService) {
-        this.MessagingService = MessagingTemplate;
+    // public G_Controller(SimpMessagingTemplate MessagingTemplate, UserService userService) {
+    //     this.MessagingService = MessagingTemplate;
+    // }
+
+    @Autowired
+    private MyHandler myHandler;
+
+    @RequestMapping("/index")
+    public String index() {
+        return "test"; // Return the HTML page with JavaScript to handle WebSocket connection
     }
 
-    @Scheduled(fixedRate = 500)
-    public void QRAuthUpdator() {
-        for (Map.Entry<Long, Date> entry : AUTHENTICATION_GATE.asMap().entrySet()) {
-            Long SUBJECT_ID = entry.getKey();
-            Date START_DATE_LISTENING = entry.getValue();
-            Date NOW = new Date();
-            Long SPANTIME = (NOW.getTime() - START_DATE_LISTENING.getTime());
-            Long TIMEOUT = (GATE_AUTO_TIMEOUT - (GATE_SAFE_TIMEOUT * 1000L));
-            if (SPANTIME >= TIMEOUT) { // last 5 seconds before memory cache is gone.
-                AUTHENTICATION_GATE.invalidate(SUBJECT_ID);
-                MessagingService.convertAndSend("/topic/qr-auth/" + SUBJECT_ID,
-                ResponseEntity.status(HttpStatus.OK)
-                    .body(new HashMap<String, Object>() {{
-                        put("success", false);
-                        put("message", "AUTHENTICATION_GATE was timeout, try to reopen again.");
-                    }}));
-                continue;
-            }
-            String KEYSYNC = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
-            RECENT_KEY.put(SUBJECT_ID, KEYSYNC);
-            AUTHENTICATION_KEY.put(KEYSYNC, SUBJECT_ID);
-            MessagingService.convertAndSend("/topic/qr-auth/" + SUBJECT_ID,
-                ResponseEntity.status(HttpStatus.OK)
-                    .body(new HashMap<String, Object>() {{
-                        put("success", true);
-                        put("gate_timeout", START_DATE_LISTENING.getTime() + TIMEOUT);
-                        put("value", KEYSYNC);
-                    }}));
-        }
-    }
+    // @Scheduled(fixedRate = 500)
+    // public void QRAuthUpdator() {
+    //     for (Map.Entry<Long, Date> entry : AUTHENTICATION_GATE.asMap().entrySet()) {
+    //         Long SUBJECT_ID = entry.getKey();
+    //         Date START_DATE_LISTENING = entry.getValue();
+    //         Date NOW = new Date();
+    //         Long SPANTIME = (NOW.getTime() - START_DATE_LISTENING.getTime());
+    //         Long TIMEOUT = (GATE_AUTO_TIMEOUT - (GATE_SAFE_TIMEOUT * 1000L));
+    //         if (SPANTIME >= TIMEOUT) { // last 5 seconds before memory cache is gone.
+    //             AUTHENTICATION_GATE.invalidate(SUBJECT_ID);
+    //             MessagingService.convertAndSend("/topic/qr-auth/" + SUBJECT_ID,
+    //             ResponseEntity.status(HttpStatus.OK)
+    //                 .body(new HashMap<String, Object>() {{
+    //                     put("success", false);
+    //                     put("message", "AUTHENTICATION_GATE was timeout, try to reopen again.");
+    //                 }}));
+    //             continue;
+    //         }
+    //         String KEYSYNC = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
+    //         RECENT_KEY.put(SUBJECT_ID, KEYSYNC);
+    //         AUTHENTICATION_KEY.put(KEYSYNC, SUBJECT_ID);
+    //         MessagingService.convertAndSend("/topic/qr-auth/" + SUBJECT_ID,
+    //             ResponseEntity.status(HttpStatus.OK)
+    //                 .body(new HashMap<String, Object>() {{
+    //                     put("success", true);
+    //                     put("gate_timeout", START_DATE_LISTENING.getTime() + TIMEOUT);
+    //                     put("value", KEYSYNC);
+    //                 }}));
+    //     }
+    // }
     
     @MessageMapping("/request-current-qr-auth/{id}")
     @SendTo("/topic/qr-auth/{id}")
