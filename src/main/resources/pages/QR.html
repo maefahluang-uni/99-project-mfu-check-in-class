@@ -4,9 +4,10 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>QR-CODE</title>
-        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
         <style>
             body {
@@ -41,6 +42,7 @@
         <script th:inline="javascript">
             /*<![CDATA[*/
             let SUBJECT_ID = /*[[${subject.getID()}]]*/ 'default';
+            let RATE = /*[[${rate}]]*/ 'default';
             /*]]>*/
 
             function convertToClockFormat(minutes) {
@@ -61,35 +63,72 @@
                 // Reload the page when the button is clicked
                 location.reload(true);
             });
-            const socket = new SockJS('/websocket');
-            const stompClient = Stomp.over(socket);
-            stompClient.connect({}, function (frame) {
-                stompClient.subscribe('/topic/qr-auth/' + SUBJECT_ID, function(message) {
+
+            // change from socket commuication to more request loop
+            let isIntervalCleared = false;
+            const updator = setInterval(LOAD_QRCODE, RATE)
+            async function LOAD_QRCODE() {
+                try {
+                    const query = { instanceid: SUBJECT_ID };
+                    const response = await axios.post('/qr', new URLSearchParams(query), {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        }
+                    });
+                    if (isIntervalCleared) { return; }
                     const qrLifetime = document.getElementById('qrLifetime');
                     const qrCodeContainer = document.getElementById('qrCodeContainer');
-                    const response = JSON.parse(message.body);
-                    const body = response.body;
                     qrLifetime.innerHTML = '-';
-                    if (body.gate_timeout) {
-                        qrLifetime.innerHTML = convertToClockFormat(((body.gate_timeout - Date.now()) / 1000)) + "s";
+                    if (response.data.mygate) {
+                        qrLifetime.innerHTML = convertToClockFormat(((response.data.mygate - Date.now()) / 1000)) + "s";
                     }
                     qrCodeContainer.innerHTML = '';
-                    if (body.value) {
-                        let AUTHENTICATION_KEY = ("https://check-in.mfu.ac.th/verify/" + body.value);
+                    if (response.data.value) {    
+                        let AUTHENTICATION_KEY = ("https://check-in.mfu.ac.th/verify/" + response.data.value);
                         const qr = new QRCode(qrCodeContainer, {
                             text: AUTHENTICATION_KEY,
                             width: 400,
                             height: 400,
                         });
                     }
-                    if (!body.success) {
-                        alert(body.message);
+                    if (!response.data.success) {
+                        clearInterval(updator);
+                        isIntervalCleared = true
+                        alert(response.data.message);
                     }
-                });
+                } catch(e) {}
+            }
+            LOAD_QRCODE();
+            
+            // const socket = new SockJS('/websocket');
+            // const stompClient = Stomp.over(socket);
+            // stompClient.connect({}, function (frame) {
+            //     stompClient.subscribe('/topic/qr-auth/' + SUBJECT_ID, function(message) {
+            //         const qrLifetime = document.getElementById('qrLifetime');
+            //         const qrCodeContainer = document.getElementById('qrCodeContainer');
+            //         const response = JSON.parse(message.body);
+            //         const body = response.body;
+            //         qrLifetime.innerHTML = '-';
+            //         if (body.gate_timeout) {
+            //             qrLifetime.innerHTML = convertToClockFormat(((body.gate_timeout - Date.now()) / 1000)) + "s";
+            //         }
+            //         qrCodeContainer.innerHTML = '';
+            //         if (body.value) {
+            //             let AUTHENTICATION_KEY = ("https://check-in.mfu.ac.th/verify/" + body.value);
+            //             const qr = new QRCode(qrCodeContainer, {
+            //                 text: AUTHENTICATION_KEY,
+            //                 width: 400,
+            //                 height: 400,
+            //             });
+            //         }
+            //         if (!body.success) {
+            //             alert(body.message);
+            //         }
+            //     });
         
-                // Send a message to trigger the server to start broadcasting
-                stompClient.send("/app/request-current-qr-auth/" + SUBJECT_ID, {}, "");
-            });
+            //     // Send a message to trigger the server to start broadcasting
+            //     stompClient.send("/app/request-current-qr-auth/" + SUBJECT_ID, {}, "");
+            // });
         </script>
     </body>
 </html>

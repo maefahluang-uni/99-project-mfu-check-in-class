@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.*;
 import org.springframework.web.socket.WebSocketSession;
 
-import th.mfu.config.MyHandler;
 import th.mfu.model.*;
 import th.mfu.model.interfaces.*;
 import th.mfu.service.*;
@@ -57,88 +56,88 @@ public class G_Controller {
     @Autowired
     private CourseSectionRepository CourseSectionRepo;
     
-    private final int KEYSYNC_FIXED_LENGTH = 2; // BASE64URL version
-    private final int GATE_SAFE_TIMEOUT = 5; // TimeUnit.SECONDS
-    private final int GATE_AUTO_TIMEOUT = ((60 * 10) + GATE_SAFE_TIMEOUT) * 1000; // TimeUnit.MILLISECONDS (5 minutes) ((+5 seconds safe for broadcasting state))
-    private final int QR_CODE_AUTO_TIMEOUT = 5; // // TimeUnit.SECONDS (5 seconds is best option balance between real student in the class scan the qr and prevent some student send qr to others.)
-    //private final SimpMessagingTemplate MessagingService;
-    private Cache<Long, Date> AUTHENTICATION_GATE = CacheBuilder.newBuilder().expireAfterWrite(GATE_AUTO_TIMEOUT, TimeUnit.MILLISECONDS).build();
-    private Cache<String, Long> AUTHENTICATION_KEY = CacheBuilder.newBuilder().expireAfterWrite(QR_CODE_AUTO_TIMEOUT, TimeUnit.SECONDS).build();
-    private Cache<Long, String> RECENT_KEY = CacheBuilder.newBuilder().expireAfterWrite(QR_CODE_AUTO_TIMEOUT, TimeUnit.SECONDS).build();
+    // Unfortunately websocket can't be use on google cloud build since it optimize for non-always-live server
+    // private final SimpMessagingTemplate MessagingService;
     // public G_Controller(SimpMessagingTemplate MessagingTemplate, UserService userService) {
     //     this.MessagingService = MessagingTemplate;
     // }
 
-    @Autowired
-    private MyHandler myHandler;
+    private final int KEYSYNC_FIXED_LENGTH = 2; // BASE64URL version
+    private final int GATE_AUTO_TIMEOUT = (10 * 1) * 1000; // TimeUnit.MILLISECONDS (10 minutes)
+    private final int QR_CODE_AUTO_TIMEOUT = 5; // // TimeUnit.SECONDS (5 seconds is best option balance between real student in the class scan the qr and prevent some student send qr to others.)
+    private final int GENERATE_PER_MILLISECONDS = 500;
 
-    @RequestMapping("/index")
-    public String index() {
-        return "test"; // Return the HTML page with JavaScript to handle WebSocket connection
-    }
+    private Cache<Long, Date> AUTHENTICATION_GATE = CacheBuilder.newBuilder().expireAfterWrite(GATE_AUTO_TIMEOUT, TimeUnit.MILLISECONDS).build();
+    private Cache<String, Long> AUTHENTICATION_KEY = CacheBuilder.newBuilder().expireAfterWrite(QR_CODE_AUTO_TIMEOUT, TimeUnit.SECONDS).build();
+    private Cache<Long, String> RECENT_KEY = CacheBuilder.newBuilder().expireAfterWrite(QR_CODE_AUTO_TIMEOUT, TimeUnit.SECONDS).build();
 
-    // @Scheduled(fixedRate = 500)
-    // public void QRAuthUpdator() {
-    //     for (Map.Entry<Long, Date> entry : AUTHENTICATION_GATE.asMap().entrySet()) {
-    //         Long SUBJECT_ID = entry.getKey();
-    //         Date START_DATE_LISTENING = entry.getValue();
-    //         Date NOW = new Date();
-    //         Long SPANTIME = (NOW.getTime() - START_DATE_LISTENING.getTime());
-    //         Long TIMEOUT = (GATE_AUTO_TIMEOUT - (GATE_SAFE_TIMEOUT * 1000L));
-    //         if (SPANTIME >= TIMEOUT) { // last 5 seconds before memory cache is gone.
-    //             AUTHENTICATION_GATE.invalidate(SUBJECT_ID);
-    //             MessagingService.convertAndSend("/topic/qr-auth/" + SUBJECT_ID,
-    //             ResponseEntity.status(HttpStatus.OK)
-    //                 .body(new HashMap<String, Object>() {{
-    //                     put("success", false);
-    //                     put("message", "AUTHENTICATION_GATE was timeout, try to reopen again.");
-    //                 }}));
-    //             continue;
-    //         }
-    //         String KEYSYNC = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
-    //         RECENT_KEY.put(SUBJECT_ID, KEYSYNC);
-    //         AUTHENTICATION_KEY.put(KEYSYNC, SUBJECT_ID);
-    //         MessagingService.convertAndSend("/topic/qr-auth/" + SUBJECT_ID,
-    //             ResponseEntity.status(HttpStatus.OK)
-    //                 .body(new HashMap<String, Object>() {{
-    //                     put("success", true);
-    //                     put("gate_timeout", START_DATE_LISTENING.getTime() + TIMEOUT);
-    //                     put("value", KEYSYNC);
-    //                 }}));
-    //     }
-    // }
-    
-    @MessageMapping("/request-current-qr-auth/{id}")
-    @SendTo("/topic/qr-auth/{id}")
-    public ResponseEntity<HashMap<String, Object>> QRAuthListener(@DestinationVariable Long id) throws InterruptedException {
-        String[] recentSubjectKeyHolder = new String[1];
-        recentSubjectKeyHolder[0] = RECENT_KEY.getIfPresent(id);
-        if (recentSubjectKeyHolder[0] == null) {
-            Date canAuthentication = AUTHENTICATION_GATE.getIfPresent(id);
-            if (canAuthentication != null) {
-                String keySync = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
-                RECENT_KEY.put(id, keySync);
-                AUTHENTICATION_KEY.put(keySync, id);
-                recentSubjectKeyHolder[0] = keySync;
-            } else {
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(new HashMap<String, Object>() {{
-                            put("success", false);
-                            put("message", "AUTHENTICATION_GATE was timeout, try to reopen again.");
-                        }});
-            }
+    @Scheduled(fixedRate = GENERATE_PER_MILLISECONDS)
+    public void QRAuthUpdator() {
+        for (Map.Entry<Long, Date> entry : AUTHENTICATION_GATE.asMap().entrySet()) {
+            Long SUBJECT_ID = entry.getKey();
+            String KEYSYNC = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
+            RECENT_KEY.put(SUBJECT_ID, KEYSYNC);
+            AUTHENTICATION_KEY.put(KEYSYNC, SUBJECT_ID);
         }
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new HashMap<String, Object>() {{
-                    put("success", true);
-                    put("gate_timeout", (new Date().getTime()) + (GATE_AUTO_TIMEOUT - (GATE_SAFE_TIMEOUT * 1000L)));
-                    put("value", recentSubjectKeyHolder[0]);
-                }});
     }
+    
+    // @MessageMapping("/request-current-qr-auth/{id}")
+    // @SendTo("/topic/qr-auth/{id}")
+    // public ResponseEntity<HashMap<String, Object>> QRAuthListener(@DestinationVariable Long id) throws InterruptedException {
+    //     String[] recentSubjectKeyHolder = new String[1];
+    //     recentSubjectKeyHolder[0] = RECENT_KEY.getIfPresent(id);
+    //     if (recentSubjectKeyHolder[0] == null) {
+    //         Date canAuthentication = AUTHENTICATION_GATE.getIfPresent(id);
+    //         if (canAuthentication != null) {
+    //             String keySync = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
+    //             RECENT_KEY.put(id, keySync);
+    //             AUTHENTICATION_KEY.put(keySync, id);
+    //             recentSubjectKeyHolder[0] = keySync;
+    //         } else {
+    //             return ResponseEntity.status(HttpStatus.OK)
+    //                     .body(new HashMap<String, Object>() {{
+    //                         put("success", false);
+    //                         put("message", "AUTHENTICATION_GATE was timeout, try to reopen again.");
+    //                     }});
+    //         }
+    //     }
+    //     return ResponseEntity.status(HttpStatus.OK)
+    //             .body(new HashMap<String, Object>() {{
+    //                 put("success", true);
+    //                 put("gate_timeout", (new Date().getTime()) + (GATE_AUTO_TIMEOUT - (GATE_SAFE_TIMEOUT * 1000L)));
+    //                 put("value", recentSubjectKeyHolder[0]);
+    //             }});
+    // }
 
     @GetMapping("/scan")
     public String ScanPage(Model model, HttpServletResponse response, HttpServletRequest request) {
         return "Scan";
+    }
+
+    @PostMapping("/qr")
+    public ResponseEntity<HashMap<String, Object>> QRCodeGenerator(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
+        Date GATE = AUTHENTICATION_GATE.getIfPresent(instanceid);
+        if (GATE != null) {
+            String QR_AUTHENTICATION_KEY = RECENT_KEY.getIfPresent(instanceid);
+            if (QR_AUTHENTICATION_KEY == null) { // incase gate doesnt timeout and no recent key
+                String KEYSYNC = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
+                RECENT_KEY.put(instanceid, KEYSYNC);
+                AUTHENTICATION_KEY.put(KEYSYNC, instanceid);
+                QR_AUTHENTICATION_KEY = KEYSYNC;
+            }
+            String FINAL_OUTPUT = QR_AUTHENTICATION_KEY;
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("success", true);
+                    put("mygate", (GATE.getTime() + GATE_AUTO_TIMEOUT));
+                    put("value", FINAL_OUTPUT);
+                }});
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "AUTHENTICATION_GATE was timeout, try to reopen again.");
+            }});
     }
 
     // http://localhost:8100/qr?instanceid=10000
@@ -157,8 +156,20 @@ public class G_Controller {
                     }
                 }
                 if (grantedAccess) {
+                    Long SUBJECT_ID = Subject.getID();
+                    String QR_AUTHENTICATION_KEY = RECENT_KEY.getIfPresent(SUBJECT_ID);
+                    if (QR_AUTHENTICATION_KEY == null) {
+                        Date CanAuthentication = AUTHENTICATION_GATE.getIfPresent(SUBJECT_ID);
+                        if (CanAuthentication != null) { // first init
+                            String KEYSYNC = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
+                            RECENT_KEY.put(SUBJECT_ID, KEYSYNC);
+                            AUTHENTICATION_KEY.put(KEYSYNC, SUBJECT_ID);
+                        }
+                    }
+                    // set this subject as gate qr code open.
                     AUTHENTICATION_GATE.put(Subject.getID(), new Date()); // 15 minute automaticly close (need to reopen for auth.)
                     model.addAttribute("subject", Subject); // permission: allow
+                    model.addAttribute("rate", GENERATE_PER_MILLISECONDS);
                     return "QR";
                 }
             }
