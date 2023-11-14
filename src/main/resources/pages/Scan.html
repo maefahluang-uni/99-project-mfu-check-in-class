@@ -103,8 +103,7 @@
                         var code = jsQR(imageData.data, imageData.width, imageData.height);
                         if (code) {
                             document.getElementById('result').innerText = code.data;
-                            //window.location.replace(code.data);
-                            
+                            window.location.href = window.location.protocol + "//" + code.data;
                             //stream.getTracks().forEach(track => track.stop());
                             document.body.removeChild(video);
                             //window.removeEventListener('resize', setVideoSize);
