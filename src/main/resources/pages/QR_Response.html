@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+            }
+
+            #popup-container {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                color: #fff;
+            }
+
+            .success-popup {
+                background-color: #4CAF50;
+            }
+
+            .error-popup {
+                background-color: #FF0000;
+            }
+
+            #close-btn {
+                cursor: pointer;
+                position: absolute;
+                top: 5px;
+                right: 10px;
+                font-size: 20px;
+                color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+
+    <div id="popup-container">
+        <div id="close-btn" onclick="closePopup()">×</div>
+        <div id="popup-content"></div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let success = /*[[${success}]]*/ 'default';
+        let message = /*[[${message}]]*/ 'default';
+        /*]]>*/
+        function showSuccess(msg) {
+            var popupContainer = document.getElementById('popup-container');
+            popupContainer.style.display = 'block';
+            popupContainer.className = 'success-popup';
+            document.getElementById('popup-content').innerHTML = '<strong>Success!</strong> ' + msg;
+        }
+        function showError(msg) {
+            var popupContainer = document.getElementById('popup-container');
+            popupContainer.style.display = 'block';
+            popupContainer.className = 'error-popup';
+            document.getElementById('popup-content').innerHTML = '<strong>Error!</strong> ' + msg;
+        }
+        function closePopup() {
+            document.getElementById('popup-container').style.display = 'none';
+            if (success) {
+                window.location.href = "/check-in"
+            } else {
+                window.location.href = "/scan"
+            }
+        }
+        if (success) {
+            showSuccess(message);
+        } else {
+            showError(message);
+        }
+    </script>
+    </body>
+</html>

@@ -1,12 +1,11 @@
 package th.mfu.model;
 
-import java.io.*;
 import java.util.*;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "Course_Section")
-public class CourseSection implements Serializable {
+public class CourseSection  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ID;
@@ -66,5 +65,35 @@ public class CourseSection implements Serializable {
     }
     public void setPeriod(String period) {
         this.period = period;
+    }
+
+    // Check-in History System.
+    private HashMap<Long, HashMap<Long, Boolean>> attendanceHistory;
+    public HashMap<Long, HashMap<Long, Boolean>> getAttendanceHistory() {
+        return attendanceHistory;
+    }
+    public void setAttendanceHistory(HashMap<Long, HashMap<Long, Boolean>> attendanceHistory) {
+        this.attendanceHistory = attendanceHistory;
+    }
+    public void markAttendance(Long studentId, Long date, boolean isPresent) {
+        if (attendanceHistory == null) {
+            attendanceHistory = new HashMap<>();
+        }
+        HashMap<Long, Boolean> studentAttendance = attendanceHistory.getOrDefault(studentId, new HashMap<>());
+        studentAttendance.put(date, isPresent);
+        attendanceHistory.put(studentId, studentAttendance);
+    }
+    public Boolean getAttendance(Long studentId, Long date) {
+        HashMap<Long, Boolean> studentAttendance = attendanceHistory.get(studentId);
+        return (studentAttendance != null) ? studentAttendance.get(date) : null;
+    }
+    public void clearAttendance(Long studentId, Long date) {
+        HashMap<Long, Boolean> studentAttendance = attendanceHistory.get(studentId);
+        if (studentAttendance != null) {
+            studentAttendance.remove(date);
+            if (studentAttendance.isEmpty()) {
+                attendanceHistory.remove(studentId);
+            }
+        }
     }
 }

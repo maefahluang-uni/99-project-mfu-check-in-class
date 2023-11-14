@@ -84,7 +84,8 @@
                     }
                     qrCodeContainer.innerHTML = '';
                     if (response.data.value) {    
-                        let AUTHENTICATION_KEY = ("https://check-in.mfu.ac.th/verify/" + response.data.value);
+                        let AUTHENTICATION_KEY = (window.location.host + "/qr/" + response.data.value); // verify (STUDENT in the class can scan this only.)
+                        console.log(response.data.value);
                         const qr = new QRCode(qrCodeContainer, {
                             text: AUTHENTICATION_KEY,
                             width: 400,

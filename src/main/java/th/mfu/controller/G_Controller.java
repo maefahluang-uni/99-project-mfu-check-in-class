@@ -1,6 +1,9 @@
 package th.mfu.controller;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import javax.servlet.http.*;
 
@@ -63,7 +66,7 @@ public class G_Controller {
     // }
 
     private final int KEYSYNC_FIXED_LENGTH = 2; // BASE64URL version
-    private final int GATE_AUTO_TIMEOUT = (10 * 1) * 1000; // TimeUnit.MILLISECONDS (10 minutes)
+    private final int GATE_AUTO_TIMEOUT = (60 * 1) * 1000; // TimeUnit.MILLISECONDS (10 minutes)
     private final int QR_CODE_AUTO_TIMEOUT = 5; // // TimeUnit.SECONDS (5 seconds is best option balance between real student in the class scan the qr and prevent some student send qr to others.)
     private final int GENERATE_PER_MILLISECONDS = 500;
 
@@ -81,34 +84,6 @@ public class G_Controller {
         }
     }
     
-    // @MessageMapping("/request-current-qr-auth/{id}")
-    // @SendTo("/topic/qr-auth/{id}")
-    // public ResponseEntity<HashMap<String, Object>> QRAuthListener(@DestinationVariable Long id) throws InterruptedException {
-    //     String[] recentSubjectKeyHolder = new String[1];
-    //     recentSubjectKeyHolder[0] = RECENT_KEY.getIfPresent(id);
-    //     if (recentSubjectKeyHolder[0] == null) {
-    //         Date canAuthentication = AUTHENTICATION_GATE.getIfPresent(id);
-    //         if (canAuthentication != null) {
-    //             String keySync = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
-    //             RECENT_KEY.put(id, keySync);
-    //             AUTHENTICATION_KEY.put(keySync, id);
-    //             recentSubjectKeyHolder[0] = keySync;
-    //         } else {
-    //             return ResponseEntity.status(HttpStatus.OK)
-    //                     .body(new HashMap<String, Object>() {{
-    //                         put("success", false);
-    //                         put("message", "AUTHENTICATION_GATE was timeout, try to reopen again.");
-    //                     }});
-    //         }
-    //     }
-    //     return ResponseEntity.status(HttpStatus.OK)
-    //             .body(new HashMap<String, Object>() {{
-    //                 put("success", true);
-    //                 put("gate_timeout", (new Date().getTime()) + (GATE_AUTO_TIMEOUT - (GATE_SAFE_TIMEOUT * 1000L)));
-    //                 put("value", recentSubjectKeyHolder[0]);
-    //             }});
-    // }
-
     @GetMapping("/scan")
     public String ScanPage(Model model, HttpServletResponse response, HttpServletRequest request) {
         return "Scan";
@@ -181,7 +156,7 @@ public class G_Controller {
     }
 
     @GetMapping("/qr/{key}") // for STUDENT scan qrcode to check-in class by key
-    public ResponseEntity<HashMap<String, Object>> QRCodeScan(Model model, HttpServletResponse response, HttpServletRequest request, @PathVariable String key) {
+    public String QRCodeScan(Model model, HttpServletResponse response, HttpServletRequest request, @PathVariable String key) {
         String KEYSYNC = key;
         Long SUBJECT_ID = AUTHENTICATION_KEY.getIfPresent(KEYSYNC);
         if (SUBJECT_ID != null) { // global-key verified.
@@ -198,25 +173,34 @@ public class G_Controller {
                         }
                     }
                     if (isMember) {
-                        return ResponseEntity.status(HttpStatus.OK)
-                            .body(new HashMap<String, Object>() {{
-                                put("success", true);
-                            }});
+                        String[] ST_C = Subject.semester.getDateStart().split("/"); // MM/dd/yyyy
+                        int Month = Integer.parseInt(ST_C[0]);
+                        int Day = Integer.parseInt(ST_C[1]);
+                        int Year = Integer.parseInt(ST_C[2]);
+                        LocalDate StartDate = LocalDate.of(Year, Month, Day);
+                        LocalDate EndDate = LocalDate.now();
+                        Long WeekSemester = ChronoUnit.WEEKS.between(StartDate, EndDate); // cut week every sunday
+                        Subject.markAttendance(student.getID(), WeekSemester, true);
+                        CourseSectionRepo.save(Subject);
+                        model.addAttribute("success", true);
+                        model.addAttribute("message", EndDate);
                     } else {
-                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                            .body(new HashMap<String, Object>() {{
-                                put("success", false);
-                                put("message", "You are not in this class.");
-                            }});
+                        model.addAttribute("success", false);
+                        model.addAttribute("message", "You are not in this class.");
                     }
+                } else {
+                    model.addAttribute("success", false);
+                    model.addAttribute("message", "Student role only allow for the authentication.");
                 }
+            } else {
+                model.addAttribute("success", false);
+                model.addAttribute("message", "Subject not found qr pointer is null.");
             }
+        } else {
+            model.addAttribute("success", false);
+            model.addAttribute("message", "QRCode authentication is invaild / expired, please try rescan.");
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(new HashMap<String, Object>() {{
-                put("success", false);
-                put("message", "QRCode authentication is expired, please try rescan.");
-            }});
+        return "QR_Response";
     }
 
     @GetMapping("/home")

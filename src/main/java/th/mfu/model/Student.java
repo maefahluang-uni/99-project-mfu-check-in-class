@@ -1,6 +1,9 @@
 package th.mfu.model;
 
 import th.mfu.model.interfaces.*;
+
+import java.util.HashMap;
+
 import javax.persistence.*;
 
 @Entity
