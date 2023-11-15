@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- <script src="cross.js"></script> -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>contact page</title>
+    <link rel="stylesheet" href="\src\main\resources\static\css\Lec-Course.css">
+    <!--Google Fonts and Icons-->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp|Material+Icons+Two+Tone|Material+Symbols+Outlined"
+      rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  </head>
+  <body>
+    <!--sidebar start-->
+    <div class="overlay" id="overlay"></div>
+    <div class="sidebar" id="sidebar">
+      <!-- Sidebar content goes here -->
+      <div class="sidebar_box">
+        <div class="topsidebarbg"></div>
+        <div class="sidebar_menu">
+          <div class="logoside">
+            <img src="\src\main\resources\static\images\MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
+            <div class="flex-logoside"><h4>MFU</h4><br><p>Check-in Class</p></div>
+            <div class="line90deg"></div>
+            <div class="line"></div>
+          </div>
+          <div class="menu">
+              <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+              <li><a href="#"><i class="far fa-calendar-check"></i>Check-in</a></li>
+              <li><a href="#"><i class="fas fa-book-open"></i>Course</a></li>
+              <li class="active"><a href="/contact"><i class="fas fa-phone-volume"></i>Contract</a></li>
+              <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+          </div>
+        </div>
+        <div class="sidebarbg"></div>
+      </div>
+      <button onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+    </div>
+    <class="content">
+      <!-- Main content goes here -->
+      <nav>
+        <!--left topbar start-->
+        <div class="logonav">
+          <img src="\src\main\resources\static\images\MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
+          <div class="flex-logonav"><h4>MFU</h4><br><p>Check-in Class</p></div>
+          <div class="line90deg"></div>
+          <div class="line"></div>
+        </div>
+        <!--left topbar end-->
+      </nav>      
+        <!-- contact start-->
+      
+        <div id="calendar-icon" onclick="toggleCalendar()">📅</div>
+
+        <!-- Calendar Container -->
+        <div id="calendar-container">
+          <div id="calendar-header">
+            <button onclick="changeMonth(-1)">❮</button>
+            <span id="month-year"></span>
+            <button onclick="changeMonth(1)">❯</button>
+            <button id="close-btn" onclick="closeCalendar()"><i class="fas fa-times"></i></button>
+          </div>
+          <div id="calendar-days"></div>
+          <p id="currentDate"></p>
+          <p id="SelectedElement"></p>
+        </div>
+        <script src="\src\main\resources\static\js\calenar.js"></script>
+        <!-- contact end -->
+      <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
+
+    
+    <script>
+      function openSidebar() {
+        document.getElementById("sidebar").classList.add("open");
+        document.getElementById("overlay").style.display = "block";
+      }
+      function closeSidebar() {
+        document.getElementById("sidebar").classList.remove("open");
+        document.getElementById("overlay").style.display = "none";
+      }
+    </script>
+    <!-- <ul id="dayContainer"></ul> -->
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <style>
+      #sideDayControl {
+        margin: 1%;
+        display: flex;
+        justify-content: center;
+      }
+
+      #daysListContainer {
+        display: flex;
+        align-items: center;
+      }
+
+      #daysList {
+        list-style-type: none;
+        justify-content: center;
+        padding: 100px;
+        display: flex;
+      }
+
+      #daysList button {
+        margin: 5%;
+        padding: 2%;
+      }
+
+      #previousButton,
+      #nextButton {
+        margin: 0; /* Adjust margin as needed */
+      }
+    </style>
+
+    <div id="sideDayControl">
+      <div id="daysListContainer">
+        <button id="previousButton">Previous</button>
+        <div id="daysList"></div>
+        <button id="nextButton">Next</button>
+      </div>
+    </div>
+
+
+    <script>
+      var today = new Date();
+      var currentWeekStart = new Date(today);
+      currentWeekStart.setDate((today.getDate() - today.getDay())); // Set to the first day of the current week
+      currentWeekStart = roundToNearestSunday(currentWeekStart);
+
+      function handleButtonClicked(currentDay) {
+          updateCalendar(currentDay);
+          selectedDate = currentDay;
+      }
+
+      // Display the current week
+      displayWeek(currentWeekStart);
+      function displayWeek(startOfWeek) {
+        var daysList = document.getElementById("daysList");
+        daysList.innerHTML = ""; // Clear the previous content
+        for (var i = 0; i < 7; i++) {
+          var currentDay = new Date(startOfWeek);
+          currentDay.setDate(startOfWeek.getDate() + i);
+          var dayOfMonth = currentDay.getDate();
+          var button = document.createElement("button");
+          button.textContent = dayOfMonth;
+          button.addEventListener("click", function() {
+            //..............................
+            //..............................
+          });
+          daysList.appendChild(button);
+        }
+
+      }
+      function roundToNearestSunday(DATE_NOW) {
+        const currentDate = DATE_NOW;
+        const currentDayOfWeek = currentDate.getDay();
+        const difference = (13 - currentDayOfWeek + 7) % 7;
+        currentDate.setDate(currentDate.getDate() + difference);
+        return currentDate;
+      }
+
+      var prevWeekButton = document.getElementById("previousButton");
+      prevWeekButton.addEventListener("click", function() {
+        currentWeekStart.setDate(((currentWeekStart.getDate() - currentWeekStart.getDay()) + 1) - 7);
+        currentWeekStart = roundToNearestSunday(currentWeekStart);
+        displayWeek(currentWeekStart)
+      })
+
+      var nextWeekButton = document.getElementById("nextButton");
+      nextWeekButton.addEventListener("click", function() {
+        currentWeekStart.setDate(((currentWeekStart.getDate() - currentWeekStart.getDay()) + 1) + 7);
+        currentWeekStart = roundToNearestSunday(currentWeekStart);
+        displayWeek(currentWeekStart)
+      })
+    </script>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
