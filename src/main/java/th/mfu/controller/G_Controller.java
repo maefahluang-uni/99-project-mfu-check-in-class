@@ -65,7 +65,7 @@ public class G_Controller {
     //     this.MessagingService = MessagingTemplate;
     // }
 
-    private final int KEYSYNC_FIXED_LENGTH = 2; // BASE64URL version
+    private final int KEYSYNC_FIXED_LENGTH = 8; // BASE64URL version for safe GET method (64 ^ length) = space collision probability
     private final int GATE_AUTO_TIMEOUT = (60 * 1) * 1000; // TimeUnit.MILLISECONDS (10 minutes)
     private final int QR_CODE_AUTO_TIMEOUT = 5; // // TimeUnit.SECONDS (5 seconds is best option balance between real student in the class scan the qr and prevent some student send qr to others.)
     private final int GENERATE_PER_MILLISECONDS = 500;

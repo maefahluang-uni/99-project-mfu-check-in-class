@@ -17,11 +17,55 @@
                 justify-content: center;
                 height: 100vh;
                 margin: 0;
+                font-family: 'Arial', sans-serif;
+            }
+            #messages {
+                list-style-type: none;
+                padding: 0;
+                text-align: center;
             }
             #qrCodeContainer {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                margin-top: 20px;
+            }
+            button {
+                padding: 10px;
+                margin-top: 10px;
+                cursor: pointer;
+                border: none;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+            }
+            #refreshButton {
+                background-color: red;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            #backButton {
+                background-color: red;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            #subjectText {
+                color: #850000;
+                font-size: 3.0em;
+                font-weight: bold;
+            }
+            #sectionText {
+                color: #E74F4F;
+                font-size: 2.0em;
+                font-weight: bold;
+            }
+            #timeText {
+                color: #4d4d4d;
+                font-size: 1.5em;
+                font-weight: bold;
+            }
+            #qrLifetime {
+                font-size: 1.3em; /* Adjust the font size as needed */
+                color: #4d4d4d;
+                font-weight: bold;
             }
         </style>
     </head>
@@ -32,9 +76,9 @@
     </body>
     <body th:if="${subject != null}">
         <div id="messages">
-            <li>Subject: <span th:text="${subject.getCourse().getName()}"></span></li>
-            <li>Section: <span th:text="${subject.getSection()}"></span></li>
-            <li>Lifetime: <span id="qrLifetime"></span></li>
+            <li><span span id="subjectText">Subject:</span> <span span id="subjectText" th:text="${subject.getCourse().getName()}"></span></li>
+            <li><span span id="sectionText">Section:</span> <span span id="sectionText" th:text="${subject.getSection()}"></span></li>
+            <li><span span id="timeText">Lifetime:</span> <span id="qrLifetime"></span></li>
             <li><button id="refreshButton">Refresh</button></li>
             <li><button>Back</button></li>
         </div>
