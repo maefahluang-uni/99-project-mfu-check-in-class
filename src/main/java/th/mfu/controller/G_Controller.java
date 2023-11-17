@@ -65,7 +65,7 @@ public class G_Controller {
     //     this.MessagingService = MessagingTemplate;
     // }
 
-    private final int KEYSYNC_FIXED_LENGTH = 2; // BASE64URL version
+    private final int KEYSYNC_FIXED_LENGTH = 8; // BASE64URL version for safe GET method (64 ^ length) = space collision probability
     private final int GATE_AUTO_TIMEOUT = (60 * 1) * 1000; // TimeUnit.MILLISECONDS (10 minutes)
     private final int QR_CODE_AUTO_TIMEOUT = 5; // // TimeUnit.SECONDS (5 seconds is best option balance between real student in the class scan the qr and prevent some student send qr to others.)
     private final int GENERATE_PER_MILLISECONDS = 500;
@@ -301,15 +301,21 @@ public class G_Controller {
     @GetMapping("/course")
     public String CoursePage(Model model, HttpServletResponse response, HttpServletRequest request) {
         User Myself = (User) request.getAttribute("userdata");
-        if (Myself.getRole() == "STUDENT" || Myself.getRole() == "LECTURER") {
+        if (Myself.getRole() == "STUDENT") {
             List<CourseSection> CourseCollection = CourseSectionRepo.findByStudentID(Myself.getID()); // it's a clone instance not effect direct to real entity
             for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
                 for (Student v1 : v0.student) { v1.setPassword("FORBIDDEN"); }
-                for (Lecturer v2 : v0.lecturer) { v2.setPassword("FORBIDDEN"); }
+            }
+            model.addAttribute("mycourse", CourseCollection);
+        } else if (Myself.getRole() == "LECTURER") {
+            List<CourseSection> CourseCollection = CourseSectionRepo.findByLecturerID(Myself.getID()); // it's a clone instance not effect direct to real entity
+            System.out.println(CourseCollection.toString());
+            for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
+                for (Lecturer v1 : v0.lecturer) { v1.setPassword("FORBIDDEN"); }
             }
             model.addAttribute("mycourse", CourseCollection);
         }
-        return "Course";
+        return "Lec-Course";
     }
 
     @GetMapping("/contact")
