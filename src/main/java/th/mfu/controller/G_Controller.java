@@ -329,4 +329,10 @@ public class G_Controller {
         }
         return "redirect:/login";
     }
+    @GetMapping("/manage-course")
+    public String viewCourses(Model model) {
+        List<Course> courses = (List<Course>) CourseRepo.findAll();
+        model.addAttribute("courses", courses);
+    return "Manage-course";
+}
 }
