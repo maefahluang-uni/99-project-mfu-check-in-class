@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>contact page</title>
-    <link rel="stylesheet" href="\src\main\resources\static\css\Lec-Course.css">
+    <link rel="stylesheet" href="css\Lec-Course.css">
     <!--Google Fonts and Icons-->
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp|Material+Icons+Two+Tone|Material+Symbols+Outlined"
@@ -25,7 +25,7 @@
         <div class="topsidebarbg"></div>
         <div class="sidebar_menu">
           <div class="logoside">
-            <img src="\src\main\resources\static\images\MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
+            <img src="\images\MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
             <div class="flex-logoside"><h4>MFU</h4><br><p>Check-in Class</p></div>
             <div class="line90deg"></div>
             <div class="line"></div>
@@ -47,7 +47,7 @@
       <nav>
         <!--left topbar start-->
         <div class="logonav">
-          <img src="\src\main\resources\static\images\MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
+          <img src="\images\MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
           <div class="flex-logonav"><h4>MFU</h4><br><p>Check-in Class</p></div>
           <div class="line90deg"></div>
           <div class="line"></div>
@@ -70,7 +70,7 @@
           <p id="currentDate"></p>
           <p id="SelectedElement"></p>
         </div>
-        <script src="\src\main\resources\static\js\calenar.js"></script>
+        <!-- <script src="\js\calenar.js"></script> -->
         <!-- contact end -->
       <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
     </div>
@@ -89,16 +89,6 @@
     <!-- <ul id="dayContainer"></ul> -->
 
     
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -149,73 +139,172 @@
       </div>
     </div>
 
+    <script src="https://unpkg.com/observable-slim"></script>
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+        var userdata = /*[[${userdata}]]*/ 'default';
+        console.log(userdata);
+        var mycourse = /*[[${mycourse}]]*/ 'default';
+        console.log(mycourse);
+      /*]]>*/
 
-    <script>
-      var today = new Date();
-      var currentWeekStart = new Date(today);
-      currentWeekStart.setDate((today.getDate() - today.getDay())); // Set to the first day of the current week
-      currentWeekStart = roundToNearestSunday(currentWeekStart);
+      document.addEventListener('DOMContentLoaded', function() {
+          function updateDateTime() {
+              var currentDate = new Date();
+              var dateString = currentDate.toLocaleDateString('en-US');
+              // Customize time options for Thailand format
+              var timeOptions = { 
+                  hour12: false,
+                  timeZone: 'Asia/Bangkok' 
+              };
+              var timeString = currentDate.toLocaleTimeString('en-US', timeOptions);
+              var dateElement = document.getElementById('currentDate');
+              dateElement.innerHTML = 'Current Date: ' + dateString + ' ' + timeString;
+          }
+          updateDateTime();
+          setInterval(updateDateTime, 1000);
+      });
 
-      function handleButtonClicked(currentDay) {
-          updateCalendar(currentDay);
-          selectedDate = currentDay;
+      function toggleCalendar() {
+        var calendarContainer = document.getElementById('calendar-container');
+        calendarContainer.style.display = (calendarContainer.style.display === 'block') ? 'none' : 'block';
+        updateCalendar(PROXY.CalendarNow); // Update the calendar when it is displayed
+      }
+      function closeCalendar() {
+        document.getElementById('calendar-container').style.display = 'none';
       }
 
-      // Display the current week
-      displayWeek(currentWeekStart);
+      function updateCalendar(DATE) {
+        let month = DATE.getMonth();
+        let year = DATE.getFullYear();
+        let firstDay = new Date(year, month, 1).getDay(); // Get the day of the week for the first day of the month
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
+        // set month label
+        var monthYearElement = document.getElementById('month-year');
+        monthYearElement.innerText = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(DATE);
+        // clean daysContainer
+        var daysContainer = document.getElementById('calendar-days');
+        daysContainer.innerHTML = '';
+        // Determine how many days to display from the previous month
+        let prevMonthDays = firstDay === 0 ? 7 : firstDay; // If the month doesn't start on Sunday, get the days from the previous month
+        let prevMonth = month === 0 ? 11 : month - 1; // Determine the previous month
+        let prevYear = month === 0 ? year - 1 : year; // Determine the previous year
+        let prevMonthDaysCount = new Date(prevYear, prevMonth + 1, 0).getDate(); // Get the number of days in the previous month
+        // Display the previous month's days
+        if (prevMonthDays !== 7) {
+          for (let i = prevMonthDays - 1; i >= 0; i--) {
+              let dayElement = document.createElement('div');
+              dayElement.classList.add('calendar-day');
+              dayElement.classList.add('day-not-in-month');
+              dayElement.innerText = prevMonthDaysCount - i;
+              daysContainer.appendChild(dayElement);
+          }
+        }
+        // Display the days of the current month
+        const NOW = new Date();
+        if (NOW.toDateString() == PROXY.SelectDate.toDateString()) {
+          SelectedElement.innerHTML = '';
+        }
+        for (let day = 1; day <= daysInMonth; day++) {
+            let eachDay = new Date(year, month, day);
+            let dayElement = document.createElement('div');
+            dayElement.classList.add('calendar-day');
+            dayElement.innerText = day;
+            if (eachDay.getMonth() !== month) {
+              dayElement.classList.add('day-not-in-month');
+            } else {
+              dayElement.onclick = function () {
+                  PROXY.SelectDate = eachDay;
+                  SelectedElement.innerHTML = 'Selected Date: ' + PROXY.SelectDate.toLocaleDateString('en-US');
+                  closeCalendar(); // Close the calendar after selecting a date
+              };
+              // Highlight the previously selected date
+              if (NOW.toDateString() == eachDay.toDateString()) {
+                dayElement.classList.add('current-date');
+              } else if (PROXY.SelectDate.toDateString() == eachDay.toDateString()) {
+                dayElement.classList.add('selected-date');
+              }
+            }
+            if (RoundWeek(DATE).toDateString() == RoundWeek(eachDay).toDateString()) {
+              dayElement.classList.add('highlight-week');
+            }
+            daysContainer.appendChild(dayElement);
+        }
+        // Fill in days after the current month until Saturday
+        let remainingDays = 7 - daysContainer.querySelectorAll('.calendar-day').length % 7;
+        if (remainingDays !== 7) { // Check if there are remaining days to fill
+          for (let i = 1; i <= remainingDays; i++) {
+              let dayElement = document.createElement('div');
+              dayElement.classList.add('calendar-day');
+              dayElement.classList.add('day-not-in-month');
+              dayElement.innerText = i;
+              daysContainer.appendChild(dayElement);
+          }
+        }
+      }
+      function changeMonth(delta) {
+        PROXY.CalendarNow.setMonth(PROXY.CalendarNow.getMonth() + delta);
+        PROXY.CalendarNow = new Date(PROXY.CalendarNow); 
+      }
+      const LISTENER = {
+        SelectDate: function(SYNC) {
+          const newValue = SYNC.newValue;
+          const previousValue = SYNC.previousValue;
+          // data sync
+          PROXY.CalendarNow = new Date(newValue); // math floor to sunday
+        },
+        CalendarNow: function(SYNC) {
+          const newValue = SYNC.newValue;
+          const previousValue = SYNC.previousValue;
+          // data sync
+          displayWeek(RoundWeek(newValue));
+          updateCalendar(newValue);
+        }
+      }
+      var PROXY = ObservableSlim.create({}, true, (changes) => {
+        changes.forEach(LOG => {
+          const EVENT = LISTENER[LOG.property]
+          if (EVENT) {
+            EVENT(LOG)
+          }
+        });
+      });
       function displayWeek(startOfWeek) {
         var daysList = document.getElementById("daysList");
         daysList.innerHTML = ""; // Clear the previous content
         for (var i = 0; i < 7; i++) {
-          var currentDay = new Date(startOfWeek);
-          currentDay.setDate(startOfWeek.getDate() + i);
-          var dayOfMonth = currentDay.getDate();
-          var button = document.createElement("button");
+          let each_date = new Date(startOfWeek);
+          each_date.setDate(startOfWeek.getDate() + i);
+          let dayOfMonth = each_date.getDate();
+          let button = document.createElement("button");
           button.textContent = dayOfMonth;
           button.addEventListener("click", function() {
-            //..............................
-            //..............................
+            PROXY.SelectDate = each_date; // each_date is each of date object
           });
           daysList.appendChild(button);
         }
+      }
+      function RoundWeek(date) { // Clamp to sunday
+        const day = date.getDay(); // Get the day of the week (0 - Sunday, 1 - Monday, ..., 6 - Saturday)
+        const diff = 0 - day; // Calculate the difference to the previous Sunday
+        const roundedDate = new Date(date); // Create a new date object to avoid mutating the original date
+        roundedDate.setDate(date.getDate() + diff); // Set the date to the nearest Sunday
+        return roundedDate;
+      }
 
-      }
-      function roundToNearestSunday(DATE_NOW) {
-        const currentDate = DATE_NOW;
-        const currentDayOfWeek = currentDate.getDay();
-        const difference = (13 - currentDayOfWeek + 7) % 7;
-        currentDate.setDate(currentDate.getDate() + difference);
-        return currentDate;
-      }
+      PROXY.SelectDate = new Date(); // dynamic init we'll use this to filter
 
       var prevWeekButton = document.getElementById("previousButton");
       prevWeekButton.addEventListener("click", function() {
-        currentWeekStart.setDate(((currentWeekStart.getDate() - currentWeekStart.getDay()) + 1) - 7);
-        currentWeekStart = roundToNearestSunday(currentWeekStart);
-        displayWeek(currentWeekStart)
+        PROXY.CalendarNow.setDate(PROXY.CalendarNow.getDate() - 7);
+        PROXY.CalendarNow = new Date(PROXY.CalendarNow);
       })
 
       var nextWeekButton = document.getElementById("nextButton");
       nextWeekButton.addEventListener("click", function() {
-        currentWeekStart.setDate(((currentWeekStart.getDate() - currentWeekStart.getDay()) + 1) + 7);
-        currentWeekStart = roundToNearestSunday(currentWeekStart);
-        displayWeek(currentWeekStart)
+        PROXY.CalendarNow.setDate(PROXY.CalendarNow.getDate() + 7);
+        PROXY.CalendarNow = new Date(PROXY.CalendarNow);
       })
     </script>
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   </body>
 </html>
