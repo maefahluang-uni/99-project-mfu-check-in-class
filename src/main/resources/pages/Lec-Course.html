@@ -204,6 +204,8 @@
         const NOW = new Date();
         if (NOW.toDateString() == PROXY.SelectDate.toDateString()) {
           SelectedElement.innerHTML = '';
+        } else {
+          SelectedElement.innerHTML = 'Selected Date: ' + PROXY.SelectDate.toLocaleDateString('en-US');
         }
         for (let day = 1; day <= daysInMonth; day++) {
             let eachDay = new Date(year, month, day);

@@ -3,9 +3,41 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Home</title>
+        <style>
+            .table {
+                display: table;
+                flex-direction: column;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 5px;
+                max-width: 400px; /* Adjust as needed */
+                margin-bottom: 20px;
+            }
+            .header {
+                display: table-header-group;
+                font-weight: bold;
+                background-color: #f2f2f2;
+            }
+            .row {
+                display: table-row;
+            }
+            .cell {
+                display: table-cell;
+                padding: 8px;
+                text-align: center;
+            }
+        </style>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+                let userdata = /*[[${userdata}]]*/ 'default';
+                console.log(userdata);
+                let mycourse = /*[[${mycourse}]]*/ 'default';
+                console.log(mycourse);
+            /*]]>*/
+        </script>
     </head>
-    <body>
-        <ul class="list" th:if="${userdata.getRole().equals('STUDENT')}">
+    <body th:if="${userdata.getRole().equals('STUDENT')}">
+        <ul class="list">
             <li th:each="courseInfo : ${mycourse}">
                 <strong>COURSEID:</strong> <span th:text="${courseInfo.course.getID()}"></span><br>
                 <strong>NAME:</strong> <span th:text="${courseInfo.course.getName()}"></span><br>
@@ -13,21 +45,66 @@
                 <strong>LOCATION:</strong> <span th:text="${courseInfo.getLocation()}"></span><br>
                 <strong>PERIOD:</strong> <span th:text="${courseInfo.getPeriod()}"></span><br>
                 <button id="scanButton">Scan</button><br>
-
             </li>
         </ul>
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-                var userdata = /*[[${userdata}]]*/ 'default';
-                console.log(userdata);
-                var mycourse = /*[[${mycourse}]]*/ 'default';
-                console.log(mycourse);
-            /*]]>*/
-
+        <script>
             const scanButton = document.getElementById('scanButton');
             scanButton.addEventListener('click', async () => {
                 window.location.href = "/scan";
             });
+        </script>
+    </body>
+
+
+
+    <body th:if="${userdata.getRole().equals('LECTURER')}">
+        <div class="table" id="course">
+            <div class="header">
+                <div class="cell">Course-Id</div>
+                <div class="cell">Subject</div>
+                <div class="cell">Section</div>
+                <div class="cell">Action</div>
+            </div>
+            <!-- CONTENT DYNAMICALLY  -->
+        </div>
+        <script>
+            // Get form values
+            for (const i in mycourse) {
+                const instance = mycourse[i];
+                // init data
+                let dataRow = document.createElement("div");
+                dataRow.classList.add("row");
+                let courseidCell = document.createElement("div");
+                courseidCell.classList.add("cell");
+                courseidCell.textContent = instance.course.id;
+                dataRow.appendChild(courseidCell);
+                let subjectCell = document.createElement("div");
+                subjectCell.classList.add("cell");
+                subjectCell.textContent = instance.course.name;
+                dataRow.appendChild(subjectCell);
+                let sectionCell = document.createElement("div");
+                sectionCell.classList.add("cell");
+                sectionCell.textContent = instance.section;
+                dataRow.appendChild(sectionCell);
+
+                let viewButton = document.createElement("button");
+                viewButton.textContent = "View";
+                viewButton.addEventListener('click', function() {
+                    window.location.href = "/check-in/view?instanceid=" + instance.id;
+                });
+                viewButton.classList.add("cell");
+                dataRow.appendChild(viewButton);
+                let qrButton = document.createElement("button");
+                qrButton.textContent = "QR";
+                qrButton.addEventListener('click', function() {
+                    window.location.href = "/qr?instanceid=" + instance.id;
+                });
+                qrButton.classList.add("cell");
+                dataRow.appendChild(qrButton);
+
+                // Append the dataRow to the dataRows container
+                document.getElementById("course").appendChild(dataRow);
+            }
         </script>
     </body>
 </html>
