@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- <script src="cross.js"></script> -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Course</title>
+    <link rel="stylesheet" href="/css/style-managecourse.css">
+    <!--Google Fonts and Icons-->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp|Material+Icons+Two+Tone|Material+Symbols+Outlined"
+      rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  </head>
+  <body>
+    <!--sidebar start-->
+    <div class="overlay" id="overlay"></div>
+    <div class="sidebar" id="sidebar">
+      <!-- Sidebar content goes here -->
+      <div class="sidebar_box">
+        <div class="topsidebarbg"></div>
+        <div class="sidebar_menu">
+          <div class="logoside">
+            <img src="/images/MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
+            <div class="flex-logoside"><h4>MFU</h4><br><p>Check-in Class</p></div>
+            <div class="line90deg"></div>
+            <div class="line"></div>
+          </div>
+          <div class="menu">
+              <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+              <li><a href="#"><i class="far fa-calendar-check"></i>Check-in</a></li>
+              <li><a href="#"><i class="fas fa-book-open"></i>Course</a></li>
+              <li class="active"><a href="/contact"><i class="fas fa-phone-volume"></i>Contract</a></li>
+              <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+          </div>
+        </div>
+        <div class="sidebarbg"></div>
+      </div>
+      <button onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="content">
+      <!-- Main content goes here -->
+      <nav>
+        <!--left topbar start-->
+        <div class="logonav">
+          <img src="/images/MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
+          <div class="flex-logonav"><h4>MFU</h4><br><p>Check-in Class</p></div>
+          <div class="line90deg"></div>
+          <div class="line"></div>
+        </div>
+        <!--left topbar end-->
+      </nav>      
+        <!-- contact start-->
+        <form class="search-box">
+            <input type="text" id="courseSearch" oninput="searchCourses()" placeholder=" CourseID" autocomplete="off"/>
+            <button type="reset"></button>
+        </form>
+        <table class="center-table scrollable-table">
+          <thead>
+          <tr class="headtable">
+              <th>CourseID</th>
+              <th>Subject</th>
+              <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+              <!-- Thymeleaf iteration over courses -->
+              <tr th:each="course : ${courses}">
+                  <td th:text="${course.getID()}"></td>
+                  <td th:text="${course.getName()}"></td>
+                  <td>
+                      <a class="btnAction" href="#">SECT</a>
+                      <a class="btnAction" href="#">DELETE</a>
+                  </td>
+              </tr>
+          </tbody>
+        </table>
+        <ul id="courseList" style="display: none;">
+          <!-- Thymeleaf iteration over courses -->
+          <li th:each="course : ${courses}">
+              <a th:href="'/manage-course/' + ${course.getID()}">
+                  <span th:text="${course.getID()}"></span>
+                  <span th:text="${course.getName()}"></span>
+              </a>
+          </li>
+        </ul>
+        <script  src="/js/search-box.js"></script>
+        <a class="btnADD" href="#">ADD COURSE</a>
+
+        <!-- contact end -->
+      <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
+    <script>
+      function openSidebar() {
+      document.getElementById("sidebar").classList.add("open");
+      document.getElementById("overlay").style.display = "block";
+      }
+      function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("overlay").style.display = "none";
+      }
+    </script>
+    <!--sidebar end-->
+  </body>
+</html>
