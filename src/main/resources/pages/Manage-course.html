@@ -4,9 +4,8 @@
     <!-- <script src="cross.js"></script> -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>contact page</title>
-    <link rel="stylesheet" href="/css/bootstrap.css">
-    <link rel="stylesheet" href="/css/style(contact).css">
+    <title>Manage Course</title>
+    <link rel="stylesheet" href="/css/style-managecourse.css">
     <!--Google Fonts and Icons-->
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp|Material+Icons+Two+Tone|Material+Symbols+Outlined"
@@ -16,11 +15,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-    <style>
-      .custom-margin-top {
-          margin-top: 5.5rem;
-      }
-    </style>
   </head>
   <body>
     <!--sidebar start-->
@@ -61,61 +55,42 @@
         <!--left topbar end-->
       </nav>      
         <!-- contact start-->
-        <!-- <div class="multiline-text">
-          <li><p>Mae Fah Luang University</p></li>
-          <li><p>333 Moo 1, Tha Sud Subdistrict, Mueang District, Chiang Rai</p></li>
-          <li><p>Province 57100 Telephone 0-5391-6000, 0-5391-7034</p></li>
-          <li><p>Fax 0-5391-6034, 0-5391-7049</p></li>
-          <li><p>Mae Fah Luang University Office, Bangkok</p></li>
-          <li><p>Telephone 0-2679-0038-9</p></li>
-          <li><p>Fax 0-2679-0038</p></li>
-        </div> -->
-        <div class="col-md-5 d-flex align-items-stretch mx-auto custom-margin-top">
-          <div class="info-wrap bg-primary w-100 p-lg-5 p-4">
-            <h3 class="mb-4 mt-md-3">Contact us</h3>
-            <div class="dbox w-100 d-flex align-items-start">
-              <div class="icon d-flex align-items-center justify-content-center">
-                <span class="fa fa-map-marker"></span>
-              </div>
-              <div class="text pl-3">
-                <p><span>Address:</span>
-                  <br>Mae Fah Luang University 333 Moo 1, Tha Sud Subdistrict, Mueang District, Chiang Rai Province 
-                  <br>Mae Fah Luang University Office Bangkok
-                </p>
-              </div>
-            </div>
-            <div class="dbox w-100 d-flex align-items-center">
-              <div class="icon d-flex align-items-center justify-content-center">
-                <span class="fa fa-phone"></span>
-              </div>
-              <div class="text pl-3">
-                <p><span>Phone:</span> <a href="tel://0-5391-6000">
-                  <br>0-5391-6000, 0-5391-7034
-                </a></p>
-              </div>
-            </div>
-            <div class="dbox w-100 d-flex align-items-center">
-              <div class="icon d-flex align-items-center justify-content-center">
-                <span class="fa fa-paper-plane"></span>
-              </div>
-              <div class="text pl-3">
-                <p><span>Fax:</span> <a href="mailto:info@yoursite.com">
-                  <br>#0-5391-6034, #0-5391-7049
-                </a></p>
-              </div>
-            </div>
-            <div class="dbox w-100 d-flex align-items-center">
-              <div class="icon d-flex align-items-center justify-content-center">
-                <span class="fa fa-globe"></span>
-              </div>
-              <div class="text pl-3">
-                <p><span>Website</span> <a href="#">
-                  <br>reg.mfu.ac.th</a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <form class="search-box">
+            <input type="text" id="courseSearch" oninput="searchCourses()" placeholder=" CourseID" autocomplete="off"/>
+            <button type="reset"></button>
+        </form>
+        <table class="center-table scrollable-table">
+          <thead>
+          <tr class="headtable">
+              <th>CourseID</th>
+              <th>Subject</th>
+              <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+              <!-- Thymeleaf iteration over courses -->
+              <tr th:each="course : ${courses}">
+                  <td th:text="${course.getID()}"></td>
+                  <td th:text="${course.getName()}"></td>
+                  <td>
+                      <a class="btnAction" href="#">SECT</a>
+                      <a class="btnAction" href="#">DELETE</a>
+                  </td>
+              </tr>
+          </tbody>
+        </table>
+        <ul id="courseList" style="display: none;">
+          <!-- Thymeleaf iteration over courses -->
+          <li th:each="course : ${courses}">
+              <a th:href="'/manage-course/' + ${course.getID()}">
+                  <span th:text="${course.getID()}"></span>
+                  <span th:text="${course.getName()}"></span>
+              </a>
+          </li>
+        </ul>
+        <script  src="/js/search-box.js"></script>
+        <a class="btnADD" href="#">ADD COURSE</a>
+
         <!-- contact end -->
       <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
     </div>

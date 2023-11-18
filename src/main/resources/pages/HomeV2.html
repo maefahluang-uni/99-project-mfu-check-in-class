@@ -31,7 +31,7 @@
             <div class="line"></div>
           </div>
           <div class="menu">
-            <ul th:if="${userdata.getRole().equals('STUDENT') or userdata.getRole().equals('LECTURER')}">
+            <ul th:if="${userdata.getRole().equals('STUDENT') || userdata.getRole().equals('LECTURER')}">
               <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
               <li><a href="/check-in"><i class="far fa-calendar-check"></i>Check-in</a></li>
               <li><a href="/course"><i class="fas fa-book-open"></i>Course</a></li>
@@ -40,7 +40,7 @@
             </ul>
             <ul th:if="${userdata.getRole().equals('ADMIN')}">
               <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
-              <li><a href="#"><i class="fas fa-book-open"></i>Course</a></li>
+              <li><a href="/manage-course"><i class="fas fa-book-open"></i>Course</a></li>
               <li><a href="#"><i class="fas fa-user-tie"></i>Lecturer</a></li>
               <li><a href="#"><i class="fas fa-user-graduate"></i>Student</a></li>
               <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
@@ -83,13 +83,13 @@
               <!-- home page content start -->
               <div class="homecontent">
                 <div class="quickaccess">
-                  <ul th:if="${userdata.getRole().equals('STUDENT') or userdata.getRole().equals('LECTURER')}">
+                  <ul th:if="${userdata.getRole().equals('STUDENT') || userdata.getRole().equals('LECTURER')}">
                   <li><a href="/check-in"><i class="far fa-calendar-check"></i><p>Check-in</p></a></li>
                   <li><a href="/course"><i class="fas fa-book-open"></i><p>Course</p></a></li>
                   <li><a href="/contact"><i class="fas fa-phone-volume"></i><p>Contact</p></a></li>
                   </ul>
                   <ul th:if="${userdata.getRole().equals('ADMIN')}">
-                  <li><a href="/course"><i class="fas fa-book-open"></i><p>Course</p></a></li>
+                  <li><a href="/manage-course"><i class="fas fa-book-open"></i><p>Course</p></a></li>
                   <li><a href="#"><i class="fas fa-user-tie"></i><p>Lecturer</p></a></li>
                   <li><a href="#"><i class="fas fa-user-graduate"></i><p>Student</p></a></li>
                   </ul>
