@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home</title>
+    </head>
+    <body>
+        <table id="course-table">
+            <thead>
+                <tr>
+                    <th>COURSEID</th>
+                    <th>NAME</th>
+                    <th>SECTION</th>
+                </tr>
+            </thead>
+            <tbody id="course-table-body">
+                <!-- <tr th:each="courseInfo : ${mycourse}">
+                    <td th:text="${courseInfo.course.getID()}"></td>
+                    <td th:text="${courseInfo.course.getName()}"></td>
+                    <td th:text="${courseInfo.getSection()}"></td>
+                </tr> -->
+            </tbody>
+        </table>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+                var userdata = /*[[${userdata}]]*/ 'default';
+                var mycourse = /*[[${mycourse}]]*/ 'default';
+                var semester = /*[[${semester}]]*/ 'default';
+            /*]]>*/
+
+            function getSemester(NOW) {
+                for (const idx in semester) {
+                    const DATE_OBJECT = semester[idx]
+                    const DATE_START = new Date(DATE_OBJECT.dateStart)
+                    const DATE_FINISH = new Date(DATE_OBJECT.dateFinish)
+                    if ((NOW.getTime() >= DATE_START.getTime()) && (NOW.getTime() <= DATE_FINISH.getTime())) {
+                        return DATE_OBJECT;
+                    }
+                }
+                return null;
+            }
+
+            const TableBody = document.getElementById('course-table-body');
+            var CurrentSemester = getSemester(new Date());
+            for (const idx in mycourse) {
+                if (Object.hasOwnProperty.call(mycourse, idx)) {
+                    const subject = mycourse[idx];
+                    if (subject.semester && subject.semester.id == CurrentSemester.id) {
+                        const row = document.createElement('tr');
+                        // Create table data cells and populate them with course data
+                        const courseIdCell = document.createElement('td');
+                        courseIdCell.textContent = subject.course.id;
+                        const nameCell = document.createElement('td');
+                        nameCell.textContent = subject.course.name;
+                        const sectionCell = document.createElement('td');
+                        sectionCell.textContent = subject.section;
+                        // Append the cells to the row
+                        row.appendChild(courseIdCell);
+                        row.appendChild(nameCell);
+                        row.appendChild(sectionCell);
+                        // Append the row to the table body
+                        TableBody.appendChild(row);
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>

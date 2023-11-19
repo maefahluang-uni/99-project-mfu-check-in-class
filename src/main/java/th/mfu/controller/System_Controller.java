@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 // global-attribute: usertype, userdata (can see in all path // page)
 @EnableScheduling
 @Controller
-public class G_Controller {
+public class System_Controller {
     @Autowired
     private UserService userService;
 
@@ -68,7 +68,7 @@ public class G_Controller {
     // }
 
     private final int KEYSYNC_FIXED_LENGTH = 8; // BASE64URL version for safe GET method (64 ^ length) = space collision probability
-    private final int GATE_AUTO_TIMEOUT = (60 * 1) * 1000; // TimeUnit.MILLISECONDS (10 minutes)
+    private final int GATE_AUTO_TIMEOUT = (60 * 1) * 1000; // TimeUnit.MILLISECONDS (1 minutes)
     private final int QR_CODE_AUTO_TIMEOUT = 5; // // TimeUnit.SECONDS (5 seconds is best option balance between real student in the class scan the qr and prevent some student send qr to others.)
     private final int GENERATE_PER_MILLISECONDS = 500;
 
@@ -296,35 +296,6 @@ public class G_Controller {
                     put("message", "AUTHORIZATION failed please try relogin.");
                 }});
         }
-    }
-
-
-    @GetMapping("/course")
-    public String CoursePage(Model model, HttpServletResponse response, HttpServletRequest request) {
-        User Myself = (User) request.getAttribute("userdata");
-        if (Myself.getRole() == "STUDENT") {
-            List<CourseSection> CourseCollection = CourseSectionRepo.findByStudentID(Myself.getID()); // it's a clone instance not effect direct to real entity
-            for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
-                for (Student v1 : v0.student) { v1.setPassword("FORBIDDEN"); }
-            }
-            model.addAttribute("mycourse", CourseCollection);
-        } else if (Myself.getRole() == "LECTURER") {
-            List<CourseSection> CourseCollection = CourseSectionRepo.findByLecturerID(Myself.getID()); // it's a clone instance not effect direct to real entity
-            System.out.println(CourseCollection.toString());
-            for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
-                for (Lecturer v1 : v0.lecturer) { v1.setPassword("FORBIDDEN"); }
-            }
-            model.addAttribute("mycourse", CourseCollection);
-        }
-        return "Lec-Course";
-    }
-
-    @GetMapping("/contact")
-    public String ContactPage(Model model, HttpServletResponse response, HttpServletRequest request) {
-        User Myself = (User) request.getAttribute("userdata");
-        List<CourseSection> CourseCollection = CourseSectionRepo.findByStudentID(Myself.getID());
-        model.addAttribute("MyCourse", CourseCollection);
-        return "Contact";
     }
 
     @GetMapping("/logout")

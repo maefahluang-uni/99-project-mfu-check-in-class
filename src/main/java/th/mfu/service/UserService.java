@@ -23,12 +23,13 @@ public class UserService {
 
     @Autowired
     private StudentRepository StudentRepo;
-
     @Autowired
     private LecturerRepository LecturerRepo;
-
     @Autowired
     private AdminRepository AdminRepo;
+
+    @Autowired
+    private CourseSectionRepository CourseSectionRepo;
 
     public User FindByUserid(Long userid) {
         User student = StudentRepo.findByID(userid);
@@ -98,5 +99,16 @@ public class UserService {
             }
         } catch(Exception e) {}
         return null;
+    }
+
+    public List<CourseSection> MyCourse(User Myself) {
+        List<CourseSection> CourseCollection = null;
+        if (Myself.getRole() == "STUDENT") { CourseCollection = CourseSectionRepo.findByStudentID(Myself.getID()); } // it's a clone instance not effect direct to real entity
+        else if (Myself.getRole() == "LECTURER") { CourseCollection = CourseSectionRepo.findByLecturerID(Myself.getID()); } // it's a clone instance not effect direct to real entity
+        for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
+            for (Student v1 : v0.student) { v1.setPassword("FORBIDDEN"); }
+            for (Lecturer v2 : v0.lecturer) { v2.setPassword("FORBIDDEN"); }
+        }
+        return CourseCollection;
     }
 }

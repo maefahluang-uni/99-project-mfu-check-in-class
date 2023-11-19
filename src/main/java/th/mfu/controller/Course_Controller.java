@@ -42,47 +42,23 @@ import java.util.concurrent.TimeUnit;
 
 // global-attribute: usertype, userdata (can see in all path // page)
 @Controller
-public class Check_in_Controller {
+public class Course_Controller {
     @Autowired
     private UserService userService;
-    
-    @Autowired
-    private CourseSectionRepository CourseSectionRepo;
 
     @Autowired
     private SemesterRepository SemesterRepo;
 
-    @GetMapping("/check-in")
-    public String CheckInPage(Model model, HttpServletResponse response, HttpServletRequest request) {
+    @GetMapping("/course")
+    public String CoursePage(Model model, HttpServletResponse response, HttpServletRequest request) {
+        /* - send -
+         * userdata: global
+         * mycourse: local
+         * semester: local
+         */
         User Myself = (User) request.getAttribute("userdata");
         model.addAttribute("mycourse", userService.MyCourse(Myself)); // can be null in not role student or lecturer
         model.addAttribute("semester", SemesterRepo.findAll());
-        return String.format("[%s] Check-in", Myself.getRole());
-    }
-    
-    @GetMapping("/check-in/view")
-    public String ViewStudentInCourse(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
-        CourseSection Subject = CourseSectionRepo.findByID(instanceid);
-        if (Subject != null) {
-            User Myself = (User) request.getAttribute("userdata");
-            if (Myself instanceof Lecturer) {
-                Lecturer lecturer = (Lecturer) Myself;
-                boolean grantedAccess = false;
-                for (Lecturer v : Subject.lecturer) {
-                    if (v.getID().longValue() == lecturer.getID().longValue()) {
-                        grantedAccess = true;
-                        break;
-                    }
-                }
-                if (grantedAccess) {
-                    model.addAttribute("students", Subject.student);
-                    model.addAttribute("semester", Subject.semester);
-                    model.addAttribute("history", Subject.getAttendanceHistory());
-                    model.addAttribute("period", Subject.getPeriod());
-                }
-                return "[LECTURER] Check-in(View)";
-            }
-        }
-       return null;
+        return String.format("[%s] Course", Myself.getRole());
     }
 }
