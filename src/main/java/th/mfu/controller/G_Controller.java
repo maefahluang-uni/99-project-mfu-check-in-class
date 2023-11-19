@@ -3,6 +3,7 @@ package th.mfu.controller;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import javax.servlet.http.*;
@@ -35,6 +36,7 @@ import th.mfu.repository.*;
 
 import org.springframework.util.StreamUtils;
 import org.springframework.core.io.Resource;
+import java.time.DayOfWeek;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -91,6 +93,8 @@ public class G_Controller {
 
     @PostMapping("/qr")
     public ResponseEntity<HashMap<String, Object>> QRCodeGenerator(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
+        CourseSection Subject = CourseSectionRepo.findByID(instanceid);
+        HashMap<Long, HashMap<Long, Boolean>> HISTORY = (Subject != null) ? Subject.getAttendanceHistory() : null;
         Date GATE = AUTHENTICATION_GATE.getIfPresent(instanceid);
         if (GATE != null) {
             String QR_AUTHENTICATION_KEY = RECENT_KEY.getIfPresent(instanceid);
@@ -105,21 +109,24 @@ public class G_Controller {
                 .body(new HashMap<String, Object>() {{
                     put("success", true);
                     put("mygate", (GATE.getTime() + GATE_AUTO_TIMEOUT));
+                    put("history", HISTORY);
                     put("value", FINAL_OUTPUT);
                 }});
         }
         return ResponseEntity.status(HttpStatus.OK)
             .body(new HashMap<String, Object>() {{
                 put("success", false);
+                put("history", HISTORY);
                 put("message", "AUTHENTICATION_GATE was timeout, try to reopen again.");
             }});
     }
 
-    // http://localhost:8100/qr?instanceid=10000
+    //http://localhost:8100/qr?instanceid=10000
     @GetMapping("/qr") // for LECTURER open qrcode to check-in class (require instanceid: (CourseSection ID))
     public String QRCodePage(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) throws Exception {
         CourseSection Subject = CourseSectionRepo.findByID(instanceid);
         if (Subject != null) {
+            Long SUBJECT_ID = Subject.getID();
             User Myself = (User) request.getAttribute("userdata");
             if (Myself instanceof Lecturer) {
                 Lecturer lecturer = (Lecturer) Myself;
@@ -131,7 +138,6 @@ public class G_Controller {
                     }
                 }
                 if (grantedAccess) {
-                    Long SUBJECT_ID = Subject.getID();
                     String QR_AUTHENTICATION_KEY = RECENT_KEY.getIfPresent(SUBJECT_ID);
                     if (QR_AUTHENTICATION_KEY == null) {
                         Date CanAuthentication = AUTHENTICATION_GATE.getIfPresent(SUBJECT_ID);
@@ -149,7 +155,7 @@ public class G_Controller {
                 }
             }
             model.addAttribute("subject", null); // permission: denied
-            return "QR";
+            return "QR"; 
         } else {
             throw new Exception(HttpStatus.NOT_FOUND + ": subject in database.");
         }
@@ -172,18 +178,26 @@ public class G_Controller {
                             break;
                         }
                     }
-                    if (isMember) {
-                        String[] ST_C = Subject.semester.getDateStart().split("/"); // MM/dd/yyyy
-                        int Month = Integer.parseInt(ST_C[0]);
-                        int Day = Integer.parseInt(ST_C[1]);
-                        int Year = Integer.parseInt(ST_C[2]);
-                        LocalDate StartDate = LocalDate.of(Year, Month, Day);
-                        LocalDate EndDate = LocalDate.now();
-                        Long WeekSemester = ChronoUnit.WEEKS.between(StartDate, EndDate); // cut week every sunday
-                        Subject.markAttendance(student.getID(), WeekSemester, true);
-                        CourseSectionRepo.save(Subject);
-                        model.addAttribute("success", true);
-                        model.addAttribute("message", EndDate);
+                    if (isMember) { // check if in student in this class
+                        LocalDate Now = LocalDate.now();
+                        String[] GP_C = Subject.getPeriod().split(", ");
+                        String AbbreviatedDayLabel = GP_C[0];
+                        String DayLabelAbbreviation = Now.format(DateTimeFormatter.ofPattern("E")); // "E" for day abbreviation
+                        if (DayLabelAbbreviation.equals(AbbreviatedDayLabel)) { // check if in same daylabel
+                            String[] ST_C = Subject.semester.getDateStart().split("/"); // MM/dd/yyyy
+                            int Month = Integer.parseInt(ST_C[0]);
+                            int Day = Integer.parseInt(ST_C[1]);
+                            int Year = Integer.parseInt(ST_C[2]);
+                            LocalDate StartDate = LocalDate.of(Year, Month, Day);
+                            Long WeekSemester = ChronoUnit.WEEKS.between(StartDate, Now); // cut week every wed (DateStart is wed according to calendar)
+                            Subject.markAttendance(student.getID(), WeekSemester, true);
+                            CourseSectionRepo.save(Subject);
+                            model.addAttribute("success", true);
+                            model.addAttribute("message", Now);
+                        } else {
+                            model.addAttribute("success", false);
+                            model.addAttribute("message", "You are only allow for authentication in a class on the day.");
+                        }
                     } else {
                         model.addAttribute("success", false);
                         model.addAttribute("message", "You are not in this class.");

@@ -46,6 +46,9 @@ public class Check_in_Controller {
     @Autowired
     private CourseSectionRepository CourseSectionRepo;
 
+    @Autowired
+    private SemesterRepository SemesterRepo;
+
     @GetMapping("/check-in")
     public String CheckInPage(Model model, HttpServletResponse response, HttpServletRequest request) {
         User Myself = (User) request.getAttribute("userdata");
@@ -63,6 +66,7 @@ public class Check_in_Controller {
             }
             model.addAttribute("mycourse", CourseCollection);
         }
+        model.addAttribute("semester", SemesterRepo.findAll());
         return "Check-in";
     }
     

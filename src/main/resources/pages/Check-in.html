@@ -3,6 +3,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Home</title>
+        <link rel="stylesheet" href="css\Lec-Course.css">
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <style>
             .table {
                 display: table;
@@ -26,18 +28,57 @@
                 padding: 8px;
                 text-align: center;
             }
+
+
+            #sideDayControl {
+                margin: 1%;
+                display: flex;
+                justify-content: center;
+            }
+            #daysListContainer {
+                display: flex;
+                align-items: center;
+            }
+            #daysList {
+                list-style-type: none;
+                justify-content: center;
+                padding: 100px;
+                display: flex;
+            }
+            #daysList button {
+                margin: 5%;
+                padding: 2%;
+            }
+            #previousButton,
+            #nextButton {
+                margin: 0; /* Adjust margin as needed */
+            }
         </style>
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-                let userdata = /*[[${userdata}]]*/ 'default';
-                console.log(userdata);
-                let mycourse = /*[[${mycourse}]]*/ 'default';
-                console.log(mycourse);
-            /*]]>*/
-        </script>
     </head>
     <body th:if="${userdata.getRole().equals('STUDENT')}">
-        <ul class="list">
+        <div id="calendar-icon" onclick="toggleCalendar()">📅</div>
+        <!-- Calendar Container -->
+        <div id="calendar-container">
+            <div id="calendar-header">
+                <button onclick="changeMonth(-1)">❮</button>
+                <span id="month-year"></span>
+                <button onclick="changeMonth(1)">❯</button>
+                <button id="close-btn" onclick="closeCalendar()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="calendar-days"></div>
+            <p id="currentDate"></p>
+            <p id="SelectedElement"></p>
+        </div>
+
+        <div id="sideDayControl">
+            <div id="daysListContainer">
+                <button id="previousButton">Previous</button>
+                <div id="daysList"></div>
+                <button id="nextButton">Next</button>
+            </div>
+        </div>
+
+        <ul class="list" id="courseList">
             <li th:each="courseInfo : ${mycourse}">
                 <strong>COURSEID:</strong> <span th:text="${courseInfo.course.getID()}"></span><br>
                 <strong>NAME:</strong> <span th:text="${courseInfo.course.getName()}"></span><br>
@@ -47,16 +88,325 @@
                 <button id="scanButton">Scan</button><br>
             </li>
         </ul>
-        <script>
-            const scanButton = document.getElementById('scanButton');
-            scanButton.addEventListener('click', async () => {
-                window.location.href = "/scan";
+
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"></script>
+        <script src="https://unpkg.com/observable-slim"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+                let userdata = /*[[${userdata}]]*/ 'default';
+                console.log(userdata);
+                let mycourse = /*[[${mycourse}]]*/ 'default';
+                console.log(mycourse);
+                let semester = /*[[${semester}]]*/ 'default';
+                console.log(semester);
+            /*]]>*/
+
+            document.addEventListener('DOMContentLoaded', function() {
+                function updateDateTime() {
+                    var currentDate = new Date();
+                    var dateString = currentDate.toLocaleDateString('en-US');
+                    // Customize time options for Thailand format
+                    var timeOptions = { 
+                        hour12: false,
+                        timeZone: 'Asia/Bangkok' 
+                    };
+                    var timeString = currentDate.toLocaleTimeString('en-US', timeOptions);
+                    var dateElement = document.getElementById('currentDate');
+                    dateElement.innerHTML = 'Current Date: ' + dateString + ' ' + timeString;
+                }
+                updateDateTime();
+                setInterval(updateDateTime, 1000);
             });
+
+            function toggleCalendar() {
+                var calendarContainer = document.getElementById('calendar-container');
+                calendarContainer.style.display = (calendarContainer.style.display === 'block') ? 'none' : 'block';
+                updateCalendar(PROXY.CalendarNow); // Update the calendar when it is displayed
+            }
+            function closeCalendar() {
+                document.getElementById('calendar-container').style.display = 'none';
+            }
+
+            function updateCalendar(DATE) {
+                let month = DATE.getMonth();
+                let year = DATE.getFullYear();
+                let firstDay = new Date(year, month, 1).getDay(); // Get the day of the week for the first day of the month
+                let daysInMonth = new Date(year, month + 1, 0).getDate();
+                // set month label
+                var monthYearElement = document.getElementById('month-year');
+                monthYearElement.innerText = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(DATE);
+                // clean daysContainer
+                var daysContainer = document.getElementById('calendar-days');
+                daysContainer.innerHTML = '';
+                // Determine how many days to display from the previous month
+                let prevMonthDays = firstDay === 0 ? 7 : firstDay; // If the month doesn't start on Sunday, get the days from the previous month
+                let prevMonth = month === 0 ? 11 : month - 1; // Determine the previous month
+                let prevYear = month === 0 ? year - 1 : year; // Determine the previous year
+                let prevMonthDaysCount = new Date(prevYear, prevMonth + 1, 0).getDate(); // Get the number of days in the previous month
+                // Display the previous month's days
+                if (prevMonthDays !== 7) {
+                    for (let i = prevMonthDays - 1; i >= 0; i--) {
+                        let dayElement = document.createElement('div');
+                        dayElement.classList.add('calendar-day');
+                        dayElement.classList.add('day-not-in-month');
+                        dayElement.innerText = prevMonthDaysCount - i;
+                        daysContainer.appendChild(dayElement);
+                    }
+                }
+                // Display the days of the current month
+                const NOW = new Date();
+                if (NOW.toDateString() == PROXY.SelectDate.toDateString()) {
+                    SelectedElement.innerHTML = '';
+                } else {
+                    SelectedElement.innerHTML = 'Selected Date: ' + PROXY.SelectDate.toLocaleDateString('en-US');
+                }
+                for (let day = 1; day <= daysInMonth; day++) {
+                    let eachDay = new Date(year, month, day);
+                    let dayElement = document.createElement('div');
+                    dayElement.classList.add('calendar-day');
+                    dayElement.innerText = day;
+                    if (eachDay.getMonth() !== month) {
+                        dayElement.classList.add('day-not-in-month');
+                    } else {
+                        dayElement.onclick = function () {
+                            PROXY.SelectDate = eachDay;
+                            SelectedElement.innerHTML = 'Selected Date: ' + PROXY.SelectDate.toLocaleDateString('en-US');
+                            closeCalendar(); // Close the calendar after selecting a date
+                        };
+                        // Highlight the previously selected date
+                        if (NOW.toDateString() == eachDay.toDateString()) {
+                            dayElement.classList.add('current-date');
+                        } else if (PROXY.SelectDate.toDateString() == eachDay.toDateString()) {
+                            dayElement.classList.add('selected-date');
+                        }
+                    }
+                    if (RoundWeek(DATE).toDateString() == RoundWeek(eachDay).toDateString()) {
+                        dayElement.classList.add('highlight-week');
+                    }
+                    daysContainer.appendChild(dayElement);
+                }
+                // Fill in days after the current month until Saturday
+                let remainingDays = 7 - daysContainer.querySelectorAll('.calendar-day').length % 7;
+                if (remainingDays !== 7) { // Check if there are remaining days to fill
+                    for (let i = 1; i <= remainingDays; i++) {
+                        let dayElement = document.createElement('div');
+                        dayElement.classList.add('calendar-day');
+                        dayElement.classList.add('day-not-in-month');
+                        dayElement.innerText = i;
+                        daysContainer.appendChild(dayElement);
+                    }
+                }
+            }
+            function changeMonth(delta) {
+                PROXY.CalendarNow.setMonth(PROXY.CalendarNow.getMonth() + delta);
+                PROXY.CalendarNow = new Date(PROXY.CalendarNow); 
+            }
+
+            var CurrentSemester;
+            function getSemester(NOW) {
+                for (const idx in semester) {
+                    const DATE_OBJECT = semester[idx]
+                    const DATE_START = new Date(DATE_OBJECT.dateStart)
+                    const DATE_FINISH = new Date(DATE_OBJECT.dateFinish)
+                    if ((NOW.getTime() >= DATE_START.getTime()) && (NOW.getTime() <= DATE_FINISH.getTime())) {
+                        return DATE_OBJECT;
+                    }
+                }
+                return null;
+            }
+
+            function convertStringToDate(dateString) {
+                const [day, timeRange] = dateString.split(', ');
+                const [startTime, endTime] = timeRange.split(' - ');
+                const currentDate = new Date();
+                const currentYear = currentDate.getFullYear();
+                const currentMonth = currentDate.getMonth();
+                const currentDay = currentDate.getDate();
+                const daysOfWeek = {
+                    "Sun": 0,
+                    "Mon": 1,
+                    "Tue": 2,
+                    "Wed": 3,
+                    "Thu": 4,
+                    "Fri": 5,
+                    "Sat": 6
+                };
+                const dayIndex = daysOfWeek[day];
+                const [startHour, startMinute] = startTime.split(':');
+                const startDate = new Date(currentYear, currentMonth, currentDay, startHour, startMinute);
+                startDate.setDate(currentDate.getDate() + (dayIndex - currentDate.getDay() + 7) % 7);
+                const [endHour, endMinute] = endTime.split(':');
+                const endDate = new Date(currentYear, currentMonth, currentDay, endHour, endMinute);
+                endDate.setDate(currentDate.getDate() + (dayIndex - currentDate.getDay() + 7) % 7);
+                return {
+                    startDate,
+                    endDate
+                };
+            }
+
+            function calculateWeeks(startDate, endDate) {
+                const start = startDate;
+                const end = endDate;
+                const millisecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+                const differenceInTime = end.getTime() - start.getTime();
+                const weeksElapsed = Math.floor(differenceInTime / millisecondsPerWeek);
+                return weeksElapsed;
+            } // ChronoUnit.WEEKS.between (in java)
+            
+            let connections = {};
+            function addCourse(subject) {
+                var listItem = document.createElement("li");
+                let datePeriod = convertStringToDate(subject.period);
+                async function notificator () {
+                    let state = "UNDEFINED";
+                    let state_now_instance = document.getElementById(`state-${subject.id}`);
+                    if (!state_now_instance) { return; }
+                    
+                    const query = { instanceid: subject.id };
+                    let response;
+                    try {
+                        response = await axios.post('/qr', new URLSearchParams(query), {
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            }
+                        });
+                    } catch(e) {}
+
+                    const NOW = new Date();
+                    const WEEK_NUMBER = calculateWeeks(new Date(CurrentSemester.dateStart), PROXY.SelectDate);
+                    let MIDNIGHT_SAFER = new Date(PROXY.SelectDate);
+                    MIDNIGHT_SAFER.setHours(23, 59, 59, 999);
+                    console.log(response);
+                    const ATTENDANCE_HISTORY = (response && response.data.history) || subject.attendanceHistory || {};
+                    if (ATTENDANCE_HISTORY) {
+                        const MY_ATTENDANCE = ATTENDANCE_HISTORY[userdata.id] || {}; // idx in object doesn't matter cause it will auto turn to string.
+                        if (MY_ATTENDANCE) {
+                            if (MY_ATTENDANCE[WEEK_NUMBER]) {
+                                state = "CHECKED";
+                                state_now_instance.textContent = state;
+                                return;
+                            }
+                            if (NOW.getTime() >= MIDNIGHT_SAFER.getTime()) {
+                                state = "MISSING";
+                                state_now_instance.textContent = state;
+                                return
+                            }
+                        }
+                    }
+                    if (response && response.data.success) {
+                        if (PROXY.SelectDate.toDateString() == NOW.toDateString()) {
+                            state = "OPEN";
+                            state_now_instance.textContent = state;
+                            return;
+                        }
+                    }
+                    state = "NOT OPEN";
+                    state_now_instance.textContent = state;
+                    return;
+                }
+                setTimeout(notificator, 0);
+                connections[subject.id] = setInterval(notificator, 2000); // every 2 seconds for updator
+                // subject.id // instanceid
+                listItem.innerHTML = `
+                    <strong>STATE:</strong> <span id="state-${subject.id}">LOADING</span><br>
+                    <strong>COURSEID:</strong> <span>${subject.course.id}</span><br>
+                    <strong>NAME:</strong> <span>${subject.course.name}</span><br>
+                    <strong>SECTION:</strong> <span>${subject.section}</span><br>
+                    <strong>LOCATION:</strong> <span>${subject.location}</span><br>
+                    <strong>PERIOD:</strong> <span>${subject.period}</span><br>
+                    <button class="scanButton">Scan</button><br>
+                `;
+                document.getElementById("courseList").appendChild(listItem);
+            }
+
+            const LISTENER = {
+                SelectDate: function(SYNC) {
+                    const newValue = SYNC.newValue;
+                    const previousValue = SYNC.previousValue;
+                    // data sync
+                    PROXY.CalendarNow = new Date(newValue); // math floor to sunday
+                    CurrentSemester = getSemester(newValue);
+                    var container = document.getElementById("courseList");
+                    for (const key in connections) {
+                        if (connections[key]) {
+                            clearInterval(connections[key]);
+                        }
+                    }
+                    container.innerHTML = "";
+                    if (CurrentSemester) {
+                        mycourse.forEach(subject => {
+                            if (subject.semester) {
+                                if (subject.semester.id == CurrentSemester.id) { // or check getTime is in range but lazy xd
+                                    let datePeriod = convertStringToDate(subject.period);
+                                    if (datePeriod.startDate.getDay() == newValue.getDay()) { // check if select date is daylabel? (sun - sat)
+                                        addCourse(subject);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    var scanButtons = document.getElementsByClassName("scanButton");
+                    Array.from(scanButtons).forEach(function(button) {
+                        button.addEventListener('click', function() {
+                            window.location.href = "/scan";
+                        });
+                    });
+                },
+                CalendarNow: function(SYNC) {
+                    const newValue = SYNC.newValue;
+                    const previousValue = SYNC.previousValue;
+                    // data sync
+                    displayWeek(RoundWeek(newValue));
+                    updateCalendar(newValue);
+                }
+            }
+            var PROXY = ObservableSlim.create({}, true, (changes) => {
+                changes.forEach(LOG => {
+                    const EVENT = LISTENER[LOG.property]
+                    if (EVENT) {
+                        EVENT(LOG)
+                    }
+                });
+            });
+            function displayWeek(startOfWeek) {
+                var daysList = document.getElementById("daysList");
+                daysList.innerHTML = ""; // Clear the previous content
+                for (var i = 0; i < 7; i++) {
+                    let each_date = new Date(startOfWeek);
+                    each_date.setDate(startOfWeek.getDate() + i);
+                    let dayOfMonth = each_date.getDate();
+                    let button = document.createElement("button");
+                    button.textContent = dayOfMonth;
+                    button.addEventListener("click", function() {
+                        PROXY.SelectDate = each_date; // each_date is each of date object
+                    });
+                    daysList.appendChild(button);
+                }
+            }
+            function RoundWeek(date) { // Clamp to sunday
+                const day = date.getDay(); // Get the day of the week (0 - Sunday, 1 - Monday, ..., 6 - Saturday)
+                const diff = 0 - day; // Calculate the difference to the previous Sunday
+                const roundedDate = new Date(date); // Create a new date object to avoid mutating the original date
+                roundedDate.setDate(date.getDate() + diff); // Set the date to the nearest Sunday
+                return roundedDate;
+            }
+
+            PROXY.SelectDate = new Date(); // dynamic init we'll use this to filter
+
+            var prevWeekButton = document.getElementById("previousButton");
+            prevWeekButton.addEventListener("click", function() {
+                PROXY.CalendarNow.setDate(PROXY.CalendarNow.getDate() - 7);
+                PROXY.CalendarNow = new Date(PROXY.CalendarNow);
+            })
+
+            var nextWeekButton = document.getElementById("nextButton");
+            nextWeekButton.addEventListener("click", function() {
+                PROXY.CalendarNow.setDate(PROXY.CalendarNow.getDate() + 7);
+                PROXY.CalendarNow = new Date(PROXY.CalendarNow);
+            })
         </script>
     </body>
-
-
-
     <body th:if="${userdata.getRole().equals('LECTURER')}">
         <div class="table" id="course">
             <div class="header">
