@@ -183,6 +183,9 @@ public class System_Controller {
                         String[] GP_C = Subject.getPeriod().split(", ");
                         String AbbreviatedDayLabel = GP_C[0];
                         String DayLabelAbbreviation = Now.format(DateTimeFormatter.ofPattern("E")); // "E" for day abbreviation
+                        model.addAttribute("DEBUG_NOW", Now); // just test to see if it affect on gcloud?
+                        model.addAttribute("DEBUG_DAYLABEL_1", AbbreviatedDayLabel); // just test to see if it affect on gcloud?
+                        model.addAttribute("DEBUG_DAYLABEL_2", DayLabelAbbreviation); // just test to see if it affect on gcloud?
                         if (DayLabelAbbreviation.equals(AbbreviatedDayLabel)) { // check if in same daylabel
                             String[] ST_C = Subject.semester.getDateStart().split("/"); // MM/dd/yyyy
                             int Month = Integer.parseInt(ST_C[0]);

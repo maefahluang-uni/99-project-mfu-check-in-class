@@ -55,6 +55,9 @@
         /*<![CDATA[*/
         let success = /*[[${success}]]*/ 'default';
         let message = /*[[${message}]]*/ 'default';
+        let DEBUG_NOW = /*[[${DEBUG_NOW}]]*/ 'default';
+        let DEBUG_DAYLABEL_1 = /*[[${DEBUG_DAYLABEL_1}]]*/ 'default';
+        let DEBUG_DAYLABEL_2 = /*[[${DEBUG_DAYLABEL_2}]]*/ 'default';
         /*]]>*/
         function showSuccess(msg) {
             var popupContainer = document.getElementById('popup-container');
@@ -77,9 +80,9 @@
             }
         }
         if (success) {
-            showSuccess(message);
+            showSuccess("true: " + DEBUG_NOW + " " + DEBUG_DAYLABEL_1 + " " + DEBUG_DAYLABEL_2);
         } else {
-            showError(message);
+            showError("false: " + DEBUG_NOW + " " + DEBUG_DAYLABEL_1 + " " + DEBUG_DAYLABEL_2);
         }
     </script>
     </body>
