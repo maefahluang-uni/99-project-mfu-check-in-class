@@ -55,6 +55,7 @@
         /*<![CDATA[*/
         let success = /*[[${success}]]*/ 'default';
         let message = /*[[${message}]]*/ 'default';
+        let DEBUG_Z = /*[[${DEBUG_Z}]]*/ 'default';
         let DEBUG_NOW = /*[[${DEBUG_NOW}]]*/ 'default';
         let DEBUG_DAYLABEL_1 = /*[[${DEBUG_DAYLABEL_1}]]*/ 'default';
         let DEBUG_DAYLABEL_2 = /*[[${DEBUG_DAYLABEL_2}]]*/ 'default';
@@ -80,9 +81,9 @@
             }
         }
         if (success) {
-            showSuccess("true: " + DEBUG_NOW + " " + DEBUG_DAYLABEL_1 + " " + DEBUG_DAYLABEL_2);
+            showSuccess("true: " + " " + DEBUG_Z + " " + DEBUG_NOW + " " + DEBUG_DAYLABEL_1 + " " + DEBUG_DAYLABEL_2);
         } else {
-            showError("false: " + DEBUG_NOW + " " + DEBUG_DAYLABEL_1 + " " + DEBUG_DAYLABEL_2);
+            showError("false: " + " " + DEBUG_Z + " " + DEBUG_NOW + " " + DEBUG_DAYLABEL_1 + " " + DEBUG_DAYLABEL_2);
         }
     </script>
     </body>

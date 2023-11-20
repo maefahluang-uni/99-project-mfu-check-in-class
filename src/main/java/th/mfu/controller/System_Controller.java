@@ -2,6 +2,7 @@ package th.mfu.controller;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
@@ -179,10 +180,12 @@ public class System_Controller {
                         }
                     }
                     if (isMember) { // check if in student in this class
-                        LocalDate Now = LocalDate.now();
+                        ZoneId z = ZoneId.systemDefault();
+                        LocalDate Now = LocalDate.now(z);
                         String[] GP_C = Subject.getPeriod().split(", ");
                         String AbbreviatedDayLabel = GP_C[0];
                         String DayLabelAbbreviation = Now.format(DateTimeFormatter.ofPattern("E")); // "E" for day abbreviation
+                        model.addAttribute("DEBUG_Z", z);
                         model.addAttribute("DEBUG_NOW", Now); // just test to see if it affect on gcloud?
                         model.addAttribute("DEBUG_DAYLABEL_1", AbbreviatedDayLabel); // just test to see if it affect on gcloud?
                         model.addAttribute("DEBUG_DAYLABEL_2", DayLabelAbbreviation); // just test to see if it affect on gcloud?
