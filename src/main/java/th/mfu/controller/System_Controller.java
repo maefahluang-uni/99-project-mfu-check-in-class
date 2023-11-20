@@ -180,12 +180,14 @@ public class System_Controller {
                         }
                     }
                     if (isMember) { // check if in student in this class
-                        ZoneId z = ZoneId.systemDefault();
-                        LocalDate Now = LocalDate.now(z);
+                        // so in database sql we use period ref as in thailand if it run on localhost it will use "Asia/Bangkok" but if it run on gcloud it will use "ETC/UTC" instead.
+                        // so then wee need to set zone as thailand.
+                        ZoneId ReferenceZone = ZoneId.of("Asia/Bangkok"); // ZoneId.systemDefault();
+                        LocalDate Now = LocalDate.now(ReferenceZone);
                         String[] GP_C = Subject.getPeriod().split(", ");
                         String AbbreviatedDayLabel = GP_C[0];
                         String DayLabelAbbreviation = Now.format(DateTimeFormatter.ofPattern("E")); // "E" for day abbreviation
-                        model.addAttribute("DEBUG_Z", z);
+                        model.addAttribute("DEBUG_Z", ReferenceZone);
                         model.addAttribute("DEBUG_NOW", Now); // just test to see if it affect on gcloud?
                         model.addAttribute("DEBUG_DAYLABEL_1", AbbreviatedDayLabel); // just test to see if it affect on gcloud?
                         model.addAttribute("DEBUG_DAYLABEL_2", DayLabelAbbreviation); // just test to see if it affect on gcloud?
