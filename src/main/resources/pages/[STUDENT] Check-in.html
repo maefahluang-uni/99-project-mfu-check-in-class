@@ -28,8 +28,10 @@
                 padding: 8px;
                 text-align: center;
             }
-
-
+            .hide-button {
+                display: none;
+            }
+            
             #sideDayControl {
                 margin: 1%;
                 display: flex;
@@ -261,6 +263,7 @@
                 async function notificator () {
                     let state = "UNDEFINED";
                     let state_now_instance = document.getElementById(`state-${subject.id}`);
+                    let scan_button_instance = document.getElementById(`subject-${subject.id}`);
                     if (!state_now_instance) { return; }
                     
                     const query = { instanceid: subject.id };
@@ -277,7 +280,8 @@
                     const WEEK_NUMBER = calculateWeeks(new Date(CurrentSemester.dateStart), PROXY.SelectDate);
                     let MIDNIGHT_SAFER = new Date(PROXY.SelectDate);
                     MIDNIGHT_SAFER.setHours(23, 59, 59, 999);
-                    console.log(response);
+
+                    scan_button_instance.classList.add("hide-button");
                     const ATTENDANCE_HISTORY = (response && response.data.history) || subject.attendanceHistory || {};
                     if (ATTENDANCE_HISTORY) {
                         const MY_ATTENDANCE = ATTENDANCE_HISTORY[userdata.id] || {}; // idx in object doesn't matter cause it will auto turn to string.
@@ -298,6 +302,7 @@
                         if (PROXY.SelectDate.toDateString() == NOW.toDateString()) {
                             state = "OPEN";
                             state_now_instance.textContent = state;
+                            scan_button_instance.classList.remove("hide-button");
                             return;
                         }
                     }
@@ -315,7 +320,7 @@
                     <strong>SECTION:</strong> <span>${subject.section}</span><br>
                     <strong>LOCATION:</strong> <span>${subject.location}</span><br>
                     <strong>PERIOD:</strong> <span>${subject.period}</span><br>
-                    <button class="scanButton">Scan</button><br>
+                    <button class="scanButton" id="subject-${subject.id}">Scan</button><br>
                 `;
                 document.getElementById("courseList").appendChild(listItem);
             }

@@ -49,19 +49,18 @@ import java.util.concurrent.TimeUnit;
 public class System_Controller {
     @Autowired
     private UserService userService;
+    @Autowired
+    private DateUtils DateService;
 
     @Autowired
     private StudentRepository StudentRepo;
-
     @Autowired
     private LecturerRepository LecturerRepo;
-
     @Autowired
     private CourseRepository CourseRepo;
-
     @Autowired
     private CourseSectionRepository CourseSectionRepo;
-    
+
     // Unfortunately websocket can't be use on google cloud build since it optimize for non-always-live server
     // private final SimpMessagingTemplate MessagingService;
     // public G_Controller(SimpMessagingTemplate MessagingTemplate, UserService userService) {
@@ -162,6 +161,8 @@ public class System_Controller {
         }
     }
 
+
+
     @GetMapping("/qr/{key}") // for STUDENT scan qrcode to check-in class by key
     public String QRCodeScan(Model model, HttpServletResponse response, HttpServletRequest request, @PathVariable String key) {
         String KEYSYNC = key;
@@ -180,17 +181,17 @@ public class System_Controller {
                         }
                     }
                     if (isMember) { // check if in student in this class
-                        // so in database sql we use period ref as in thailand if it run on localhost it will use "Asia/Bangkok" but if it run on gcloud it will use "ETC/UTC" instead.
+                        // so in database sql we use period ref as in thailand if it run on localhost it will use "Asia/Bangkok" but if it run on gcloud it will use "Etc/UTC" instead.
                         // so then wee need to set zone as thailand.
                         ZoneId ReferenceZone = ZoneId.of("Asia/Bangkok"); // ZoneId.systemDefault();
                         LocalDate Now = LocalDate.now(ReferenceZone);
                         String[] GP_C = Subject.getPeriod().split(", ");
                         String AbbreviatedDayLabel = GP_C[0];
                         String DayLabelAbbreviation = Now.format(DateTimeFormatter.ofPattern("E")); // "E" for day abbreviation
-                        model.addAttribute("DEBUG_Z", ReferenceZone);
-                        model.addAttribute("DEBUG_NOW", Now); // just test to see if it affect on gcloud?
-                        model.addAttribute("DEBUG_DAYLABEL_1", AbbreviatedDayLabel); // just test to see if it affect on gcloud?
-                        model.addAttribute("DEBUG_DAYLABEL_2", DayLabelAbbreviation); // just test to see if it affect on gcloud?
+                        // model.addAttribute("DEBUG_Z", ReferenceZone);
+                        // model.addAttribute("DEBUG_NOW", Now); // just test to see if it affect on gcloud?
+                        // model.addAttribute("DEBUG_DAYLABEL_1", AbbreviatedDayLabel); // just test to see if it affect on gcloud?
+                        // model.addAttribute("DEBUG_DAYLABEL_2", DayLabelAbbreviation); // just test to see if it affect on gcloud?
                         if (DayLabelAbbreviation.equals(AbbreviatedDayLabel)) { // check if in same daylabel
                             String[] ST_C = Subject.semester.getDateStart().split("/"); // MM/dd/yyyy
                             int Month = Integer.parseInt(ST_C[0]);
@@ -326,6 +327,6 @@ public class System_Controller {
     public String viewCourses(Model model) {
         List<Course> courses = (List<Course>) CourseRepo.findAll();
         model.addAttribute("courses", courses);
-    return "Manage-course";
-}
+        return "Manage-course";
+    }
 }

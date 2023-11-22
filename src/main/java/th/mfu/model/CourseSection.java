@@ -68,6 +68,7 @@ public class CourseSection  {
     }
 
     // Check-in History System.
+    @Column(columnDefinition = "LONGTEXT") // (4 GB) for saving space
     private HashMap<Long, HashMap<Long, Boolean>> attendanceHistory;
     public HashMap<Long, HashMap<Long, Boolean>> getAttendanceHistory() {
         return attendanceHistory;
@@ -75,22 +76,22 @@ public class CourseSection  {
     public void setAttendanceHistory(HashMap<Long, HashMap<Long, Boolean>> attendanceHistory) {
         this.attendanceHistory = attendanceHistory;
     }
-    public void markAttendance(Long studentId, Long date, boolean isPresent) {
+    public void markAttendance(Long studentId, Long week, boolean isPresent) {
         if (attendanceHistory == null) {
             attendanceHistory = new HashMap<>();
         }
         HashMap<Long, Boolean> studentAttendance = attendanceHistory.getOrDefault(studentId, new HashMap<>());
-        studentAttendance.put(date, isPresent);
+        studentAttendance.put(week, isPresent);
         attendanceHistory.put(studentId, studentAttendance);
     }
-    public Boolean getAttendance(Long studentId, Long date) {
+    public Boolean getAttendance(Long studentId, Long week) {
         HashMap<Long, Boolean> studentAttendance = attendanceHistory.get(studentId);
-        return (studentAttendance != null) ? studentAttendance.get(date) : null;
+        return (studentAttendance != null) ? studentAttendance.get(week) : null;
     }
-    public void clearAttendance(Long studentId, Long date) {
+    public void clearAttendance(Long studentId, Long week) {
         HashMap<Long, Boolean> studentAttendance = attendanceHistory.get(studentId);
         if (studentAttendance != null) {
-            studentAttendance.remove(date);
+            studentAttendance.remove(week);
             if (studentAttendance.isEmpty()) {
                 attendanceHistory.remove(studentId);
             }

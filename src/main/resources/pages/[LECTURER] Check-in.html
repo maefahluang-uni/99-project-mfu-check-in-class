@@ -96,13 +96,24 @@
                 });
                 viewButton.classList.add("cell");
                 dataRow.appendChild(viewButton);
-                let qrButton = document.createElement("button");
-                qrButton.textContent = "QR";
-                qrButton.addEventListener('click', function() {
-                    window.location.href = "/qr?instanceid=" + instance.id;
-                });
-                qrButton.classList.add("cell");
-                dataRow.appendChild(qrButton);
+                const daysOfWeek = {
+                    "Sun": 0,
+                    "Mon": 1,
+                    "Tue": 2,
+                    "Wed": 3,
+                    "Thu": 4,
+                    "Fri": 5,
+                    "Sat": 6
+                };
+                if (new Date().getDay() == daysOfWeek[instance.period.substring(0, 3)]) {
+                    let qrButton = document.createElement("button");
+                    qrButton.textContent = "QR";
+                    qrButton.addEventListener('click', function() {
+                        window.location.href = "/qr?instanceid=" + instance.id;
+                    });
+                    qrButton.classList.add("cell");
+                    dataRow.appendChild(qrButton);
+                }
                 ///////////////////////////////////////////////////////
                 document.getElementById("course").appendChild(dataRow);
             }

@@ -32,32 +32,14 @@
                 padding: .5em 1em;
             }
         </style>
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script th:inline="javascript">
             /*<![CDATA[*/
-                let userdata = /*[[${userdata}]]*/ {
-                    "id": 1150,
-                    "role": "LECTURER",
-                    "password": null,
-                    "school": "School of Information Technology",
-                    "department": "Software Engineering",
-                    "name": "Dr.Sujitra Arwatchananukul"
-                };
+                let userdata = /*[[${userdata}]]*/ undefined;
                 let subject = /*[[${subject}]]*/ undefined
                 let students = subject.student;
                 let period = subject.period;
                 let history = subject.attendanceHistory;
                 let semester = subject.semester;
-                // let students = /*[[${students}]]*/ 'default';
-                // let period = /*[[${period}]]*/ 'default';
-                // let history = /*[[${history}]]*/ 'default';
-                // let semester = /*[[${semester}]]*/ {
-                //     "year": 2023,
-                //     "id": 6666,
-                //     "dateStart": "8/16/2023",
-                //     "term": 1,
-                //     "dateFinish": "12/16/2023"
-                // };
             /*]]>*/
         </script>
     </head>
@@ -140,23 +122,12 @@
                 const cell = WeekColumn.insertCell();
                 cell.innerHTML = date.toLocaleDateString();
             });
-            function countCheckIn(student_history, std_id) {
-                let count = 0;
-                for (const week in student_history) {
-                    if (Object.hasOwnProperty.call(student_history, week)) {
-                        const check = student_history[week];
-                        if (check == true) {
-                            count++;
-                        }
-                    }
-                }
-                return count;
-            }
             function insertDataForMultipleStudents() {
                 for (const idx in students) {
                     if (Object.hasOwnProperty.call(students, idx)) {
                         const student = students[idx];
                         const studentid = student.id;
+                        console.log(studentid);
                         if (studentid) {
                             // insert column Student ID
                             const LEFT = studentTable.insertRow();
@@ -164,10 +135,7 @@
                             studentCell.textContent = studentid;
                             // verify column each of Student ID has check-in by each week
                             const CENTER = weekTable.insertRow();
-                            let verify = history && history[studentid] || {};
-                            const RIGHT = totalsTable.insertRow();
-                            const totalcheck = RIGHT.insertCell();
-                            totalcheck.textContent = countCheckIn(verify, studentid);
+                            const verify = history && history[studentid] || {};
                             WeekDateList.forEach(date => {
                                 const WEEK_ELAPSED = calculateWeeks(new Date(semester.dateStart), new Date(date)) // date var is represent as each now
                                 const cell = CENTER.insertCell();
@@ -178,22 +146,15 @@
                                         checkbox.checked = true;
                                     }
                                 }
-                                checkbox.onclick = async function() {
-                                    const response = await axios.put(`/check-in/edit?week=${WEEK_ELAPSED}&instanceid=${10000}&studentid=${6531503070}&value=${checkbox.checked}`); // custom check-in (for lecturer)
-                                    if (response.data.success) {
-                                        checkbox.checked = response.data.check;
-                                        history = response.data.map;
-                                        verify = history && history[studentid] || {};
-                                        totalcheck.textContent = countCheckIn(verify, studentid);
-                                    } else {
-                                        checkbox.checked = checkbox.checked // not change
-                                    }
-                                }
-                                // checkbox.addEventListener('change', async function() {
-                                // });
+                                checkbox.addEventListener('change', async function() {
+                                    console.log(checkbox.checked);
+                                    // await axios.put(`/edit?week=${WEEK_ELAPSED}&instanceid=${10000}&studentid=${6531503070}`, {value = checkbox.checked}); // custom check-in (for lecturer)
+                                });
                                 cell.appendChild(checkbox);
                             });
-                            
+                            const RIGHT = totalsTable.insertRow();
+                            const totalcheck = RIGHT.insertCell();
+                            totalcheck.textContent = verify && Math.min(Object.keys(verify).length, WeekDateList.length) || 0;
                         }
                     }
                 }

@@ -45,10 +45,11 @@ import java.util.concurrent.TimeUnit;
 public class Check_in_Controller {
     @Autowired
     private UserService userService;
-    
+    @Autowired
+    private DateUtils DateService;
+
     @Autowired
     private CourseSectionRepository CourseSectionRepo;
-
     @Autowired
     private SemesterRepository SemesterRepo;
 
@@ -69,20 +70,124 @@ public class Check_in_Controller {
                 Lecturer lecturer = (Lecturer) Myself;
                 boolean grantedAccess = false;
                 for (Lecturer v : Subject.lecturer) {
+                    v.setPassword("FORBIDDEN");
+                    if (v.getID().longValue() == lecturer.getID().longValue()) {
+                        grantedAccess = true;
+                        break;
+                    }
+                }
+                for (Student v : Subject.student) { v.setPassword("FORBIDDEN"); }
+                if (grantedAccess) {
+                    model.addAttribute("subject", Subject);
+                    // model.addAttribute("students", Subject.student);
+                    // model.addAttribute("semester", Subject.semester);
+                    // model.addAttribute("history", Subject.getAttendanceHistory());
+                    // model.addAttribute("period", Subject.getPeriod());
+                }
+                return "[LECTURER] Check-in(View)";
+            }
+        }
+        return null;
+    }
+
+    @PutMapping("/check-in/edit")
+    public ResponseEntity<HashMap<String, Object>> EditStudentCheckIn(
+        Model model, HttpServletResponse response, HttpServletRequest request,
+        @RequestParam Long week, @RequestParam Long instanceid, @RequestParam Long studentid, @RequestParam Boolean value
+    ) {
+        CourseSection Subject = CourseSectionRepo.findByID(instanceid);
+        if (Subject != null) {
+            User Myself = (User) request.getAttribute("userdata");
+            if (Myself instanceof Lecturer) {
+                Lecturer lecturer = (Lecturer) Myself;
+                boolean grantedAccess = false;
+                for (Lecturer v : Subject.lecturer) {
                     if (v.getID().longValue() == lecturer.getID().longValue()) {
                         grantedAccess = true;
                         break;
                     }
                 }
                 if (grantedAccess) {
-                    model.addAttribute("students", Subject.student);
-                    model.addAttribute("semester", Subject.semester);
-                    model.addAttribute("history", Subject.getAttendanceHistory());
-                    model.addAttribute("period", Subject.getPeriod());
+                    try {
+                        String[] GP_C = Subject.getPeriod().split(", ");
+                        String AbbreviatedDayLabel = GP_C[0];
+                        Date RecordDate = DateService.getDateByWeekAndDayLabel(week, AbbreviatedDayLabel, Subject.semester.getDateStart(), Subject.semester.getDateFinish());
+                        if (RecordDate != null) {
+                            Subject.markAttendance(studentid, week, value);
+                            CourseSectionRepo.save(Subject);
+                        } else {
+                            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                                .body(new HashMap<String, Object>() {{
+                                    put("success", false);
+                                    put("message", "you allow for set student check within week of semester.");
+                                }});
+                        }
+                    } catch(Exception e) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", false);
+                                put("message", "search from query result is not found.");
+                            }});
+                    }
+                    return ResponseEntity.status(HttpStatus.OK)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", true);
+                            put("check", Subject.getAttendance(studentid, week));
+                            put("map", Subject.getAttendanceHistory());
+                        }});
                 }
-                return "[LECTURER] Check-in(View)";
             }
         }
-       return null;
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "unable to edit permission denied.");
+            }});
+    }
+
+    @GetMapping("/check-in/edit/student")
+    public String EditStudentInCourse(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
+        CourseSection Subject = CourseSectionRepo.findByID(instanceid);
+        if (Subject != null) {
+            User Myself = (User) request.getAttribute("userdata");
+            if (Myself instanceof Lecturer) {
+                Lecturer lecturer = (Lecturer) Myself;
+                boolean grantedAccess = false;
+                for (Student v : Subject.student) { v.setPassword("FORBIDDEN"); }
+                for (Lecturer v : Subject.lecturer) {
+                    v.setPassword("FORBIDDEN");
+                    if (v.getID().longValue() == lecturer.getID().longValue()) {
+                        grantedAccess = true;
+                        break;
+                    }
+                }
+                if (grantedAccess) {
+                    model.addAttribute("subject", Subject);
+                }
+                return "[LECTURER] Check-in(Edit)";
+            }
+        }
+        return null;
+    }
+
+
+
+
+    @DeleteMapping("system/delete")
+    public ResponseEntity<HashMap<String, Object>> DELETE(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
+        return null;
+    }
+
+    @PutMapping("system/update")
+    public ResponseEntity<HashMap<String, Object>> UPDATE(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
+        return null;
+    }
+
+    @PostMapping("system/add")
+    public ResponseEntity<HashMap<String, Object>> ADD(
+        Model model, HttpServletResponse response, HttpServletRequest request,
+        @RequestParam Long studentid, @RequestParam Long lecturerid
+    ) {
+        return null;
     }
 }
