@@ -179,6 +179,7 @@
     background-color: #850000 !important;
     border-color: #850000 !important;
     color: #fff !important;
+    z-index: 0 !important;
   }
 
   #datatable_paginate .page-item .page-link {

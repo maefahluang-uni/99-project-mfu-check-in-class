@@ -25,11 +25,11 @@
             <button class="closebtn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
         </div>
         <div class="nav-menu">
-            <li><a href="#"><i class="fas fa-home"></i>Home</a></li>
-            <li class="active"><a href="#"><i class="far fa-calendar-check"></i>Course</a></li>
+            <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+            <li class="active"><a href="/manage-course"><i class="far fa-calendar-check"></i>Course</a></li>
             <li><a href="#"><i class="fas fa-book-open"></i>Lecturer</a></li>
             <li><a href="#"><i class="fas fa-phone-volume"></i>Student</a></li>
-            <li id="logout"><a href="#"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+            <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
         </div>
         <script src="/js/overlay-navbar.js"></script>
     </nav>
@@ -62,8 +62,8 @@
               <td th:text="${course.getID()}"></td>
               <td th:text="${course.getName()}"></td>
               <td>
-                  <a class="btnEdit" href="#"><i class="fas fa-pencil-alt"></i></a>
-                  <a class="btnDelete" href="#"><i class="fas fa-trash-alt"></i></a>
+                  <a class="btnEdit" href="#"><i class="fas fa-pencil-alt" title="Edit"></i></a>
+                  <a class="btnDelete" href="#"><i class="fas fa-trash-alt" title="Delete"></i></a>
               </td>
             </tr>
           </tbody>
