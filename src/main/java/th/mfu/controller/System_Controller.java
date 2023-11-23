@@ -336,9 +336,7 @@ public class System_Controller {
                 Course newCourse = new Course();
                 newCourse.setName(courseName);
                 CourseRepo.save(newCourse);
-    
                 List<Course> courses = (List<Course>) CourseRepo.findAll();
-    
                 return ResponseEntity.status(HttpStatus.OK)
                     .body(new HashMap<String, Object>() {{
                         put("success", true);
