@@ -16,7 +16,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    z-index: 1;
+    z-index: 4;
   }
   
   .sidebar {
@@ -28,7 +28,7 @@
     background-color: #fff;
     overflow-x: hidden;
     transition: 0.5s;
-    z-index: 2;
+    z-index: 5;
   }
   
   .sidebar.open {
@@ -179,7 +179,6 @@
     background-color: #850000 !important;
     border-color: #850000 !important;
     color: #fff !important;
-    z-index: 0 !important;
   }
 
   #datatable_paginate .page-item .page-link {
@@ -210,8 +209,28 @@
 
   .btnEdit {
     color: #dfb200;
+    margin-right: 10px;
   }
 
   .btnDelete {
+    border: none;
     color: red;
   }
+
+  #addCourseBtn {
+    float: right;
+  }
+
+  .btn.btn-primary {
+    background-color: #850000;
+    border-color: #850000;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn.btn-primary:hover {
+    background-color: #6a0000;
+    border-color: #6a0000;
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  
