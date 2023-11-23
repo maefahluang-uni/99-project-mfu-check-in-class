@@ -1,5 +1,5 @@
 /* reset all start */
-*{
+* {
     padding: 0;
     margin: 0;
     text-decoration: none;
@@ -9,7 +9,7 @@
   }
   /* reset all end */
   /* nav section start */
-  nav{
+  .navigatebar {
     background: #850000;
     height: 85px;
     width: 100%;
@@ -45,14 +45,14 @@
     font-weight: bold;
     margin-top: -20px;
   }
-  nav div.line90deg{
+  .navigatebar div.line90deg{
     width: 60px;
     height: 2px;
     background: #fff;
     transform: rotate(90deg);
     margin-left: -195px;
   }
-  nav div.line{
+  .navigatebar div.line{
     margin-left: -20px;
     width: 100px;
     height: 2px;

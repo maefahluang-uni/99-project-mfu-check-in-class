@@ -1,6 +1,9 @@
 package th.mfu.repository;
 
-import th.mfu.model.Course;
 import org.springframework.data.repository.CrudRepository;
+import th.mfu.model.Course;
+import th.mfu.repository.CourseRepository;
 
-public interface CourseRepository extends CrudRepository<Course, Long> {}
+public interface CourseRepository extends CrudRepository<Course, Long> {
+    boolean existsByNameIgnoreCase(String name);
+}

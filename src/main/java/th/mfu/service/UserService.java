@@ -4,6 +4,7 @@ import th.mfu.model.*;
 import th.mfu.model.interfaces.*;
 import th.mfu.repository.*;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
@@ -15,6 +16,7 @@ import java.util.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.mindrot.jbcrypt.BCrypt;
 
 @Service
 public class UserService {
@@ -23,12 +25,13 @@ public class UserService {
 
     @Autowired
     private StudentRepository StudentRepo;
-
     @Autowired
     private LecturerRepository LecturerRepo;
-
     @Autowired
     private AdminRepository AdminRepo;
+
+    @Autowired
+    private CourseSectionRepository CourseSectionRepo;
 
     public User FindByUserid(Long userid) {
         User student = StudentRepo.findByID(userid);
@@ -47,7 +50,14 @@ public class UserService {
     public boolean Authenticate(String userid, String password) {
         Long __userid__ = Long.valueOf(userid);
         User user = FindByUserid(__userid__);
-        return (user != null) && (user.getPassword().equals(password));
+        String hashedPassword = user.getPassword();
+        System.out.println(String.format("hashedPassword: %s", BCrypt.hashpw(password, BCrypt.gensalt()))); // gensalt round default is 10 this method can make password more secure by hashing + salt with multiple time hash. prevent attack from like rainbow table
+        if (user != null) {
+            if (BCrypt.checkpw(password, hashedPassword)) {
+                return true;
+            } 
+        }
+        return false;
     }
 
     public String GenerateBase64UrlToken(int Length) {
@@ -98,5 +108,16 @@ public class UserService {
             }
         } catch(Exception e) {}
         return null;
+    }
+
+    public List<CourseSection> MyCourse(User Myself) {
+        List<CourseSection> CourseCollection = null;
+        if (Myself.getRole() == "STUDENT") { CourseCollection = CourseSectionRepo.findByStudentID(Myself.getID()); } // it's a clone instance not effect direct to real entity
+        else if (Myself.getRole() == "LECTURER") { CourseCollection = CourseSectionRepo.findByLecturerID(Myself.getID()); } // it's a clone instance not effect direct to real entity
+        for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
+            for (Student v1 : v0.student) { v1.setPassword("FORBIDDEN"); }
+            for (Lecturer v2 : v0.lecturer) { v2.setPassword("FORBIDDEN"); }
+        }
+        return CourseCollection;
     }
 }

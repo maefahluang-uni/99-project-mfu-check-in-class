@@ -44,30 +44,57 @@ import java.util.concurrent.TimeUnit;
 @Controller
 public class Check_in_Controller {
     @Autowired
+    private UserService userService;
+    @Autowired
+    private DateUtils DateService;
+
+    @Autowired
     private CourseSectionRepository CourseSectionRepo;
+    @Autowired
+    private SemesterRepository SemesterRepo;
 
     @GetMapping("/check-in")
     public String CheckInPage(Model model, HttpServletResponse response, HttpServletRequest request) {
         User Myself = (User) request.getAttribute("userdata");
-        if (Myself.getRole() == "STUDENT") {
-            List<CourseSection> CourseCollection = CourseSectionRepo.findByStudentID(Myself.getID()); // it's a clone instance not effect direct to real entity
-            for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
-                for (Student v1 : v0.student) { v1.setPassword("FORBIDDEN"); }
-            }
-            model.addAttribute("mycourse", CourseCollection);
-        } else if (Myself.getRole() == "LECTURER") {
-            List<CourseSection> CourseCollection = CourseSectionRepo.findByLecturerID(Myself.getID()); // it's a clone instance not effect direct to real entity
-            System.out.println(CourseCollection.toString());
-            for (CourseSection v0 : CourseCollection) { // prevent leak password on User Entity
-                for (Lecturer v1 : v0.lecturer) { v1.setPassword("FORBIDDEN"); }
-            }
-            model.addAttribute("mycourse", CourseCollection);
-        }
-        return "Check-in";
+        model.addAttribute("mycourse", userService.MyCourse(Myself)); // can be null in not role student or lecturer
+        model.addAttribute("semester", SemesterRepo.findAll());
+        return String.format("[%s] Check-in", Myself.getRole());
     }
     
     @GetMapping("/check-in/view")
     public String ViewStudentInCourse(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
+        CourseSection Subject = CourseSectionRepo.findByID(instanceid);
+        if (Subject != null) {
+            User Myself = (User) request.getAttribute("userdata");
+            if (Myself instanceof Lecturer) {
+                Lecturer lecturer = (Lecturer) Myself;
+                boolean grantedAccess = false;
+                for (Lecturer v : Subject.lecturer) {
+                    v.setPassword("FORBIDDEN");
+                    if (v.getID().longValue() == lecturer.getID().longValue()) {
+                        grantedAccess = true;
+                        break;
+                    }
+                }
+                for (Student v : Subject.student) { v.setPassword("FORBIDDEN"); }
+                if (grantedAccess) {
+                    model.addAttribute("subject", Subject);
+                    // model.addAttribute("students", Subject.student);
+                    // model.addAttribute("semester", Subject.semester);
+                    // model.addAttribute("history", Subject.getAttendanceHistory());
+                    // model.addAttribute("period", Subject.getPeriod());
+                }
+                return "[LECTURER] Check-in(View)";
+            }
+        }
+        return null;
+    }
+
+    @PutMapping("/check-in/edit")
+    public ResponseEntity<HashMap<String, Object>> EditStudentCheckIn(
+        Model model, HttpServletResponse response, HttpServletRequest request,
+        @RequestParam Long week, @RequestParam Long instanceid, @RequestParam Long studentid, @RequestParam Boolean value
+    ) {
         CourseSection Subject = CourseSectionRepo.findByID(instanceid);
         if (Subject != null) {
             User Myself = (User) request.getAttribute("userdata");
@@ -81,11 +108,86 @@ public class Check_in_Controller {
                     }
                 }
                 if (grantedAccess) {
-                    model.addAttribute("semester", Subject.semester);
-                    model.addAttribute("attendanceHistory", Subject.getAttendanceHistory());
+                    try {
+                        String[] GP_C = Subject.getPeriod().split(", ");
+                        String AbbreviatedDayLabel = GP_C[0];
+                        Date RecordDate = DateService.getDateByWeekAndDayLabel(week, AbbreviatedDayLabel, Subject.semester.getDateStart(), Subject.semester.getDateFinish());
+                        if (RecordDate != null) {
+                            Subject.markAttendance(studentid, week, value);
+                            CourseSectionRepo.save(Subject);
+                        } else {
+                            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                                .body(new HashMap<String, Object>() {{
+                                    put("success", false);
+                                    put("message", "you allow for set student check within week of semester.");
+                                }});
+                        }
+                    } catch(Exception e) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", false);
+                                put("message", "search from query result is not found.");
+                            }});
+                    }
+                    return ResponseEntity.status(HttpStatus.OK)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", true);
+                            put("check", Subject.getAttendance(studentid, week));
+                            put("map", Subject.getAttendanceHistory());
+                        }});
                 }
             }
         }
-        return "Check-in(View)";
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "unable to edit permission denied.");
+            }});
+    }
+
+    @GetMapping("/check-in/edit/student")
+    public String EditStudentInCourse(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
+        CourseSection Subject = CourseSectionRepo.findByID(instanceid);
+        if (Subject != null) {
+            User Myself = (User) request.getAttribute("userdata");
+            if (Myself instanceof Lecturer) {
+                Lecturer lecturer = (Lecturer) Myself;
+                boolean grantedAccess = false;
+                for (Student v : Subject.student) { v.setPassword("FORBIDDEN"); }
+                for (Lecturer v : Subject.lecturer) {
+                    v.setPassword("FORBIDDEN");
+                    if (v.getID().longValue() == lecturer.getID().longValue()) {
+                        grantedAccess = true;
+                        break;
+                    }
+                }
+                if (grantedAccess) {
+                    model.addAttribute("subject", Subject);
+                }
+                return "[LECTURER] Check-in(Edit)";
+            }
+        }
+        return null;
+    }
+
+
+
+
+    @DeleteMapping("system/delete")
+    public ResponseEntity<HashMap<String, Object>> DELETE(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
+        return null;
+    }
+
+    @PutMapping("system/update")
+    public ResponseEntity<HashMap<String, Object>> UPDATE(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
+        return null;
+    }
+
+    @PostMapping("system/add")
+    public ResponseEntity<HashMap<String, Object>> ADD(
+        Model model, HttpServletResponse response, HttpServletRequest request,
+        @RequestParam Long studentid, @RequestParam Long lecturerid
+    ) {
+        return null;
     }
 }

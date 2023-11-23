@@ -3,6 +3,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Home</title>
+        <link rel="stylesheet" href="css\Lec-Course.css">
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <style>
             .table {
                 display: table;
@@ -26,37 +28,33 @@
                 padding: 8px;
                 text-align: center;
             }
+
+
+            #sideDayControl {
+                margin: 1%;
+                display: flex;
+                justify-content: center;
+            }
+            #daysListContainer {
+                display: flex;
+                align-items: center;
+            }
+            #daysList {
+                list-style-type: none;
+                justify-content: center;
+                padding: 100px;
+                display: flex;
+            }
+            #daysList button {
+                margin: 5%;
+                padding: 2%;
+            }
+            #previousButton,
+            #nextButton {
+                margin: 0; /* Adjust margin as needed */
+            }
         </style>
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-                let userdata = /*[[${userdata}]]*/ 'default';
-                console.log(userdata);
-                let mycourse = /*[[${mycourse}]]*/ 'default';
-                console.log(mycourse);
-            /*]]>*/
-        </script>
-    </head>
-    <body th:if="${userdata.getRole().equals('STUDENT')}">
-        <ul class="list">
-            <li th:each="courseInfo : ${mycourse}">
-                <strong>COURSEID:</strong> <span th:text="${courseInfo.course.getID()}"></span><br>
-                <strong>NAME:</strong> <span th:text="${courseInfo.course.getName()}"></span><br>
-                <strong>SECTION:</strong> <span th:text="${courseInfo.getSection()}"></span><br>
-                <strong>LOCATION:</strong> <span th:text="${courseInfo.getLocation()}"></span><br>
-                <strong>PERIOD:</strong> <span th:text="${courseInfo.getPeriod()}"></span><br>
-                <button id="scanButton">Scan</button><br>
-            </li>
-        </ul>
-        <script>
-            const scanButton = document.getElementById('scanButton');
-            scanButton.addEventListener('click', async () => {
-                window.location.href = "/scan";
-            });
-        </script>
-    </body>
-
-
-
+    </head>  
     <body th:if="${userdata.getRole().equals('LECTURER')}">
         <div class="table" id="course">
             <div class="header">
@@ -67,7 +65,11 @@
             </div>
             <!-- CONTENT DYNAMICALLY  -->
         </div>
-        <script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+              var userdata = /*[[${userdata}]]*/ 'default';
+              var mycourse = /*[[${mycourse}]]*/ 'default';
+            /*]]>*/
             // Get form values
             for (const i in mycourse) {
                 const instance = mycourse[i];
@@ -86,7 +88,7 @@
                 sectionCell.classList.add("cell");
                 sectionCell.textContent = instance.section;
                 dataRow.appendChild(sectionCell);
-
+                ///////////////////////////////////////////////////////
                 let viewButton = document.createElement("button");
                 viewButton.textContent = "View";
                 viewButton.addEventListener('click', function() {
@@ -94,15 +96,25 @@
                 });
                 viewButton.classList.add("cell");
                 dataRow.appendChild(viewButton);
-                let qrButton = document.createElement("button");
-                qrButton.textContent = "QR";
-                qrButton.addEventListener('click', function() {
-                    window.location.href = "/qr?instanceid=" + instance.id;
-                });
-                qrButton.classList.add("cell");
-                dataRow.appendChild(qrButton);
-
-                // Append the dataRow to the dataRows container
+                const daysOfWeek = {
+                    "Sun": 0,
+                    "Mon": 1,
+                    "Tue": 2,
+                    "Wed": 3,
+                    "Thu": 4,
+                    "Fri": 5,
+                    "Sat": 6
+                };
+                if (new Date().getDay() == daysOfWeek[instance.period.substring(0, 3)]) {
+                    let qrButton = document.createElement("button");
+                    qrButton.textContent = "QR";
+                    qrButton.addEventListener('click', function() {
+                        window.location.href = "/qr?instanceid=" + instance.id;
+                    });
+                    qrButton.classList.add("cell");
+                    dataRow.appendChild(qrButton);
+                }
+                ///////////////////////////////////////////////////////
                 document.getElementById("course").appendChild(dataRow);
             }
         </script>

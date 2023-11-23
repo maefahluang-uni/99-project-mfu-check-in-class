@@ -1,0 +1,166 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home</title>
+        <style>
+            .container {
+                position: relative;
+                display: flex;
+                align-items: flex-start;
+                width: 50%;
+            }
+
+            .table-center {
+                background: lightgoldenrodyellow;
+                overflow-x: scroll;
+            }
+
+            .table-left,
+            .table-right {
+                background: lightsteelblue;
+            }
+
+            table,
+            th,
+            td {
+                border: 1px solid black;
+            }
+
+            th,
+            td {
+                padding: .5em 1em;
+            }
+        </style>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+                let userdata = /*[[${userdata}]]*/ undefined;
+                let subject = /*[[${subject}]]*/ undefined
+                let students = subject.student;
+                let period = subject.period;
+                let history = subject.attendanceHistory;
+                let semester = subject.semester;
+            /*]]>*/
+        </script>
+    </head>
+    <body th:if="${userdata.getRole().equals('LECTURER')}">
+        <span th:text="${subject.getCourse().getID()}"></span>
+        <span th:text="${subject.getCourse().getName()}"></span>
+        <div class="container">
+            <div class="table-left">
+                <table id="student-table">
+                    <tr>
+                        <th>Student ID</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="table-center">
+                <table id="week-table">
+                    <!-- INSERT WEEK TOTAL -->
+                </table>
+            </div>
+            <div class="table-right">
+                <table id="total-checkin">
+                    <tr>
+                        <th>Totals</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!-- <div class="table" id="course">
+            <div class="header">
+                <div class="cell">Student-Id</div>
+            </div>
+        </div> -->
+        <script>
+            function GetDateListByDayLabel(startDate, endDate, daylabel) {
+                const daysOfWeek = {
+                    "Sun": 0,
+                    "Mon": 1,
+                    "Tue": 2,
+                    "Wed": 3,
+                    "Thu": 4,
+                    "Fri": 5,
+                    "Sat": 6
+                };
+                const DaysLabel = [];
+                let currentDate = new Date(startDate);
+                while (currentDate <= endDate) {
+                    if (currentDate.getDay() === daysOfWeek[daylabel]) { // 5 represents Friday (0 is Sunday, 6 is Saturday)
+                        DaysLabel.push(new Date(currentDate));
+                    }
+                    currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+                }
+                return DaysLabel;
+            }
+            const WeekDateList = GetDateListByDayLabel(new Date(semester.dateStart), new Date(semester.dateFinish), period.substring(0, 3));
+            const TotalWeek = WeekDateList.length;
+            function calculateWeeks(startDate, endDate) {
+                const start = startDate;
+                const end = endDate;
+                const millisecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+                const differenceInTime = end.getTime() - start.getTime();
+                const weeksElapsed = Math.floor(differenceInTime / millisecondsPerWeek);
+                return weeksElapsed;
+            } // ChronoUnit.WEEKS.between (in java)
+            //////////////////////////////////////////////////////////
+            // const tableHeader = document.querySelector('.header');
+            // const weekRow = document.createElement('div');
+            // weekRow.classList.add('cell');
+            // for (let index = 1; index <= TotalWeek; index++) {
+            //     const weekHeader = document.createElement('div');
+            //     weekHeader.classList.add('week-header');
+            //     weekHeader.textContent = `Week ${index}`;
+            //     weekRow.appendChild(weekHeader);
+            // }
+            // tableHeader.appendChild(weekRow);
+            const studentTable = document.getElementById("student-table");
+            const weekTable = document.getElementById("week-table");
+            const totalsTable = document.getElementById("total-checkin");
+            const WeekColumn = weekTable.insertRow();
+            WeekDateList.forEach(date => {
+                const cell = WeekColumn.insertCell();
+                cell.innerHTML = date.toLocaleDateString();
+            });
+            function insertDataForMultipleStudents() {
+                for (const idx in students) {
+                    if (Object.hasOwnProperty.call(students, idx)) {
+                        const student = students[idx];
+                        const studentid = student.id;
+                        console.log(studentid);
+                        if (studentid) {
+                            // insert column Student ID
+                            const LEFT = studentTable.insertRow();
+                            const studentCell = LEFT.insertCell();
+                            studentCell.textContent = studentid;
+                            // verify column each of Student ID has check-in by each week
+                            const CENTER = weekTable.insertRow();
+                            const verify = history && history[studentid] || {};
+                            WeekDateList.forEach(date => {
+                                const WEEK_ELAPSED = calculateWeeks(new Date(semester.dateStart), new Date(date)) // date var is represent as each now
+                                const cell = CENTER.insertCell();
+                                const checkbox = document.createElement('input');
+                                checkbox.type = 'checkbox';
+                                if (verify) {
+                                    if (verify[WEEK_ELAPSED]) {
+                                        checkbox.checked = true;
+                                    }
+                                }
+                                checkbox.addEventListener('change', async function() {
+                                    console.log(checkbox.checked);
+                                    // await axios.put(`/edit?week=${WEEK_ELAPSED}&instanceid=${10000}&studentid=${6531503070}`, {value = checkbox.checked}); // custom check-in (for lecturer)
+                                });
+                                cell.appendChild(checkbox);
+                            });
+                            const RIGHT = totalsTable.insertRow();
+                            const totalcheck = RIGHT.insertCell();
+                            totalcheck.textContent = verify && Math.min(Object.keys(verify).length, WeekDateList.length) || 0;
+                        }
+                    }
+                }
+            }
+            // Call the function to insert data when the page loads
+            window.onload = insertDataForMultipleStudents;
+        </script>
+    </body>
+</html>
