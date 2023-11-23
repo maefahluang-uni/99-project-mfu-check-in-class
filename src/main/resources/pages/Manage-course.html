@@ -6,14 +6,20 @@
     <title>Manage Course</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="/css/style-manage-course.css">
+    <link rel="stylesheet" href="/css/style-managecourse.css">
     <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/dataTables.bootstrap5.min.css">
+    <!-- <link rel="stylesheet" href="/css/dataTables.bootstrap5.min.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-3.6.4.slim.min.js"></script>
     <script defer src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script defer src="/js/DataTable.js"></script>
+    <script defer src="/js/addcourse.js"></script>
+    <script defer src="/js/deletecourse.js"></script>
 </head>
 <body>
     <!--Nav Bar-->
@@ -25,11 +31,11 @@
             <button class="closebtn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
         </div>
         <div class="nav-menu">
-            <li><a href="#"><i class="fas fa-home"></i>Home</a></li>
-            <li class="active"><a href="#"><i class="far fa-calendar-check"></i>Course</a></li>
+            <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+            <li class="active"><a href="/manage-course"><i class="far fa-calendar-check"></i>Course</a></li>
             <li><a href="#"><i class="fas fa-book-open"></i>Lecturer</a></li>
             <li><a href="#"><i class="fas fa-phone-volume"></i>Student</a></li>
-            <li id="logout"><a href="#"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+            <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
         </div>
         <script src="/js/overlay-navbar.js"></script>
     </nav>
@@ -48,6 +54,9 @@
         </div>
 
       <!-- Main content goes here -->
+      <div class="container pt-3 pb-1">
+          <button class="btn btn-primary" id="addCourseBtn"><i class="fa fa-plus"></i> Add Course</button>
+      </div>
       <div class="container pt-5">
         <table id="datatable" class="table table-striped" style="width:100%">
           <thead>
@@ -62,8 +71,8 @@
               <td th:text="${course.getID()}"></td>
               <td th:text="${course.getName()}"></td>
               <td>
-                  <a class="btnEdit" href="#"><i class="fas fa-pencil-alt"></i></a>
-                  <a class="btnDelete" href="#"><i class="fas fa-trash-alt"></i></a>
+                  <a class="btnEdit" href="#"><i class="fas fa-pencil-alt" title="Edit"></i></a>
+                  <a class="btnDelete" href="#"><i class="fas fa-trash-alt" title="Delete"></i></a>
               </td>
             </tr>
           </tbody>
@@ -76,7 +85,30 @@
           </tfoot>
         </table>
       </div>
-      
     </div>
+    <!-- Function Add -->
+    <div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCourseModalLabel">Add Course</h5>
+                    <button id="closeModalBtn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCourseForm">
+                        <div class="mb-3">
+                            <label for="courseName" class="form-label">Course Name:</label>
+                            <input type="text" class="form-control" id="courseName" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="closeModalBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Course</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Function Delete -->
 </body>
 </html>

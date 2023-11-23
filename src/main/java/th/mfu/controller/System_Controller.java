@@ -329,4 +329,33 @@ public class System_Controller {
         model.addAttribute("courses", courses);
         return "Manage-course";
     }
+    @PostMapping("/add-course")
+    public ResponseEntity<HashMap<String, Object>> addCourse(@RequestParam String courseName) {
+        if (courseName != null && !courseName.trim().isEmpty()) {
+            if (!CourseRepo.existsByNameIgnoreCase(courseName)) {
+                Course newCourse = new Course();
+                newCourse.setName(courseName);
+                CourseRepo.save(newCourse);
+                List<Course> courses = (List<Course>) CourseRepo.findAll();
+                return ResponseEntity.status(HttpStatus.OK)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                        put("message", "Course added successfully.");
+                        put("courses", courses);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Course with the same name already exists.");
+                    }});
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new HashMap<String, Object>() {{
+                    put("success", false);
+                    put("message", "Please enter a course name.");
+                }});
+        }
+    }
 }

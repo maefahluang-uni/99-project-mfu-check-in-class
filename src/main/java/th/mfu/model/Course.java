@@ -8,18 +8,24 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ID;
-    private String Name;
+
+    @Column(name = "name")
+    private String name;
 
     public Long getID() {
         return ID;
     }
     public void setID(Long id) {
         this.ID = id;
-    };
-    public String getName() {
-        return Name;
     }
+
+    // Getter and setter for 'name'
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 }
+

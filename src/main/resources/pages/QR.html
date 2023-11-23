@@ -1,153 +1,151 @@
 <!DOCTYPE html>
-<html>
-    <head> 
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>QR-CODE</title>
-        <!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script> -->
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-        <style>
-            body {
-                font-family: 'Arial', sans-serif;
-                background-color: #f4f4f4;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
-                margin: 0;
-                font-family: 'Arial', sans-serif;
-            }
-            #messages {
-                list-style-type: none;
-                padding: 0;
-                text-align: center;
-            }
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR-CODE</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            text-decoration: none;
+            list-style: none;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #refreshButton {
+            background-color: #ffffff; /* Green */
+            color: #850000;
+            border-radius: 15px;
+        }
+        #subjectText {
+            font-size: 26px; /* Set the font size for the "Subject:" text */
+            font-weight: bold; /* Make the "Subject:" text bold */
+            color: #ffffff; /* Set the text color to a dark shade */
+        }
+        #sectionText {
+            font-size: 26px; /* Set the font size for the "Subject:" text */
+            font-weight: bold; /* Make the "Subject:" text bold */
+            color: #ffffff; /* Set the text color to a dark shade */
+        }
+        #timeText {
+            font-size: 22px; /* Set the font size for the "Subject:" text */
+            font-weight: bold; /* Make the "Subject:" text bold */
+            color: #ffffff; /* Set the text color to a dark shade */
+        }
+        #qrLifetime {
+            font-size: 24px; /* Set the font size for the "Subject:" text */
+            font-weight: bold; /* Make the "Subject:" text bold */
+            color: #ffffff; /* Set the text color to a dark shade */
+        }
+        #messages {
+            background-color: #850000;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 50px;
+        }
+        #qrCodeContainer {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 16px;    
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="messages">
+        <li th:if="${subject == null}">Your permission to open check-in authentication in this subject is denied.</li>
+        <li th:if="${subject != null}">
+            <span id="subjectText">Subject:</span> <span th:text="${subject.getCourse().getName()}" id="subjectText"></span><br>
+            <span id="sectionText">Section:</span> <span th:text="${subject.getSection()}" id="sectionText"></span><br>
+            <span id="timeText">Lifetime:</span> <span id="qrLifetime"></span><br>
+            <hr style="background-color: #850000;">
+            <div id="qrCodeContainer"></div>
+            <button id="refreshButton">Refresh</button>
+            <button>Back</button>
+        </li>
+    </div>
     
-            #messages {
-                background-color: #fff;
-                border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                padding: 20px;
-                margin-bottom: 20px;
-                text-align: center;
-            }
-    
-            #qrCodeContainer {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-        </style>
-    </head>
-    <body th:if="${subject == null}">
-        <div id="messages">
-            <li>Your permission to open check-in authentication in this subject is denied.</li>
-        </div>
-    </body>
-    <body th:if="${subject != null}">
-        <div id="messages">
-            <li><span span id="subjectText">Subject:</span> <span span id="subjectText" th:text="${subject.getCourse().getName()}"></span></li>
-            <li><span span id="sectionText">Section:</span> <span span id="sectionText" th:text="${subject.getSection()}"></span></li>
-            <li><span span id="timeText">Lifetime:</span> <span id="qrLifetime"></span></li>
-            <li><button id="refreshButton">Refresh</button></li>
-            <li><button>Back</button></li>
-        </div>
-        <div id="qrCodeContainer">
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-            let SUBJECT_ID = /*[[${subject.getID()}]]*/ 'default';
-            let RATE = /*[[${rate}]]*/ 'default';
-            /*]]>*/
 
-            function convertToClockFormat(minutes) {
-                if (typeof minutes !== 'number' || isNaN(minutes)) {
-                    return "Invalid input. Please provide a valid number.";
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let SUBJECT_ID = /*[[${subject.getID()}]]*/ 'default';
+        let RATE = /*[[${rate}]]*/ 'default';
+
+        function convertToClockFormat(minutes) {
+            if (typeof minutes !== 'number' || isNaN(minutes)) {
+                return "Invalid input. Please provide a valid number.";
+            }
+            minutes = Math.floor(minutes);
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
+            const formattedHours = String(hours).padStart(2, '0');
+            const formattedMinutes = String(remainingMinutes).padStart(2, '0');
+            return `${formattedHours}:${formattedMinutes}`;
+        }
+
+        document.getElementById('refreshButton').addEventListener('click', function() {
+            location.reload(true);
+        });
+
+        let isIntervalCleared = false;
+        const updator = setInterval(LOAD_QRCODE, RATE);
+
+        async function LOAD_QRCODE() {
+            try {
+                const query = { instanceid: SUBJECT_ID };
+                const response = await axios.post('/qr', new URLSearchParams(query), {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                });
+                if (isIntervalCleared) { return; }
+                const qrLifetime = document.getElementById('qrLifetime');
+                const qrCodeContainer = document.getElementById('qrCodeContainer');
+                qrLifetime.innerHTML = '-';
+                if (response.data.mygate) {
+                    qrLifetime.innerHTML = convertToClockFormat(((response.data.mygate - Date.now()) / 1000)) + "s";
                 }
-                minutes = Math.floor(minutes);
-                // Calculate hours and minutes
-                const hours = Math.floor(minutes / 60);
-                const remainingMinutes = minutes % 60;
-                // Format the result
-                const formattedHours = String(hours).padStart(2, '0');
-                const formattedMinutes = String(remainingMinutes).padStart(2, '0');
-                return `${formattedHours}:${formattedMinutes}`;
-            }
-
-            document.getElementById('refreshButton').addEventListener('click', function() {
-                // Reload the page when the button is clicked
-                location.reload(true);
-            });
-
-            // change from socket commuication to more request loop
-            let isIntervalCleared = false;
-            const updator = setInterval(LOAD_QRCODE, RATE)
-            async function LOAD_QRCODE() {
-                try {
-                    const query = { instanceid: SUBJECT_ID };
-                    const response = await axios.post('/qr', new URLSearchParams(query), {
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        }
+                qrCodeContainer.innerHTML = '';
+                if (response.data.value) {
+                    let AUTHENTICATION_KEY = (window.location.host + "/qr/" + response.data.value);
+                    console.log(response.data.value);
+                    const qr = new QRCode(qrCodeContainer, {
+                        text: AUTHENTICATION_KEY,
+                        width: 400,
+                        height: 400,
                     });
-                    if (isIntervalCleared) { return; }
-                    const qrLifetime = document.getElementById('qrLifetime');
-                    const qrCodeContainer = document.getElementById('qrCodeContainer');
-                    qrLifetime.innerHTML = '-';
-                    if (response.data.mygate) {
-                        qrLifetime.innerHTML = convertToClockFormat(((response.data.mygate - Date.now()) / 1000)) + "s";
-                    }
-                    qrCodeContainer.innerHTML = '';
-                    if (response.data.value) {    
-                        let AUTHENTICATION_KEY = (window.location.host + "/qr/" + response.data.value); // verify (STUDENT in the class can scan this only.)
-                        console.log(response.data.value);
-                        const qr = new QRCode(qrCodeContainer, {
-                            text: AUTHENTICATION_KEY,
-                            width: 400,
-                            height: 400,
-                        });
-                    }
-                    if (!response.data.success) {
-                        clearInterval(updator);
-                        isIntervalCleared = true
-                        alert(response.data.message);
-                    }
-                } catch(e) {}
-            }
-            LOAD_QRCODE();
-            
-            // const socket = new SockJS('/websocket');
-            // const stompClient = Stomp.over(socket);
-            // stompClient.connect({}, function (frame) {
-            //     stompClient.subscribe('/topic/qr-auth/' + SUBJECT_ID, function(message) {
-            //         const qrLifetime = document.getElementById('qrLifetime');
-            //         const qrCodeContainer = document.getElementById('qrCodeContainer');
-            //         const response = JSON.parse(message.body);
-            //         const body = response.body;
-            //         qrLifetime.innerHTML = '-';
-            //         if (body.gate_timeout) {
-            //             qrLifetime.innerHTML = convertToClockFormat(((body.gate_timeout - Date.now()) / 1000)) + "s";
-            //         }
-            //         qrCodeContainer.innerHTML = '';
-            //         if (body.value) {
-            //             let AUTHENTICATION_KEY = ("https://check-in.mfu.ac.th/verify/" + body.value);
-            //             const qr = new QRCode(qrCodeContainer, {
-            //                 text: AUTHENTICATION_KEY,
-            //                 width: 400,
-            //                 height: 400,
-            //             });
-            //         }
-            //         if (!body.success) {
-            //             alert(body.message);
-            //         }
-            //     });
-        
-            //     // Send a message to trigger the server to start broadcasting
-            //     stompClient.send("/app/request-current-qr-auth/" + SUBJECT_ID, {}, "");
-            // });
-        </script>
-    </body>
+                }
+                if (!response.data.success) {
+                    clearInterval(updator);
+                    isIntervalCleared = true;
+                    alert(response.data.message);
+                }
+            } catch(e) {}
+        }
+
+        LOAD_QRCODE();
+        /*]]>*/
+    </script>
+</body>
 </html>
