@@ -8,6 +8,7 @@ import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import javax.servlet.http.*;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -355,6 +356,32 @@ public class System_Controller {
                 .body(new HashMap<String, Object>() {{
                     put("success", false);
                     put("message", "Please enter a course name.");
+                }});
+        }
+    }
+    @Transactional
+    @GetMapping("/delete-course/{courseId}")
+    public ResponseEntity<HashMap<String, Object>> deleteCourse(@PathVariable Long courseId) {
+        Course course = CourseRepo.findByID(courseId);
+        if (course != null) {
+            List<CourseSection> sections = CourseSectionRepo.findByCourseID(courseId);
+            for (CourseSection section : sections) {
+                CourseSectionRepo.delete(section);
+            }
+            CourseRepo.deleteById(courseId);
+            List<Course> courses = (List<Course>) CourseRepo.findAll();
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("success", true);
+                    put("message", "Course deleted successfully.");
+                    put("courses", courses);
+                }});
+
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new HashMap<String, Object>() {{
+                    put("success", false);
+                    put("message", "Course not found.");
                 }});
         }
     }

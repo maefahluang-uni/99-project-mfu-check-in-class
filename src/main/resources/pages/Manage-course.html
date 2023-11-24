@@ -18,8 +18,8 @@
     <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script defer src="/js/DataTable.js"></script>
-    <script defer src="/js/addcourse.js"></script>
-    <script defer src="/js/deletecourse.js"></script>
+    <script defer src="/js/managecourse.js"></script>
+    <!-- <script defer src="/js/deletecourse.js"></script> -->
 </head>
 <body>
     <!--Nav Bar-->
@@ -72,7 +72,7 @@
               <td th:text="${course.getName()}"></td>
               <td>
                   <a class="btnEdit" href="#"><i class="fas fa-pencil-alt" title="Edit"></i></a>
-                  <a class="btnDelete" href="#"><i class="fas fa-trash-alt" title="Delete"></i></a>
+                  <a class="btnDelete" th:href="@{/delete-course/{courseId}(courseId=${course.getID()})}"><i class="fas fa-trash-alt" title="Delete"></i></a>
               </td>
             </tr>
           </tbody>
