@@ -19,24 +19,18 @@ document.addEventListener('DOMContentLoaded', function () {
         var location = locationInput.value.trim();
         var period = periodInput.value.trim();
 
-        if (section !== '') {
-            // Check if the section with the same location and period already exists
+        if (section !== '' && location !== '' && period !== '') {
+            
             var duplicate = Array.from(document.querySelectorAll('#datatable tbody tr'))
-            .map(tr => {
-                // Make sure to check if children exist before accessing their properties
-                var locationCell = tr.children[1];
-                var periodCell = tr.children[2];
-
-                if (locationCell && periodCell) {
-                    return {
-                        location: locationCell.textContent.trim(),
-                        period: periodCell.textContent.trim()
-                    };
-                }
-                return null;
-            })
-            .filter(existingSection => existingSection !== null) // Filter out null values
-            .some(existingSection => existingSection.location.toLowerCase() === location.toLowerCase() && existingSection.period.toLowerCase() === period.toLowerCase());
+            .some(tr => {
+                var locationCell = tr.children[2];
+                var periodCell = tr.children[3];
+        
+                var existingLocation = locationCell ? locationCell.textContent.trim().toLowerCase() : '';
+                var existingPeriod = periodCell ? periodCell.textContent.trim().toLowerCase() : '';
+        
+                return existingLocation === location.toLowerCase() && existingPeriod === period.toLowerCase();
+            });
 
             if (!duplicate) {
                 console.log('Adding section to the database...');
