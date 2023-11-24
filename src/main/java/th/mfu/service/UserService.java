@@ -16,6 +16,8 @@ import java.util.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+
 import org.mindrot.jbcrypt.BCrypt;
 
 @Service
@@ -51,7 +53,7 @@ public class UserService {
         Long __userid__ = Long.valueOf(userid);
         User user = FindByUserid(__userid__);
         String hashedPassword = user.getPassword();
-        System.out.println(String.format("hashedPassword: %s", BCrypt.hashpw(password, BCrypt.gensalt()))); // gensalt round default is 10 this method can make password more secure by hashing + salt with multiple time hash. prevent attack from like rainbow table
+        // System.out.println(String.format("hashedPassword: %s", BCrypt.hashpw(password, BCrypt.gensalt()))); // gensalt round default is 10 this method can make password more secure by hashing + salt with multiple time hash. prevent attack from like rainbow table
         if (user != null) {
             if (BCrypt.checkpw(password, hashedPassword)) {
                 return true;
@@ -59,6 +61,13 @@ public class UserService {
         }
         return false;
     }
+
+    // @Transactional
+    // public List<Student> getStudentsByLecturer(Long lecturerId) {
+    //     Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+    //     // Access students within the transactional method
+    //     return lecturer.getStudents();
+    // }
 
     public String GenerateBase64UrlToken(int Length) {
         byte[] randomBytes = new byte[Length];

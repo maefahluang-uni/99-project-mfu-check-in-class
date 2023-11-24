@@ -16,8 +16,14 @@ public class Lecturer implements User {
     private String Department;
     private String School;
     
-    @OneToMany(mappedBy = "Advisor")
-    private List<Student> Students;
+    // @OneToMany(mappedBy = "lecturer")
+    // private List<Student> students = new ArrayList<>();
+    // public List<Student> getStudents() {
+    //     return students;
+    // }
+    // public void setStudents(List<Student> students) {
+    //     this.students = students;
+    // }
 
     public Long getID() { // interfaces.User
         return ID;
@@ -54,11 +60,5 @@ public class Lecturer implements User {
     }
     public void setSchool(String school) {
         School = school;
-    }
-    public List<Student> getStudents() {
-        return Students;
-    }
-    public void setStudents(List<Student> students) {
-        this.Students = students;
     }
 }

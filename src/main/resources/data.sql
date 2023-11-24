@@ -73,12 +73,12 @@ INSERT INTO STUDENT_SCHEDULE (STUDENT_ID, SECTION_ID) VALUES -- (type: RELATION 
 (6531503070, 10005),
 (6531503070, 10003),
 (6531503070, 10004);
-INSERT INTO STUDENT (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, LECTURER_ID) VALUES
-(6531503078, '$2a$10$bV4JQxgiI.HEz7H/poPqjOKR45yV3d5vRmZJEYTKnyhNn5SVD8bKG', 'Sonthaya Phureesawat', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', 1150); -- password = 254704son
-INSERT INTO STUDENT (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, LECTURER_ID) VALUES
-(6531503074, '$2a$10$F4QPRAmwNXrMQxem93ZcK.n495FzHLmoEXAWD6EzP7s7JbC7zwQu6', 'Vilaseenlapa Limthanadeatch-anun', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', 1150); -- password = arty1692003
-INSERT INTO STUDENT (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, LECTURER_ID) VALUES
-(6531503086, '$2a$10$FTc/EPQoypUZ3CaYZoY8YeMAO1qg2Q9.wPgDeg1J7URLxrvNL9tBS', 'Suranan Chirachatchai', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', 1150); -- password = 0854059672zz
+-- INSERT INTO STUDENT (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, LECTURER_ID) VALUES
+-- (6531503078, '$2a$10$bV4JQxgiI.HEz7H/poPqjOKR45yV3d5vRmZJEYTKnyhNn5SVD8bKG', 'Sonthaya Phureesawat', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', 1150); -- password = 254704son
+-- INSERT INTO STUDENT (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, LECTURER_ID) VALUES
+-- (6531503074, '$2a$10$F4QPRAmwNXrMQxem93ZcK.n495FzHLmoEXAWD6EzP7s7JbC7zwQu6', 'Vilaseenlapa Limthanadeatch-anun', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', 1150); -- password = arty1692003
+-- INSERT INTO STUDENT (ID, PASSWORD, NAME, PROGRAM, SCHOOL, DEPARTMENT, LECTURER_ID) VALUES
+-- (6531503086, '$2a$10$FTc/EPQoypUZ3CaYZoY8YeMAO1qg2Q9.wPgDeg1J7URLxrvNL9tBS', 'Suranan Chirachatchai', 'Bachelor of Engineering', 'School of Information Technology', 'Software Engineering', 1150); -- password = 0854059672zz
 
 
 INSERT INTO ADMIN (ID, PASSWORD, NAME) VALUES

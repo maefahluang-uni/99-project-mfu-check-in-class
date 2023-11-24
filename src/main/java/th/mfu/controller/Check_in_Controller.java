@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import javax.servlet.http.*;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -56,6 +57,11 @@ public class Check_in_Controller {
     @GetMapping("/check-in")
     public String CheckInPage(Model model, HttpServletResponse response, HttpServletRequest request) {
         User Myself = (User) request.getAttribute("userdata");
+        // if (Myself instanceof Lecturer) {
+        //     System.out.println("XXXXXDDDDD");
+        //     System.out.println(userService.getStudentsByLecturer(1150L));
+        //     System.out.println("XXXXXDDDDD");
+        // }
         model.addAttribute("mycourse", userService.MyCourse(Myself)); // can be null in not role student or lecturer
         model.addAttribute("semester", SemesterRepo.findAll());
         return String.format("[%s] Check-in", Myself.getRole());

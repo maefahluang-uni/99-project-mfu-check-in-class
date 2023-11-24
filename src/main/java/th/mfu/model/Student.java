@@ -19,7 +19,8 @@ public class Student implements User {
 
     @ManyToOne
     @JoinColumn(name = "LECTURER_ID")
-    private Lecturer Advisor;
+    private Lecturer lecturer;
+    
 
     public Long getID() { // interfaces.User
         return ID;
@@ -45,12 +46,6 @@ public class Student implements User {
     public void setRole(String role) { // interfaces.User
         this.Role = role;
     }
-    public Lecturer getAdvisor() {
-        return Advisor;
-    }
-    public void setAdvisor(Lecturer advisor) {
-        Advisor = advisor;
-    }
     public String getProgram() {
         return Program;
     }
@@ -68,5 +63,13 @@ public class Student implements User {
     }
     public void setDepartment(String deparment) {
         Department = deparment;
+    }
+
+    
+    public Lecturer getLecturer() {
+        return lecturer;
+    }
+    public void setLecturer(Lecturer lecturer) {
+        this.lecturer = lecturer;
     }
 }

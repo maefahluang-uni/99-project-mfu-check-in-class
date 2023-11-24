@@ -106,7 +106,7 @@
                       <li>Program <div></div><span th:text="${userdata.getProgram()}"></span></li>
                       <li>School <div></div><span th:text="${userdata.getSchool()}"></span></li>
                       <li>Department <div></div><span th:text="${userdata.getDepartment()}"></span></li>
-                      <li>Advisor <div></div><span th:text="${userdata.getAdvisor().getName()}"></span></li>
+                      <li>Advisor <div></div><span th:text="${userdata.getLecturer().getName()}"></span></li>
                     </div>
                   </ul>
                   <ul th:if="${userdata.getRole().equals('LECTURER')}">

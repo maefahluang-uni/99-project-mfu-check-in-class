@@ -10,6 +10,7 @@ import java.util.*;
 import javax.servlet.http.*;
 import javax.transaction.Transactional;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.context.annotation.Bean;
@@ -272,6 +273,35 @@ public class System_Controller {
         }
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        request.getSession().invalidate();
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    cookie.setValue("");
+                    cookie.setPath("/");
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                }
+            }
+        }
+        return "redirect:/login";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
     @PostMapping("/register")
     public ResponseEntity<HashMap<String, Object>> register(Model model, HttpServletResponse response, HttpServletRequest request,
         @RequestParam String usertype) {
@@ -290,39 +320,29 @@ public class System_Controller {
                 
             } else if (usertype == "LECTURER") {
                 // Get form-data
-                String USER_ID = request.getParameter("USER_ID");
+                Long USER_ID = Long.valueOf(request.getParameter("USER_ID"));
                 String PASSWORD = request.getParameter("PASSWORD");
                 String NAME = request.getParameter("NAME");
                 String Department = request.getParameter("Department");
                 String School = request.getParameter("School");
+                // INIT ENTITY
+                Lecturer NewLecturer = new Lecturer();
+                NewLecturer.setID(USER_ID);
+                NewLecturer.setPassword(BCrypt.hashpw(PASSWORD, BCrypt.gensalt())); // convert real-password to hashed password for more security incase database leak.
+                NewLecturer.setName(NAME);
+                NewLecturer.setDepartment(Department);
+                NewLecturer.setSchool(School);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(null);
         } else {
-            // Authentication failed, show an error message
+            // Authentication failed, show an error messages
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new HashMap<String, Object>() {{
                     put("success", "false");
                     put("message", "AUTHORIZATION failed please try relogin.");
                 }});
         }
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
-        request.getSession().invalidate();
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
-                }
-            }
-        }
-        return "redirect:/login";
     }
     @GetMapping("/manage-course")
     public String viewCourses(Model model) {
