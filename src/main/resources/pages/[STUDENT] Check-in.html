@@ -3,8 +3,19 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Home</title>
-        <link rel="stylesheet" href="css\Lec-Course.css">
+        <link rel="stylesheet" href="/css/Lec-Course.css">
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+        <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script defer src="https://code.jquery.com/jquery-3.6.4.slim.min.js"></script>
+        <script defer src="https://code.jquery.com/jquery-3.7.0.js"></script>
+        <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+        <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+        <script defer src="/js/DataTable.js"></script>
+        <script defer src="/js/addcourse.js"></script>
+        <script defer src="/js/deletecourse.js"></script>
         <style>
             .table {
                 display: table;
@@ -33,9 +44,10 @@
             }
             
             #sideDayControl {
-                margin: 1%;
+                margin: 0%;
                 display: flex;
                 justify-content: center;
+                background-color: #b7b6b6;
             }
             #daysListContainer {
                 display: flex;
@@ -44,22 +56,78 @@
             #daysList {
                 list-style-type: none;
                 justify-content: center;
-                padding: 100px;
+                padding: 150px;
                 display: flex;
             }
             #daysList button {
-                margin: 5%;
-                padding: 2%;
+                border-radius: 20%;
+                margin: 10%;
+                padding: 4%;
             }
             #previousButton,
             #nextButton {
-                margin: 0; /* Adjust margin as needed */
+                margin: 5%; /* Adjust margin as needed */
             }
+           .calendar-icon {
+                width: 40px;
+                height: 40px;
+                border: 2px solid #333;
+                border-radius: 50%;
+                display: absolutes;
+                justify-content: center;
+                align-items: center;
+                font-size: 24px;
+                cursor: pointer;
+                background-color: #fff;
+                color: #333;
+                transition: background-color 0.3s ease-in-out;
+}
+
+.calendar-icon:hover {
+    background-color: #f0f0f0;
+    color: #000;
+}
+
         </style>
     </head>
     <body th:if="${userdata.getRole().equals('STUDENT')}">
-        <div id="calendar-icon" onclick="toggleCalendar()">📅</div>
+        
+        <!--Nav Bar-->
+        <div class="overlay" is="overlay"></div>
+        <div class="sidebar" id="sidebar">
+        <nav class="nav-side-bar">
+            <div class="header-side-bar">
+                <h1>CHECK.MFU</h1>
+                <button class="closebtn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="nav-menu">
+                <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+                <li class="active"><a href="/manage-course"><i class="far fa-calendar-check"></i>Course</a></li>
+                <li><a href="#"><i class="fas fa-book-open"></i>Lecturer</a></li>
+                <li><a href="#"><i class="fas fa-phone-volume"></i>Student</a></li>
+                <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+            </div>
+            <script src="/js/overlay-navbar.js"></script>
+        </nav>
+        </div>
+        
+        <div class="content">
+            <!-- header -->
+            <div class="header-top-bar">
+                <img src="/images/MFU-LOGO.png" alt="logo">
+                <div class="vertical-line"></div>
+                <div class="text-header-top-bar">
+                    <h2>Check-in Class</h2>
+                    <hr style="color: white; opacity: 0.8;">
+                    <p>MAE FAH LUANG UNIVERSITY</p>
+                </div>
+                <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+
+        
         <!-- Calendar Container -->
+        </div>
         <div id="calendar-container">
             <div id="calendar-header">
                 <button onclick="changeMonth(-1)">❮</button>
@@ -71,15 +139,14 @@
             <p id="currentDate"></p>
             <p id="SelectedElement"></p>
         </div>
-
         <div id="sideDayControl">
+            <div id="calendar-icon" onclick="toggleCalendar()"style="font-size: 4em;">📅</div>
             <div id="daysListContainer">
                 <button id="previousButton">Previous</button>
                 <div id="daysList"></div>
                 <button id="nextButton">Next</button>
             </div>
         </div>
-
         <ul class="list" id="courseList">
             <li th:each="courseInfo : ${mycourse}">
                 <strong>COURSEID:</strong> <span th:text="${courseInfo.course.getID()}"></span><br>
