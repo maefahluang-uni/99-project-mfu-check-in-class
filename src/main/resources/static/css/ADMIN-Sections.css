@@ -217,8 +217,12 @@
     color: red;
   }
 
-  #addCourseBtn {
+  .btnAction button {
     float: right;
+  }
+
+  #addSectionBtn {
+    margin-left: 10px;
   }
 
   .btn.btn-primary {
@@ -233,4 +237,20 @@
     box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
   }
   
-  
+  .btn.btn-primary:focus {
+    background-color: #6a0000 !important;
+    border-color: #6a0000 !important;
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .btn.btn-primary.active {
+    background-color: #6a0000 !important;
+    border-color: #6a0000 !important;
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .course-header {
+    float: left;
+    font-size: 30px;
+    /* font-weight: bold; */
+  }

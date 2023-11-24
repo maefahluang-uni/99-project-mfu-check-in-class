@@ -348,7 +348,7 @@ public class System_Controller {
     public String viewCourses(Model model) {
         List<Course> courses = (List<Course>) CourseRepo.findAll();
         model.addAttribute("courses", courses);
-        return "Manage-course";
+        return "[ADMIN] Course";
     }
     @PostMapping("/add-course")
     public ResponseEntity<HashMap<String, Object>> addCourse(@RequestParam String courseName) {
@@ -405,4 +405,126 @@ public class System_Controller {
                 }});
         }
     }
+    @Transactional
+    @PostMapping("/update-course/{courseId}")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> updateCourseName(@PathVariable Long courseId,@RequestParam String editedCourseName) {
+        try {
+            Course course = CourseRepo.findByID(courseId);
+    
+            if (course != null) {
+                // Check for duplicate names
+                if (CourseRepo.existsByNameIgnoreCase(editedCourseName)) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", false);
+                                put("message", "Course name already exists.");
+                            }});
+                } else{
+                    // Update the course name
+                    course.setName(editedCourseName);
+                    CourseRepo.save(course);
+        
+                    // Retrieve the updated list of courses
+                    List<Course> courses = (List<Course>) CourseRepo.findAll();
+        
+                    return ResponseEntity.status(HttpStatus.OK)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", true);
+                                put("message", "Course name updated successfully.");
+                                put("courses", courses);
+                            }});
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", false);
+                            put("message", "Course not found.");
+                        }});
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Error updating course name.");
+                    }});
+        }
+    } 
+    
+    @GetMapping("/manage-course-section/{courseId}")
+    public String viewCourseSections(Model model, @PathVariable Long courseId) {
+        Course course = CourseRepo.findByID(courseId);
+        if (course != null) {
+            List<CourseSection> sections = CourseSectionRepo.findByCourseID(courseId);
+            model.addAttribute("course", course);
+            model.addAttribute("sections", sections);
+            return "[ADMIN] Section";
+        } else {
+            return "redirect:/[ADMIN] Course";
+        }
+    }
+
+    @DeleteMapping("/delete-section/{sectionId}")
+    public ResponseEntity<HashMap<String, Object>> deleteSection(@PathVariable Long sectionId) {
+        CourseSectionRepo.delete(CourseSectionRepo.findByID(sectionId));
+        // List<CourseSection> sections = (List<CourseSection>) CourseSectionRepo.findAll();
+    
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("success", true);
+                    put("message", "Section deleted successfully.");
+                    // put("sections", sections);
+                }});
+    }
+    
+        // Add Section
+        @PostMapping("/manage-course-section/{courseId}/add-section")
+        public ResponseEntity<?> addSection(@PathVariable Long courseId, @RequestBody CourseSection newSection) {
+            try {
+                newSection.setCourse(CourseRepo.findByID(courseId));
+        
+                CourseSectionRepo.save(newSection);
+        
+                // List<CourseSection> sections = CourseSectionRepo.findByCourseID(courseId);
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("message", "Section added successfully");
+                // response.put("sections", sections);
+        
+                return ResponseEntity.ok().body(response);
+            } catch (Exception e) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", e.getMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+        }
+    
+        // Update Section
+    @PostMapping("/manage-course-section/{courseId}/update-section/{sectionId}")
+    public ResponseEntity<?> updateSection(@PathVariable Long courseId, @PathVariable Long sectionId, @RequestBody CourseSection updatedSection) {
+            try {
+                CourseSection existingSection = CourseSectionRepo.findById(sectionId)
+                        .orElseThrow(() -> new Exception("Section not found"));
+    
+                existingSection.setLocation(updatedSection.getLocation());
+                existingSection.setPeriod(updatedSection.getPeriod());
+    
+                CourseSectionRepo.save(existingSection);
+    
+                // List<CourseSection> sections = (List<CourseSection>) CourseSectionRepo.findByCourseID(courseId);
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("message", "Section updated successfully");
+                // response.put("sections", sections);
+    
+                return ResponseEntity.ok().body(response);
+            } catch (Exception e) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", e.getMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+        }
+    
 }
