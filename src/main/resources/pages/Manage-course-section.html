@@ -6,7 +6,7 @@
     <title>Manage Section</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="/css/style-managesection.css">
+    <link rel="stylesheet" href="/css/style-managesections.css">
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <!-- <link rel="stylesheet" href="/css/dataTables.bootstrap5.min.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
@@ -54,8 +54,14 @@
     
           <!-- Main content goes here -->
           <div class="container pt-3 pb-1 btnAction">
-              <button class="btn btn-primary" id="addSectionBtn"><i class="fa fa-plus"></i> Add Section</button>
-              <button class="btn btn-primary" id="backBtn" onclick="window.location.href='/manage-course'"><i class="far fa-arrow-alt-circle-left"></i> Back</button>
+            <div class="course-header">
+                <tr th:each="course : ${course}">
+                    <td th:text="${course.getID()}"></td>
+                    <td th:text="${course.getName()}"></td>
+                </tr>
+            </div>
+                <button class="btn btn-primary" id="addSectionBtn"><i class="fa fa-plus"></i> Add Section</button>
+                <button class="btn btn-primary" id="backBtn" onclick="window.location.href='/manage-course'"><i class="far fa-arrow-alt-circle-left"></i> Back</button>
           </div>
           <div class="container pt-5">
             <table id="datatable" class="table table-striped" style="width:100%">
