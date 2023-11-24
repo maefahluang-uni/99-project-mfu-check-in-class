@@ -328,7 +328,7 @@ public class System_Controller {
     public String viewCourses(Model model) {
         List<Course> courses = (List<Course>) CourseRepo.findAll();
         model.addAttribute("courses", courses);
-        return "Manage-course";
+        return "[ADMIN] Course";
     }
     @PostMapping("/add-course")
     public ResponseEntity<HashMap<String, Object>> addCourse(@RequestParam String courseName) {
@@ -438,9 +438,9 @@ public class System_Controller {
             List<CourseSection> sections = CourseSectionRepo.findByCourseID(courseId);
             model.addAttribute("course", course);
             model.addAttribute("sections", sections);
-            return "Manage-course-section";
+            return "[ADMIN] Section";
         } else {
-            return "redirect:/manage-course";
+            return "redirect:/[ADMIN] Course";
         }
     }
 
@@ -492,11 +492,11 @@ public class System_Controller {
     
                 CourseSectionRepo.save(existingSection);
     
-                List<CourseSection> sections = (List<CourseSection>) CourseSectionRepo.findByCourseID(courseId);
+                // List<CourseSection> sections = (List<CourseSection>) CourseSectionRepo.findByCourseID(courseId);
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", true);
                 response.put("message", "Section updated successfully");
-                response.put("sections", sections);
+                // response.put("sections", sections);
     
                 return ResponseEntity.ok().body(response);
             } catch (Exception e) {

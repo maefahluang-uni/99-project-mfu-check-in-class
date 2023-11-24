@@ -180,8 +180,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         editSectionModal.hide();
                         alert('Edit Section succeed.');
                         console.log(response.message);
-                        updateSectionTable(response);
-                        location.reload(); // You may not need to reload the page; it depends on your application flow
+                        // updateSectionTable(response);
+                        window.location.reload();
                     } else {
                         alert(response.message);
                     }
