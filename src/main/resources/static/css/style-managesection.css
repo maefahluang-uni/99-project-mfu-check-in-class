@@ -212,17 +212,17 @@
     margin-right: 10px;
   }
 
-  .btnSEC {
-    margin-right: 10px;
-  }
-
   .btnDelete {
     border: none;
     color: red;
   }
 
-  #addCourseBtn {
+  .btnAction button {
     float: right;
+  }
+
+  #addSectionBtn {
+    margin-left: 10px;
   }
 
   .btn.btn-primary {
@@ -235,17 +235,5 @@
     background-color: #6a0000;
     border-color: #6a0000;
     box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
-  }
-
-  .btn.btn-primary:focus {
-    background-color: #6a0000 !important;
-    border-color: #6a0000 !important;
-    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2) !important;
-  }
-
-  .btn.btn-primary.active {
-    background-color: #6a0000 !important;
-    border-color: #6a0000 !important;
-    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2) !important;
   }
   
