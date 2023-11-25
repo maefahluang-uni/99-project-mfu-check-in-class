@@ -69,7 +69,7 @@ public class System_Controller {
     //     this.MessagingService = MessagingTemplate;
     // }
 
-    private final int KEYSYNC_FIXED_LENGTH = 8; // BASE64URL version for safe GET method (64 ^ length) = space collision probability
+    private final int KEYSYNC_FIXED_LENGTH = 21; // BASE64URL version for safe GET method (64 ^ length) = space collision probability, total domain char is 64 (85 Ud chance) so it a best option for qrcode and have some big detail of dot.
     private final int GATE_AUTO_TIMEOUT = (60 * 1) * 1000; // TimeUnit.MILLISECONDS (1 minutes)
     private final int QR_CODE_AUTO_TIMEOUT = 5; // // TimeUnit.SECONDS (5 seconds is best option balance between real student in the class scan the qr and prevent some student send qr to others.)
     private final int GENERATE_PER_MILLISECONDS = 500;
@@ -82,6 +82,7 @@ public class System_Controller {
     public void QRAuthUpdator() {
         for (Map.Entry<Long, Date> entry : AUTHENTICATION_GATE.asMap().entrySet()) {
             Long SUBJECT_ID = entry.getKey();
+            System.out.println("SUBJECT_ID: " + SUBJECT_ID);
             String KEYSYNC = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
             RECENT_KEY.put(SUBJECT_ID, KEYSYNC);
             AUTHENTICATION_KEY.put(KEYSYNC, SUBJECT_ID);
@@ -140,6 +141,7 @@ public class System_Controller {
                     }
                 }
                 if (grantedAccess) {
+                    System.out.println("grantedAccess " + grantedAccess);
                     String QR_AUTHENTICATION_KEY = RECENT_KEY.getIfPresent(SUBJECT_ID);
                     if (QR_AUTHENTICATION_KEY == null) {
                         Date CanAuthentication = AUTHENTICATION_GATE.getIfPresent(SUBJECT_ID);

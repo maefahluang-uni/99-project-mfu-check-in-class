@@ -416,6 +416,39 @@
         </div>
     </div>
 
+    <!-- SUBJECT FILTER -->
+    <!-- <div class="container pt-3 pb-1">
+        
+    </div> -->
+    <div class="container pt-5">
+      <table id="datatable" class="table table-striped" style="width:100%">
+        <thead>
+            <tr>
+                <th>CourseID</th>
+                <th>Subject</th>
+                <th>Section</th>
+                <th>Location</th>
+                <th>Period</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+          <!-- <tr th:each="subject : ${mycourse}">
+            <td th:text="${subject.getCourse().getID()}"></td>
+            <td th:text="${subject.getCourse().getName()}"></td>
+            <td th:text="${subject.getSection()}"></td>
+            <td th:text="${subject.getLocation()}"></td>
+            <td th:text="${subject.getPeriod()}"></td>
+            <td th:text="__WAIT_FOR_ACTION__"></td>
+          </tr> -->
+        </tbody>
+      </table>
+    </div>
+    <!-- <td>
+        <a class="btnEdit" th:href="@{/update-course/{courseId}(courseId=${course.getID()})}"><i class="fas fa-pencil-alt" title="Edit"></i></a>
+    </td> -->
+
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"></script>
@@ -590,16 +623,31 @@
             return weeksElapsed;
         } // ChronoUnit.WEEKS.between (in java)
         
+        // function addCourse(subject) {
+        //     var listItem = document.createElement("li");
+        //     // subject.id // instanceid
+        //     listItem.innerHTML = `
+        //         <strong>STATE:</strong> <span id="state-${subject.id}">LOADING</span><br>
+        //         <strong>COURSEID:</strong> <span>${subject.course.id}</span><br>
+        //         <strong>NAME:</strong> <span>${subject.course.name}</span><br>
+        //         <strong>SECTION:</strong> <span>${subject.section}</span><br>
+        //         <strong>LOCATION:</strong> <span>${subject.location}</span><br>
+        //         <strong>PERIOD:</strong> <span>${subject.period}</span><br>
+        //         <button class="scanButton" id="subject-${subject.id}">Scan</button><br>
+        //     `;
+        //     document.getElementById("courseList").appendChild(listItem);
+        // }
+
         let connections = {};
         function addCourse(subject) {
-            var listItem = document.createElement("li");
             let datePeriod = convertStringToDate(subject.period);
             async function notificator () {
                 let state = "UNDEFINED";
-                let state_now_instance = document.getElementById(`state-${subject.id}`);
-                let scan_button_instance = document.getElementById(`subject-${subject.id}`);
+                let state_now_instance = document.querySelector(`.state-${subject.id}`);
+                let scan_button_instance = document.querySelector(`.btnScan-${subject.id}`);
                 if (!state_now_instance) { return; }
-                
+                let status_icon = state_now_instance.querySelector('i.fas');
+                let scan_icon = scan_button_instance.querySelector('i.fa');
                 const query = { instanceid: subject.id };
                 let response;
                 try {
@@ -609,25 +657,27 @@
                         }
                     });
                 } catch(e) {}
-
                 const NOW = new Date();
                 const WEEK_NUMBER = calculateWeeks(new Date(CurrentSemester.dateStart), PROXY.SelectDate);
                 let MIDNIGHT_SAFER = new Date(PROXY.SelectDate);
                 MIDNIGHT_SAFER.setHours(23, 59, 59, 999);
-
-                scan_button_instance.classList.add("hide-button");
+                scan_icon.className = 'fa fa-minus';
+                scan_icon.style.color = 'black';
+                status_icon.style.color = 'black';
+                scan_button_instance.href = "#";
+                console.log(response);
                 const ATTENDANCE_HISTORY = (response && response.data.history) || subject.attendanceHistory || {};
                 if (ATTENDANCE_HISTORY) {
                     const MY_ATTENDANCE = ATTENDANCE_HISTORY[userdata.id] || {}; // idx in object doesn't matter cause it will auto turn to string.
                     if (MY_ATTENDANCE) {
                         if (MY_ATTENDANCE[WEEK_NUMBER]) {
                             state = "CHECKED";
-                            state_now_instance.textContent = state;
+                            status_icon.style.color = 'green';
                             return;
                         }
                         if (NOW.getTime() >= MIDNIGHT_SAFER.getTime()) {
                             state = "MISSING";
-                            state_now_instance.textContent = state;
+                            status_icon.style.color = 'red';
                             return
                         }
                     }
@@ -635,28 +685,35 @@
                 if (response && response.data.success) {
                     if (PROXY.SelectDate.toDateString() == NOW.toDateString()) {
                         state = "OPEN";
-                        state_now_instance.textContent = state;
-                        scan_button_instance.classList.remove("hide-button");
+                        status_icon.style.color = '#ff9900';
+                        scan_icon.className = 'fa fa-qrcode';
+                        scan_icon.style.color = 'blue';
+                        scan_button_instance.href = '/scan';
                         return;
                     }
                 }
                 state = "NOT OPEN";
-                state_now_instance.textContent = state;
                 return;
             }
             setTimeout(notificator, 0);
             connections[subject.id] = setInterval(notificator, 2000); // every 2 seconds for updator
-            // subject.id // instanceid
-            listItem.innerHTML = `
-                <strong>STATE:</strong> <span id="state-${subject.id}">LOADING</span><br>
-                <strong>COURSEID:</strong> <span>${subject.course.id}</span><br>
-                <strong>NAME:</strong> <span>${subject.course.name}</span><br>
-                <strong>SECTION:</strong> <span>${subject.section}</span><br>
-                <strong>LOCATION:</strong> <span>${subject.location}</span><br>
-                <strong>PERIOD:</strong> <span>${subject.period}</span><br>
-                <button class="scanButton" id="subject-${subject.id}">Scan</button><br>
-            `;
-            document.getElementById("courseList").appendChild(listItem);
+            // init data.....
+            var tableBody = document.getElementById("datatable").getElementsByTagName("tbody")[0];
+            var newRow = tableBody.insertRow();
+            var cell1 = newRow.insertCell(0);
+            var cell2 = newRow.insertCell(1);
+            var cell3 = newRow.insertCell(2);
+            var cell4 = newRow.insertCell(3);
+            var cell5 = newRow.insertCell(4);
+            var cell6 = newRow.insertCell(5);
+            var cell7 = newRow.insertCell(6); // Action cell
+            cell1.innerHTML = subject.course.id;
+            cell2.innerHTML = subject.course.name;
+            cell3.innerHTML = subject.section;
+            cell4.innerHTML = subject.location;
+            cell5.innerHTML = subject.period;
+            cell6.innerHTML = `<a class="state-${subject.id}"><i class="fas fa-circle" title="State"></i></a>`;
+            cell7.innerHTML = `<a class="btnScan-${subject.id}" href="/scan"><i class="fa fa-qrcode" title="Scan"></i></a>`;
         }
 
         const LISTENER = {
@@ -666,31 +723,25 @@
                 // data sync
                 PROXY.CalendarNow = new Date(newValue); // math floor to sunday
                 CurrentSemester = getSemester(newValue);
-                // var container = document.getElementById("courseList");
-                // for (const key in connections) {
-                //     if (connections[key]) {
-                //         clearInterval(connections[key]);
-                //     }
-                // }
-                // container.innerHTML = "";
-                // if (CurrentSemester) {
-                //     mycourse.forEach(subject => {
-                //         if (subject.semester) {
-                //             if (subject.semester.id == CurrentSemester.id) { // or check getTime is in range but lazy xd
-                //                 let datePeriod = convertStringToDate(subject.period);
-                //                 if (datePeriod.startDate.getDay() == newValue.getDay()) { // check if select date is daylabel? (sun - sat)
-                //                     addCourse(subject);
-                //                 }
-                //             }
-                //         }
-                //     });
-                // }
-                // var scanButtons = document.getElementsByClassName("scanButton");
-                // Array.from(scanButtons).forEach(function(button) {
-                //     button.addEventListener('click', function() {
-                //         window.location.href = "/scan";
-                //     });
-                // });
+                var tableBody = document.getElementById("datatable").getElementsByTagName("tbody")[0];
+                tableBody.innerHTML = "";
+                for (const key in connections) {
+                    if (connections[key]) {
+                        clearInterval(connections[key]);
+                    }
+                }
+                if (CurrentSemester) {
+                    mycourse.forEach(subject => {
+                        if (subject.semester) {
+                            if (subject.semester.id == CurrentSemester.id) { // or check getTime is in range but lazy xd
+                                let datePeriod = convertStringToDate(subject.period);
+                                if (datePeriod.startDate.getDay() == newValue.getDay()) { // check if select date is daylabel? (sun - sat)
+                                    addCourse(subject);
+                                }
+                            }
+                        }
+                    });
+                }
             },
             CalendarNow: function(SYNC) {
                 const newValue = SYNC.newValue;
