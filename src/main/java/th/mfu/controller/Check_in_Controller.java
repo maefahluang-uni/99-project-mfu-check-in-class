@@ -108,7 +108,7 @@ public class Check_in_Controller {
                 Lecturer lecturer = (Lecturer) Myself;
                 boolean grantedAccess = false;
                 for (Lecturer v : Subject.lecturer) {
-                    if (v.getID().longValue() == lecturer.getID().longValue()) {
+                    if (v.getID().longValue() == lecturer.getID().longValue()) {    
                         grantedAccess = true;
                         break;
                     }
@@ -176,24 +176,12 @@ public class Check_in_Controller {
         return null;
     }
 
-
-
-
-    @DeleteMapping("system/delete")
-    public ResponseEntity<HashMap<String, Object>> DELETE(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
-        return null;
-    }
-
-    @PutMapping("system/update")
-    public ResponseEntity<HashMap<String, Object>> UPDATE(Model model, HttpServletResponse response, HttpServletRequest request, @RequestParam Long instanceid) {
-        return null;
-    }
-
-    @PostMapping("system/add")
-    public ResponseEntity<HashMap<String, Object>> ADD(
-        Model model, HttpServletResponse response, HttpServletRequest request,
-        @RequestParam Long studentid, @RequestParam Long lecturerid
-    ) {
-        return null;
+    @GetMapping("/test")
+    public ResponseEntity<HashMap<String, Object>> Test(@RequestParam Long instanceid) {
+        CourseSection Subject = CourseSectionRepo.findByID(instanceid);
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(new HashMap<String, Object>() {{
+                put("DATA", Subject.lecturer);
+            }});    
     }
 }

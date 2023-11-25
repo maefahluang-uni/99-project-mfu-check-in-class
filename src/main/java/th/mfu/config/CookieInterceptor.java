@@ -30,15 +30,12 @@ public class CookieInterceptor implements HandlerInterceptor {
             Myself.setPassword(null); // hide password before send to frontend
             if (Myself instanceof Student) {
                 Student STUDENT = (Student) Myself;
-                STUDENT.setRole("STUDENT");
                 request.setAttribute("userdata", STUDENT);
             } else if (Myself instanceof Lecturer) {
                 Lecturer LECTURER = (Lecturer) Myself;
-                LECTURER.setRole("LECTURER");
                 request.setAttribute("userdata", LECTURER);
             } else if (Myself instanceof Admin) {
                 Admin ADMIN = (Admin) Myself;
-                ADMIN.setRole("ADMIN");
                 request.setAttribute("userdata", ADMIN);
             }
         }

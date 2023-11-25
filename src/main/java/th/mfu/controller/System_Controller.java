@@ -303,48 +303,47 @@ public class System_Controller {
 
 
 
-    @PostMapping("/register")
-    public ResponseEntity<HashMap<String, Object>> register(Model model, HttpServletResponse response, HttpServletRequest request,
-        @RequestParam String usertype) {
-            /*
-             * http://localhost:8100/register?usertype=LECTURER
-             * {
-             *  USER_ID: 1111
-             *  PASSWORD: "1234"
-             *  ...
-             *  School: "abc"
-             * }
-             */
-        User Myself = userService.VerifyJwtToken(request, response);
-        if (Myself.getRole() == "ADMIN") { // or using "Myself instanceof Admin"
-            if (usertype == "STUDENT") {
-                
-            } else if (usertype == "LECTURER") {
-                // Get form-data
-                Long USER_ID = Long.valueOf(request.getParameter("USER_ID"));
-                String PASSWORD = request.getParameter("PASSWORD");
-                String NAME = request.getParameter("NAME");
-                String Department = request.getParameter("Department");
-                String School = request.getParameter("School");
-                // INIT ENTITY
-                Lecturer NewLecturer = new Lecturer();
-                NewLecturer.setID(USER_ID);
-                NewLecturer.setPassword(BCrypt.hashpw(PASSWORD, BCrypt.gensalt())); // convert real-password to hashed password for more security incase database leak.
-                NewLecturer.setName(NAME);
-                NewLecturer.setDepartment(Department);
-                NewLecturer.setSchool(School);
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(null);
-        } else {
-            // Authentication failed, show an error messages
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new HashMap<String, Object>() {{
-                    put("success", "false");
-                    put("message", "AUTHORIZATION failed please try relogin.");
-                }});
-        }
-    }
+    // @PostMapping("/register")
+    // public ResponseEntity<HashMap<String, Object>> register(Model model, HttpServletResponse response, HttpServletRequest request,
+    //     @RequestParam String usertype) {
+    //         /*
+    //          * http://localhost:8100/register?usertype=LECTURER
+    //          * {
+    //          *  USER_ID: 1111
+    //          *  PASSWORD: "1234"
+    //          *  ...
+    //          *  School: "abc"
+    //          * }
+    //          */
+    //     User Myself = userService.VerifyJwtToken(request, response);
+    //     if (Myself.getRole() == "ADMIN") { // or using "Myself instanceof Admin"
+    //         if (usertype == "STUDENT") {
+    //         } else if (usertype == "LECTURER") {
+    //             // Get form-data
+    //             Long USER_ID = Long.valueOf(request.getParameter("USER_ID"));
+    //             String PASSWORD = request.getParameter("PASSWORD");
+    //             String NAME = request.getParameter("NAME");
+    //             String Department = request.getParameter("Department");
+    //             String School = request.getParameter("School");
+    //             // INIT ENTITY
+    //             Lecturer NewLecturer = new Lecturer();
+    //             NewLecturer.setID(USER_ID);
+    //             NewLecturer.setPassword(BCrypt.hashpw(PASSWORD, BCrypt.gensalt())); // convert real-password to hashed password for more security incase database leak.
+    //             NewLecturer.setName(NAME);
+    //             NewLecturer.setDepartment(Department);
+    //             NewLecturer.setSchool(School);
+    //         }
+    //         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    //             .body(null);
+    //     } else {
+    //         // Authentication failed, show an error messages
+    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+    //             .body(new HashMap<String, Object>() {{
+    //                 put("success", "false");
+    //                 put("message", "AUTHORIZATION failed please try relogin.");
+    //             }});
+    //     }
+    // }
     @GetMapping("/manage-course")
     public String viewCourses(Model model) {
         List<Course> courses = (List<Course>) CourseRepo.findAll();
@@ -529,23 +528,20 @@ public class System_Controller {
         }
         @GetMapping("/manage-lecturer")
         public String viewLecturer(Model model) {
-        List<Lecturer> Lecturers = LecturerRepo.findAll();
-        model.addAttribute("Lecturers", Lecturers);
-        return "[ADMIN] Lecturer";
+            List<Lecturer> Lecturers = LecturerRepo.findAll();
+            model.addAttribute("Lecturers", Lecturers);
+            return "[ADMIN] Lecturer";
         }
 
         @PostMapping("/add-lecturer")
          public ResponseEntity<HashMap<String, Object>> addLecturer(@RequestBody Lecturer newlecturer) {
             if(newlecturer.getName() != null) {
                 Lecturer Lecturer = new Lecturer();
-                Lecturer.setRole("LECTURER");
                 Lecturer.setPassword(BCrypt.hashpw(newlecturer.getPassword(), BCrypt.gensalt()));
                 Lecturer.setName(newlecturer.getName());
                 Lecturer.setDepartment(newlecturer.getDepartment());
                 Lecturer.setSchool(newlecturer.getSchool());
-
                 LecturerRepo.save(Lecturer);
-
                 // List<Lecturer> Lecturers = LecturerRepo.findAll();
                 return ResponseEntity.status(HttpStatus.OK)
                     .body(new HashMap<String, Object>() {{

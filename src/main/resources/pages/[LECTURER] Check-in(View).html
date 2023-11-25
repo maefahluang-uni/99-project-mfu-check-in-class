@@ -179,7 +179,7 @@
                                     }
                                 }
                                 checkbox.onclick = async function() {
-                                    const response = await axios.put(`/check-in/edit?week=${WEEK_ELAPSED}&instanceid=${10000}&studentid=${6531503070}&value=${checkbox.checked}`); // custom check-in (for lecturer)
+                                    const response = await axios.put(`/check-in/edit?week=${WEEK_ELAPSED}&instanceid=${subject.id}&studentid=${studentid}&value=${checkbox.checked}`); // custom check-in (for lecturer)
                                     if (response.data.success) {
                                         checkbox.checked = response.data.check;
                                         history = response.data.map;
