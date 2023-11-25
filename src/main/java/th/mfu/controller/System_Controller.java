@@ -82,7 +82,6 @@ public class System_Controller {
     public void QRAuthUpdator() {
         for (Map.Entry<Long, Date> entry : AUTHENTICATION_GATE.asMap().entrySet()) {
             Long SUBJECT_ID = entry.getKey();
-            System.out.println("SUBJECT_ID: " + SUBJECT_ID);
             String KEYSYNC = userService.GenerateBase64UrlToken(KEYSYNC_FIXED_LENGTH);
             RECENT_KEY.put(SUBJECT_ID, KEYSYNC);
             AUTHENTICATION_KEY.put(KEYSYNC, SUBJECT_ID);
