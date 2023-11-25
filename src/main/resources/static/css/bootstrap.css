@@ -8136,7 +8136,7 @@
   body {
     font-family: "Poppins", Arial, sans-serif;
     font-size: 16px;
-    line-height: 1.8;
+    /* line-height: 1.8; */
     font-weight: normal;
     background: #fafafa;
     color: gray; }
