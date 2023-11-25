@@ -603,7 +603,7 @@ public class System_Controller {
     @ResponseBody
     public ResponseEntity<HashMap<String, Object>> updatelecturer(@PathVariable Long lecturerId, @RequestBody Lecturer editedlecturer) {
             Lecturer lecturer = LecturerRepo.findByID(lecturerId);
-    
+
             if (lecturer != null) {
                 // Check for duplicate names
                 if (LecturerRepo.existsByNameIgnoreCase(editedlecturer.getName())) {
@@ -635,4 +635,106 @@ public class System_Controller {
                         }});
             }
     } 
+
+    @GetMapping("/manage-lecturer/{lecturerId}/schedule")
+    public String viewLecturerSchedule(Model model, @PathVariable Long lecturerId) {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<CourseSection> sections = CourseSectionRepo.findByLecturerID(lecturerId);
+            model.addAttribute("lecturer", lecturer);
+            model.addAttribute("sections", sections);
+            return "[ADMIN] LSchedule";
+        } else {
+            return "redirect:/manage-lecturer";
+        }
+    }
+
+    @GetMapping("/manage-lecturer/{lecturerId}/schedule/link-course")
+    public String viewLecturerlinkCourse(Model model, @PathVariable Long lecturerId) {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<CourseSection> allSections = (List<CourseSection>) CourseSectionRepo.findAll();
+            List<CourseSection> lecturerSections = CourseSectionRepo.findByLecturerID(lecturerId);
+    
+            allSections.removeAll(lecturerSections);
+            model.addAttribute("lecturer", lecturer);
+            model.addAttribute("allSections", allSections);
+            return "[ADMIN] LlistCourse";
+        } else {
+            return "redirect:/manage-lecturer";
+        }
+    }
+
+    // ?instanceid=10000
+    @GetMapping("/manage-lecturer/{lecturerId}/link")
+    public ResponseEntity<HashMap<String, Object>> Linkcourse(Model model, @PathVariable Long lecturerId, @RequestParam Long instanceid) {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<CourseSection> allSections = (List<CourseSection>) CourseSectionRepo.findAll();
+            List<CourseSection> lecturerSections = CourseSectionRepo.findByLecturerID(lecturerId);
+            allSections.removeAll(lecturerSections);
+
+            CourseSection subject = null;
+            for (CourseSection v1 : allSections) {
+                System.out.println(v1.getID());
+                if (v1.getID().longValue() == instanceid) {
+                    subject = v1;
+                    break;
+                }
+            }
+            if (subject != null) {
+                subject.lecturer.add(lecturer);
+                CourseSectionRepo.save(subject);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Lecturer was already link to this course");
+                    }});
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "Lecturer not found.");
+            }});
+    }
+
+    @GetMapping("/manage-lecturer/{lecturerId}/unlink")
+    public ResponseEntity<HashMap<String, Object>> UnlinkCourse(Model model, @PathVariable Long lecturerId, @RequestParam Long instanceid) {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<CourseSection> lecturerSections = CourseSectionRepo.findByLecturerID(lecturerId);
+            CourseSection subject = null;
+            for (CourseSection v1 : lecturerSections) {
+                if (v1.getID().longValue() == instanceid) {
+                    subject = v1;
+                    break;
+                }
+            }
+            if (subject != null) {
+                boolean IsRemoveSuccess = subject.lecturer.remove(lecturer);
+                CourseSectionRepo.save(subject);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Lecturer isn't in this course already.");
+                    }});
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "Lecturer not found.");
+            }});
+    }
 }
