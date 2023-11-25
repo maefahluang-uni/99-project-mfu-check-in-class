@@ -526,5 +526,116 @@ public class System_Controller {
                 return ResponseEntity.badRequest().body(response);
             }
         }
+        @GetMapping("/manage-lecturer")
+        public String viewLecturer(Model model) {
+        List<Lecturer> Lecturers = LecturerRepo.findAll();
+        model.addAttribute("Lecturers", Lecturers);
+        return "[ADMIN] Lecturer";
+        }
+
+        @PostMapping("/add-lecturer")
+         public ResponseEntity<HashMap<String, Object>> addLecturer(@RequestBody Lecturer newlecturer) {
+            if(newlecturer.getName() != null) {
+                Lecturer Lecturer = new Lecturer();
+                Lecturer.setRole("LECTURER");
+                Lecturer.setPassword(BCrypt.hashpw(newlecturer.getPassword(), BCrypt.gensalt()));
+                Lecturer.setName(newlecturer.getName());
+                Lecturer.setDepartment(newlecturer.getDepartment());
+                Lecturer.setSchool(newlecturer.getSchool());
+
+                LecturerRepo.save(Lecturer);
+
+                // List<Lecturer> Lecturers = LecturerRepo.findAll();
+                return ResponseEntity.status(HttpStatus.OK)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                        put("message", "Lecturer added successfully.");
+                        // put("Lecturers", Lecturers);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Lecturer with the same name already exists.");
+                    }});
+            }
+    }
+    @Transactional
+    @GetMapping("/delete-lecturer/{lecturerId}")
+    public ResponseEntity<HashMap<String, Object>> deleteLecturer(@PathVariable Long lecturerId) {
+        try {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<Student> students = StudentRepo.findByLecturer_ID(lecturerId);
+            
+            if (students != null && !students.isEmpty()) {
+                for (Student student : students) {
+                List<CourseSection> sections = CourseSectionRepo.findByStudentID(student.getID());
+                    for (CourseSection section : sections) {
+                        CourseSectionRepo.delete(section);
+                    }
+                    StudentRepo.delete(student);
+                }
+            }
     
+            LecturerRepo.deleteById(lecturerId);
+    
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("success", true);
+                    put("message", "Lecturer deleted successfully.");
+                }});
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new HashMap<String, Object>() {{
+                    put("success", false);
+                    put("message", "Lecturer not found.");
+                }});
+        }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new HashMap<String, Object>() {{
+                    put("success", false);
+                    put("message", "An error occurred during lecturer deletion.");
+                }});
+        }
+    }
+    @Transactional
+    @PostMapping("/update-lecturer/{lecturerId}")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> updatelecturer(@PathVariable Long lecturerId, @RequestBody Lecturer editedlecturer) {
+            Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+    
+            if (lecturer != null) {
+                // Check for duplicate names
+                if (LecturerRepo.existsByNameIgnoreCase(editedlecturer.getName())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", false);
+                                put("message", "Lecturer name already exists.");
+                            }});
+                } else{
+                    lecturer.setName(editedlecturer.getName());
+                    lecturer.setDepartment(editedlecturer.getDepartment());
+                    lecturer.setSchool(editedlecturer.getSchool());
+                    LecturerRepo.save(lecturer);
+        
+                    // List<Lecturer> Lecturers = (List<Lecturer>) LecturerRepo.findAll();
+        
+                    return ResponseEntity.status(HttpStatus.OK)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", true);
+                                put("message", "Course name updated successfully.");
+                                // put("Lecturers", Lecturers);
+                            }});
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", false);
+                            put("message", "Course not found.");
+                        }});
+            }
+    } 
 }
