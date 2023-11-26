@@ -73,7 +73,7 @@
                     document.querySelectorAll('.link-course-btn').forEach(function(button) {
                         button.addEventListener('click', function() {
                             var sectionId = button.getAttribute('data-section-id');
-                            var url = '/manage-student/' + sectionId + '/schedule/link-course';
+                            var url = '/check-in/edit/student/add?instanceid=' + sectionId;
                             window.location.href = url;
                         });
                     });

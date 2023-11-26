@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Student</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="/css/ADMIN-LSchedule.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="/css/dataTables.bootstrap5.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-3.6.4.slim.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script defer src="/js/DataTable.js"></script>
+</head>
+<body>
+    <!--Nav Bar-->
+    <div class="overlay" id="overlay"></div>
+    <div class="sidebar" id="sidebar">
+    <nav class="nav-side-bar">
+        <div class="header-side-bar">
+            <h1>CHECK.MFU</h1>
+            <button class="closebtn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="nav-menu">
+            <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+            <li><a href="/manage-course"><i class="far fa-calendar-check"></i>Course</a></li>
+            <li><a href="/manage-lecturer"><i class="fas fa-user-tie"></i>Lecturer</a></li>
+            <li class="active"><a href="/manage-student"><i class="fas fa-user-graduate"></i>Student</a></li>
+            <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+        </div>
+        <script src="/js/overlay-navbar.js"></script>
+    </nav>
+    </div>
+    <div class="content">
+        <!-- header -->
+        <div class="header-top-bar">
+            <img src="/images/MFU-LOGO.png" alt="logo">
+            <div class="vertical-line"></div>
+            <div class="text-header-top-bar">
+                <h2>Check-in Class</h2>
+                <hr style="color: white; opacity: 0.8;">
+                <p>MAE FAH LUANG UNIVERSITY</p>
+            </div>
+            <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+        </div>
+
+      <!-- Main content goes here -->
+      <div class="container pt-3 pb-1 btnAction">
+        <div class="schedule-header">
+            <tr th:each="subject : ${subject}">
+                <td th:text="${subject.getCourse().getID()}"></td>
+                <td th:text="${subject.getCourse().getName()}"></td>
+            </tr>
+        </div>
+            <button class="btn btn-primary back-btn" th:data-section-id="${subject.getID()}" id="backBtn"><i class="far fa-arrow-alt-circle-left"></i> Back</button>
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.querySelectorAll('.back-btn').forEach(function(button) {
+                            button.addEventListener('click', function() {
+                                var sectionId = button.getAttribute('data-section-id');
+                                var url = '/check-in/edit/student?instanceid=' + sectionId;
+                                window.location.href = url;
+                            });
+                        });
+                    });
+                /*]]>*/
+            </script>
+      </div>
+      <div class="container pt-5">
+        <table id="datatable" class="table table-striped" style="width:100%">
+          <thead>
+              <tr>
+                  <th>StudentID</th>
+                  <th>Name</th>
+                  <th>Department</th>
+                  <th>School</th>
+                  <th>Action</th>
+              </tr>
+          </thead>
+          <tbody>
+            <tr th:each="studentsNotInSubject : ${studentsNotInSubject}">
+              <td th:text="${studentsNotInSubject.getID()}"></td>
+              <td th:text="${studentsNotInSubject.getName()}"></td>
+              <td th:text="${studentsNotInSubject.getDepartment()}"></td>
+              <td th:text="${studentsNotInSubject.getSchool()}"></td>
+              <td>
+                <a class="btnAdd" th:data-student-id="${studentsNotInSubject.getID()}" href="#"><i class="fa fa-plus" title="Add"></i></a>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+              <tr>
+                <th>StudentID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>School</th>
+                <th>Action</th>
+              </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+            document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.btnAdd').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var studentId = button.getAttribute('data-student-id');
+                    var sectionId = extractInstanceIdFromUrl();
+                    $.ajax({
+                        url: '/check-in/edit/student/' + studentId + '/link?instanceid=' + sectionId,
+                        method: 'GET',
+                        success: function (response) {
+                            if (response.success) {
+                                window.location.reload();
+                                alert('Add Student succeed.');
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            if (xhr.status === 404) {
+                                alert('Student not found.');
+                            } else {
+                                console.error('Error Add Student:', error);
+                                alert('Error deleting student. Please try again.');
+                            }
+                        }
+                    });
+                });
+                });
+            });
+        /*]]>*/
+        function extractInstanceIdFromUrl() {
+            // Example URL: /check-in/edit/student/add?instanceid=10001
+            var queryString = window.location.search;
+            var instanceIdIndex = queryString.indexOf('instanceid=');
+
+            if (instanceIdIndex !== -1) {
+                var instanceId = queryString.substring(instanceIdIndex + 11);
+                return instanceId;
+            }
+
+            // Default value or handle error as needed
+            return null;
+        }
+    </script>
+</body>
+</html>
