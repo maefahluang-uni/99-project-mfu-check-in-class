@@ -417,7 +417,6 @@ public class System_Controller {
     public ResponseEntity<HashMap<String, Object>> updateCourseName(@PathVariable Long courseId,@RequestParam String editedCourseName) {
         try {
             Course course = CourseRepo.findByID(courseId);
-    
             if (course != null) {
                 // Check for duplicate names
                 if (CourseRepo.existsByNameIgnoreCase(editedCourseName)) {
@@ -433,7 +432,6 @@ public class System_Controller {
         
                     // Retrieve the updated list of courses
                     List<Course> courses = (List<Course>) CourseRepo.findAll();
-        
                     return ResponseEntity.status(HttpStatus.OK)
                             .body(new HashMap<String, Object>() {{
                                 put("success", true);
@@ -488,15 +486,12 @@ public class System_Controller {
         public ResponseEntity<?> addSection(@PathVariable Long courseId, @RequestBody CourseSection newSection) {
             try {
                 newSection.setCourse(CourseRepo.findByID(courseId));
-        
                 CourseSectionRepo.save(newSection);
-        
                 // List<CourseSection> sections = CourseSectionRepo.findByCourseID(courseId);
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", true);
                 response.put("message", "Section added successfully");
                 // response.put("sections", sections);
-        
                 return ResponseEntity.ok().body(response);
             } catch (Exception e) {
                 Map<String, Object> response = new HashMap<>();
@@ -511,11 +506,10 @@ public class System_Controller {
     public ResponseEntity<?> updateSection(@PathVariable Long courseId, @PathVariable Long sectionId, @RequestBody CourseSection updatedSection) {
             try {
                 CourseSection existingSection = CourseSectionRepo.findById(sectionId)
-                        .orElseThrow(() -> new Exception("Section not found"));
+                    .orElseThrow(() -> new Exception("Section not found"));
     
                 existingSection.setLocation(updatedSection.getLocation());
                 existingSection.setPeriod(updatedSection.getPeriod());
-    
                 CourseSectionRepo.save(existingSection);
     
                 // List<CourseSection> sections = (List<CourseSection>) CourseSectionRepo.findByCourseID(courseId);
@@ -523,7 +517,6 @@ public class System_Controller {
                 response.put("success", true);
                 response.put("message", "Section updated successfully");
                 // response.put("sections", sections);
-    
                 return ResponseEntity.ok().body(response);
             } catch (Exception e) {
                 Map<String, Object> response = new HashMap<>();
@@ -543,7 +536,8 @@ public class System_Controller {
          public ResponseEntity<HashMap<String, Object>> addLecturer(@RequestBody Lecturer newlecturer) {
             if(newlecturer.getName() != null) {
                 Lecturer Lecturer = new Lecturer();
-                Lecturer.setPassword(BCrypt.hashpw(newlecturer.getPassword(), BCrypt.gensalt()));
+                String HASH_PASSWORD = BCrypt.hashpw(newlecturer.getPassword(), BCrypt.gensalt());
+                Lecturer.setPassword(HASH_PASSWORD);
                 Lecturer.setName(newlecturer.getName());
                 Lecturer.setDepartment(newlecturer.getDepartment());
                 Lecturer.setSchool(newlecturer.getSchool());
@@ -754,11 +748,12 @@ public class System_Controller {
          public ResponseEntity<HashMap<String, Object>> addStudent(@RequestBody Student newstudent) {
             if(newstudent.getName() != null) {
                 Student Student = new Student();
-                Student.setPassword(BCrypt.hashpw(newstudent.getPassword(), BCrypt.gensalt()));
+                String HASH_PASSWORD = BCrypt.hashpw(newstudent.getPassword(), BCrypt.gensalt());
+                Student.setPassword(HASH_PASSWORD);
                 Student.setName(newstudent.getName());
                 Student.setDepartment(newstudent.getDepartment());
                 Student.setSchool(newstudent.getSchool());
-                StudentRepo.save(newstudent);
+                StudentRepo.save(Student);
                 return ResponseEntity.status(HttpStatus.OK)
                     .body(new HashMap<String, Object>() {{
                         put("success", true);
@@ -776,10 +771,9 @@ public class System_Controller {
     @GetMapping("/delete-student/{studentId}")
     public ResponseEntity<HashMap<String, Object>> deleteStudent(@PathVariable Long studentId) {
         try {
-        Student student = StudentRepo.findByID(studentId);
-        if (student != null) {
-                    StudentRepo.delete(student);
-    
+            Student student = StudentRepo.findByID(studentId);
+            if (student != null) {
+                StudentRepo.delete(student);
             return ResponseEntity.status(HttpStatus.OK)
                 .body(new HashMap<String, Object>() {{
                     put("success", true);
@@ -806,7 +800,6 @@ public class System_Controller {
     @ResponseBody
     public ResponseEntity<HashMap<String, Object>> updatestudent(@PathVariable Long studentId, @RequestBody Student editedstudent) {
             Student student = StudentRepo.findByID(studentId);
-
             if (student != null) {
                 // Check for duplicate names
                 if (StudentRepo.existsByNameIgnoreCase(editedstudent.getName())) {
@@ -820,7 +813,6 @@ public class System_Controller {
                     student.setDepartment(editedstudent.getDepartment());
                     student.setSchool(editedstudent.getSchool());
                     StudentRepo.save(student);
-        
                     return ResponseEntity.status(HttpStatus.OK)
                             .body(new HashMap<String, Object>() {{
                                 put("success", true);
@@ -856,7 +848,6 @@ public class System_Controller {
             List<CourseSection> allSections = (List<CourseSection>) CourseSectionRepo.findAll();
             List<CourseSection> studentSections = CourseSectionRepo.findByStudentID(studentId);
             allSections.removeAll(studentSections);
-
             CourseSection subject = null;
             for (CourseSection v1 : allSections) {
                 System.out.println(v1.getID());
@@ -900,7 +891,6 @@ public class System_Controller {
                 }
             }
             if (subject != null) {
-                System.out.println("abc");
                 boolean IsRemoveSuccess = subject.student.remove(student);
                 CourseSectionRepo.save(subject);
                 return ResponseEntity.status(HttpStatus.OK)
@@ -927,7 +917,6 @@ public class System_Controller {
         if (student != null) {
             List<CourseSection> allSections = (List<CourseSection>) CourseSectionRepo.findAll();
             List<CourseSection> studentSections = CourseSectionRepo.findByStudentID(studentId);
-    
             allSections.removeAll(studentSections);
             model.addAttribute("student", student);
             model.addAttribute("allSections", allSections);
