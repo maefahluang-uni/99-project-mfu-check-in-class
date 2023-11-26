@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Lecturers</title>
+    <title>Manage Students</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="/css/ADMIN-Lecturer.css">
@@ -18,8 +18,13 @@
     <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script defer src="/js/DataTable.js"></script>
-    <script defer src="/js/managelecturers.js"></script>
+    <script defer src="/js/managestudent.js"></script>
 </head>
+<style>
+    #addStudentBtn {
+        float: right;
+    }
+</style>
 <body>
     <!--Nav Bar-->
     <div class="overlay" id="overlay"></div>
@@ -32,8 +37,8 @@
         <div class="nav-menu">
             <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
             <li><a href="/manage-course"><i class="far fa-calendar-check"></i>Course</a></li>
-            <li class="active"><a href="/manage-lecturer"><i class="fas fa-user-tie"></i>Lecturer</a></li>
-            <li><a href="/manage-student"><i class="fas fa-user-graduate"></i>Student</a></li>
+            <li><a href="/manage-lecturer"><i class="fas fa-user-tie"></i>Lecturer</a></li>
+            <li class="active"><a href="/manage-student"><i class="fas fa-user-graduate"></i>Student</a></li>
             <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
         </div>
         <script src="/js/overlay-navbar.js"></script>
@@ -54,13 +59,13 @@
 
       <!-- Main content goes here -->
       <div class="container pt-3 pb-1">
-          <button class="btn btn-primary" id="addLecturerBtn"><i class="fa fa-plus"></i> Add Lecturer</button>
+          <button class="btn btn-primary" id="addStudentBtn"><i class="fa fa-plus"></i> Add Student</button>
       </div>
       <div class="container pt-5">
         <table id="datatable" class="table table-striped" style="width:100%">
           <thead>
               <tr>
-                  <th>LecturerID</th>
+                  <th>StudentID</th>
                   <th>Name</th>
                   <th>Department</th>
                   <th>School</th>
@@ -68,13 +73,13 @@
               </tr>
           </thead>
           <tbody>
-            <tr th:each="Lecturer : ${Lecturers}">
-              <td th:text="${Lecturer.getID()}"></td>
-              <td th:text="${Lecturer.getName()}"></td>
-              <td th:text="${Lecturer.getDepartment()}"></td>
-              <td th:text="${Lecturer.getSchool()}"></td>
+            <tr th:each="Student : ${Students}">
+              <td th:text="${Student.getID()}"></td>
+              <td th:text="${Student.getName()}"></td>
+              <td th:text="${Student.getDepartment()}"></td>
+              <td th:text="${Student.getSchool()}"></td>
               <td>
-                  <a class="btnSCH" th:href="@{/manage-lecturer/{lecturerId}/schedule(lecturerId=${Lecturer.getID()})}"><i class="fas fa-book" title="Schedule"></i></a>
+                  <a class="btnSCH" th:href="@{/manage-student/{studentId}/schedule(studentId=${Student.getID()})}"><i class="fas fa-book" title="Schedule"></i></a>
                   <a class="btnEdit" href="#"><i class="fas fa-pencil-alt" title="Edit"></i></a>
                   <a class="btnDelete" href="#"><i class="fas fa-trash-alt" title="Delete"></i></a>
               </td>
@@ -82,7 +87,7 @@
           </tbody>
           <tfoot>
               <tr>
-                  <th>LecturerID</th>
+                  <th>StudentID</th>
                   <th>Name</th>
                   <th>Department</th>
                   <th>School</th>
@@ -93,34 +98,34 @@
       </div>
     </div>
     <!-- Function Add -->
-    <div class="modal fade" id="addLecturerModal" tabindex="-1" aria-labelledby="addLecturerModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addLecturerModalLabel">Add Lecturer</h5>
+                    <h5 class="modal-title" id="addStudentModalLabel">Add Student</h5>
                     <button id="closeModalBtn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addLecturerForm">
+                    <form id="addStudentForm">
                         <div class="mb-3">
-                            <label for="lecturerPassword" class="form-label">Password:</label>
-                            <input type="text" class="form-control" id="lecturerPassword" required>
+                            <label for="studentPassword" class="form-label">Password:</label>
+                            <input type="text" class="form-control" id="studentPassword" required>
                         </div>
                         <div class="mb-3">
-                            <label for="lecturerName" class="form-label">Name:</label>
-                            <input type="text" class="form-control" id="lecturerName" required>
+                            <label for="studentName" class="form-label">Name:</label>
+                            <input type="text" class="form-control" id="studentName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="lecturerDepartment" class="form-label">Department:</label>
-                            <input type="text" class="form-control" id="lecturerDepartment" required>
+                            <label for="studentDepartment" class="form-label">Department:</label>
+                            <input type="text" class="form-control" id="studentDepartment" required>
                         </div>
                         <div class="mb-3">
-                            <label for="lecturerSchool" class="form-label">School:</label>
-                            <input type="text" class="form-control" id="lecturerSchool" required>
+                            <label for="studentSchool" class="form-label">School:</label>
+                            <input type="text" class="form-control" id="studentSchool" required>
                         </div>
                         <div class="modal-footer">
                             <button id="closeModalBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Add Lecturer</button>
+                            <button type="submit" class="btn btn-primary">Add Student</button>
                         </div>
                     </form>
                 </div>
@@ -128,29 +133,29 @@
         </div>
     </div>
     <!-- Function Edit -->
-    <div class="modal fade" id="editLecturerModal" tabindex="-1" aria-labelledby="editLecturerModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editLecturerModalLabel">Edit Lecturer</h5>
+                    <h5 class="modal-title" id="editStudentModalLabel">Edit Student</h5>
                     <button id="closeModalBtn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editLecturerForm">
+                    <form id="editStudentForm">
                         <div class="mb-3">
-                            <label for="editLecturerName" class="form-label">Edited Name:</label>
-                            <input type="text" class="form-control" id="editLecturerName" required>
+                            <label for="editStudentName" class="form-label">Edited Name:</label>
+                            <input type="text" class="form-control" id="editStudentName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editLecturerDepartment" class="form-label">Edited Depart:</label>
-                            <input type="text" class="form-control" id="editLecturerDepartment" required>
+                            <label for="editStudentDepartment" class="form-label">Edited Depart:</label>
+                            <input type="text" class="form-control" id="editStudentDepartment" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editLecturerSchool" class="form-label">Edited School:</label>
-                            <input type="text" class="form-control" id="editLecturerSchool" required>
+                            <label for="editStudentSchool" class="form-label">Edited School:</label>
+                            <input type="text" class="form-control" id="editStudentSchool" required>
                         </div>
                         <div class="modal-footer">
-                            <button id="cancelEditLecturerBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button id="cancelEditStudentBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary">Save Changes</button>
                         </div>
                     </form>

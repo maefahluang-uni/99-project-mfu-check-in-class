@@ -8,5 +8,4 @@ public interface User {
     String getName();
     void setName(String __NAME__);
     String getRole();
-    void setRole(String __ROLE__);
 }

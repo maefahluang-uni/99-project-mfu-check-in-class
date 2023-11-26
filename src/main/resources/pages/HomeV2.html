@@ -4,67 +4,62 @@
     <!-- <script src="cross.js"></script> -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>home page</title>
-    <link rel="stylesheet" href="/css/style(home).css">
-    <!--Google Fonts and Icons-->
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp|Material+Icons+Two+Tone|Material+Symbols+Outlined"
-      rel="stylesheet"/>
+    <title>Home</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
-      rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/GLOBAL-Homes.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="/css/dataTables.bootstrap5.min.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-3.6.4.slim.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   </head>
   <body>
-    <!--sidebar start-->
+    <!--Nav Bar-->
     <div class="overlay" id="overlay"></div>
     <div class="sidebar" id="sidebar">
-      <!-- Sidebar content goes here -->
-      <div class="sidebar_box">
-        <div class="topsidebarbg"></div>
-        <div class="sidebar_menu">
-          <div class="logoside">
-            <img src="/images/MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
-            <div class="flex-logoside"><h4>MFU</h4><br><p>Check-in Class</p></div>
-            <div class="line90deg"></div>
-            <div class="line"></div>
+    <nav class="nav-side-bar">
+        <div class="header-side-bar">
+            <h1>CHECK.MFU</h1>
+            <button class="closebtn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="nav-menu">
+          <div th:if="${userdata.getRole().equals('STUDENT') || userdata.getRole().equals('LECTURER')}">
+            <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+            <li><a href="/check-in"><i class="far fa-calendar-check"></i>Check-in</a></li>
+            <li><a href="/course"><i class="fas fa-book-open"></i>Course</a></li>
+            <li><a href="/contact"><i class="fas fa-phone-volume"></i>Contract</a></li>
+            <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
           </div>
-          <div class="menu">
-            <ul th:if="${userdata.getRole().equals('STUDENT') || userdata.getRole().equals('LECTURER')}">
-              <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
-              <li><a href="/check-in"><i class="far fa-calendar-check"></i>Check-in</a></li>
-              <li><a href="/course"><i class="fas fa-book-open"></i>Course</a></li>
-              <li><a href="/contact"><i class="fas fa-phone-volume"></i>Contract</a></li>
-              <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
-            </ul>
-            <ul th:if="${userdata.getRole().equals('ADMIN')}">
-              <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
-              <li><a href="/manage-course"><i class="fas fa-book-open"></i>Course</a></li>
-              <li><a href="#"><i class="fas fa-user-tie"></i>Lecturer</a></li>
-              <li><a href="#"><i class="fas fa-user-graduate"></i>Student</a></li>
-              <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
-            </ul>
+          <div th:if="${userdata.getRole().equals('ADMIN')}">
+            <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+            <li><a href="/manage-course"><i class="fas fa-book-open"></i>Course</a></li>
+            <li><a href="/manage-lecturer"><i class="fas fa-user-tie"></i>Lecturer</a></li>
+            <li><a href="/manage-student"><i class="fas fa-user-graduate"></i>Student</a></li>
+            <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
           </div>
         </div>
-        <div class="sidebarbg"></div>
-      </div>
-      <button onclick="closeSidebar()"><i class="fas fa-times"></i></button>
-    </div>
+          <script src="/js/overlay-navbar.js"></script>
+        </nav>
+        </div>
     <div class="content">
-      <!-- Main content goes here -->
-      <nav>
-        <!--left topbar start-->
-        <div class="logonav">
-          <img src="/images/MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
-          <div class="flex-logonav"><h4>MFU</h4><br><p>Check-in Class</p></div>
-          <div class="line90deg"></div>
-          <div class="line"></div>
-        </div>
-        <!--left topbar end-->
-      </nav>
-              <!-- home page start-->
-              <!-- banner start -->
+        <!-- header -->
+        <div class="header-top-bar">
+          <img src="/images/MFU-LOGO.png" alt="logo">
+          <div class="vertical-line"></div>
+          <div class="text-header-top-bar">
+              <h2>Check-in Class</h2>
+              <hr style="color: white; opacity: 0.8;">
+              <p>MAE FAH LUANG UNIVERSITY</p>
+          </div>
+          <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+      </div>
+              <!-- banner -->
               <div class="slider">
                 <button class="prevButton" id="prevButton" onclick="changeSlide('increment', -1)"><i class="far fa-arrow-alt-circle-left"></i></button>
                 <img id="img-1" src="/images/csm_05_0fa4cbddf9.jpg" alt="Image 1"/>
@@ -78,20 +73,23 @@
                 <span class="dot" onclick="changeSlide('set', 2)"></span>
               </div>
               <script src="/js/banner.js"></script>
-              <!-- banner end -->
               
-              <!-- home page content start -->
               <div class="homecontent">
                 <div class="quickaccess">
-                  <ul th:if="${userdata.getRole().equals('STUDENT') || userdata.getRole().equals('LECTURER')}">
+                  <ul th:if="${userdata.getRole().equals('STUDENT')}">
                   <li><a href="/check-in"><i class="far fa-calendar-check"></i><p>Check-in</p></a></li>
                   <li><a href="/course"><i class="fas fa-book-open"></i><p>Course</p></a></li>
                   <li><a href="/contact"><i class="fas fa-phone-volume"></i><p>Contact</p></a></li>
                   </ul>
+                  <ul th:if="${userdata.getRole().equals('LECTURER')}">
+                    <li><a href="/check-in"><i class="far fa-calendar-check"></i><p>Check-in</p></a></li>
+                    <li><a href="/course"><i class="fas fa-book-open"></i><p>Course</p></a></li>
+                    <li><a href="/contact"><i class="fas fa-phone-volume"></i><p>Contact</p></a></li>
+                    </ul>
                   <ul th:if="${userdata.getRole().equals('ADMIN')}">
                   <li><a href="/manage-course"><i class="fas fa-book-open"></i><p>Course</p></a></li>
-                  <li><a href="#"><i class="fas fa-user-tie"></i><p>Lecturer</p></a></li>
-                  <li><a href="#"><i class="fas fa-user-graduate"></i><p>Student</p></a></li>
+                  <li><a href="/manage-lecturer"><i class="fas fa-user-tie"></i><p>Lecturer</p></a></li>
+                  <li><a href="/manage-student"><i class="fas fa-user-graduate"></i><p>Student</p></a></li>
                   </ul>
                 </div>
                 <div class="profile">
@@ -106,7 +104,7 @@
                       <li>Program <div></div><span th:text="${userdata.getProgram()}"></span></li>
                       <li>School <div></div><span th:text="${userdata.getSchool()}"></span></li>
                       <li>Department <div></div><span th:text="${userdata.getDepartment()}"></span></li>
-                      <li>Advisor <div></div><span th:text="${userdata.getLecturer().getName()}"></span></li>
+                      <li>Advisor <div></div><span th:text="${advisorName}"></span></li>
                     </div>
                   </ul>
                   <ul th:if="${userdata.getRole().equals('LECTURER')}">
@@ -128,15 +126,14 @@
                     </div>
                 </div>
               </div>
-              <!-- home page content end -->
 
-              <!-- homepage end -->
+
         <!-- lower bar start-->
         <div class="lowerbar">
-            <img src="/images/MFU-LOGO.png" alt="logo" width="90px" height="90px"/>
+            <img src="/images/MFU-LOGO.png" alt="logo"  width="120px" height="120px"/>
             <div class="lowertext">
                 <div class="lowertext1">
-                    <p>Mae Fah Luang University<br>Check-in Class Center</p>
+                    <p>Check-in Class Center</p><p>Mae Fah Luang University</p>
                 </div>
                 <div class="lowertext2">
                     <h4>Contact</h4><div class="linecontact"></div><p>Mae Fah Luang University Sports Center<br>333 Village No. 1, Thasud Subdistrict, Mueang District Chiang Rai 57100<br>Phone: 0 5391 7821 <br>Email: check-in-class@mfu.ac.th</p>
@@ -154,14 +151,15 @@
     </div>
     <script>
       function openSidebar() {
-        document.getElementById("sidebar").classList.add("open");
-        document.getElementById("overlay").style.display = "block";
+      document.getElementById("sidebar").classList.add("open");
+      document.getElementById("overlay").style.display = "block";
       }
       function closeSidebar() {
-        document.getElementById("sidebar").classList.remove("open");
-        document.getElementById("overlay").style.display = "none";
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("overlay").style.display = "none";
       }
     </script>
+    <!--sidebar end-->
     <!--sidebar end-->
   </body>
 </html>

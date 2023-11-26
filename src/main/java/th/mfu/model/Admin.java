@@ -11,8 +11,7 @@ public class Admin implements User {
     private Long ID;
     private String Password;
     private String Name;
-    private String Role;
-
+    
     public Long getID() { // interfaces.User
         return ID;
     }
@@ -32,9 +31,6 @@ public class Admin implements User {
         Name = name;
     }
     public String getRole() { // interfaces.User
-        return Role;
-    }
-    public void setRole(String role) { // interfaces.User
-        this.Role = role;
+        return "ADMIN";
     }
 }

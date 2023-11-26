@@ -12,7 +12,6 @@ public class Lecturer implements User {
     private Long ID;
     private String Password;
     private String Name;
-    private String Role;
     private String Department;
     private String School;
     
@@ -44,10 +43,7 @@ public class Lecturer implements User {
         Name = name;
     }
     public String getRole() { // interfaces.User
-        return Role;
-    }
-    public void setRole(String role) { // interfaces.User
-        this.Role = role;
+        return "LECTURER";
     }
     public String getDepartment() {
         return Department;

@@ -12,7 +12,6 @@ public class Student implements User {
     private Long ID;
     private String Password;
     private String Name;
-    private String Role;
     private String Program;
     private String School;
     private String Department;
@@ -21,7 +20,6 @@ public class Student implements User {
     @JoinColumn(name = "LECTURER_ID")
     private Lecturer lecturer;
     
-
     public Long getID() { // interfaces.User
         return ID;
     }
@@ -41,10 +39,7 @@ public class Student implements User {
         Name = name;
     }
     public String getRole() { // interfaces.User
-        return Role;
-    }
-    public void setRole(String role) { // interfaces.User
-        this.Role = role;
+        return "STUDENT";
     }
     public String getProgram() {
         return Program;

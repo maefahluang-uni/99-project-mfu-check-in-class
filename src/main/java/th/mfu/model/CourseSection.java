@@ -22,16 +22,16 @@ public class CourseSection  {
 
     @ManyToMany
     @JoinTable(
+        name = "LECTURER_SCHEDULE", joinColumns = @JoinColumn(name = "SECTION_ID"),
+        inverseJoinColumns = @JoinColumn(name = "LECTURER_ID"))
+    public List<Lecturer> lecturer;
+    
+    @ManyToMany
+    @JoinTable(
         name = "STUDENT_SCHEDULE", joinColumns = @JoinColumn(name = "SECTION_ID"),
         inverseJoinColumns = @JoinColumn(name = "STUDENT_ID"))
     public List<Student> student;
     
-    @ManyToMany
-    @JoinTable(
-        name = "LECTURER_SCHEDULE", joinColumns = @JoinColumn(name = "SECTION_ID"),
-        inverseJoinColumns = @JoinColumn(name = "LECTURER_ID"))
-    public List<Lecturer> lecturer;
-
     private String section;
     private String location;
     private String period;

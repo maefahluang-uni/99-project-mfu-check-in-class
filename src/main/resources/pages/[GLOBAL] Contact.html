@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>contact page</title>
     <link rel="stylesheet" href="/css/bootstrap.css">
-    <link rel="stylesheet" href="/css/style(contact).css">
+    <link rel="stylesheet" href="/css/GLOBAL-Contact.css">
     <!--Google Fonts and Icons-->
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp|Material+Icons+Two+Tone|Material+Symbols+Outlined"
@@ -23,53 +23,38 @@
     </style>
   </head>
   <body>
-    <!--sidebar start-->
+    <!--Nav Bar-->
     <div class="overlay" id="overlay"></div>
     <div class="sidebar" id="sidebar">
-      <!-- Sidebar content goes here -->
-      <div class="sidebar_box">
-        <div class="topsidebarbg"></div>
-        <div class="sidebar_menu">
-          <div class="logoside">
-            <img src="/images/MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
-            <div class="flex-logoside"><h4>MFU</h4><br><p>Check-in Class</p></div>
-            <div class="line90deg"></div>
-            <div class="line"></div>
+      <nav class="nav-side-bar">
+          <div class="header-side-bar">
+              <h1>CHECK.MFU</h1>
+              <button class="closebtn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
           </div>
-          <div class="menu">
+          <div class="nav-menu">
               <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
-              <li><a href="#"><i class="far fa-calendar-check"></i>Check-in</a></li>
-              <li><a href="#"><i class="fas fa-book-open"></i>Course</a></li>
-              <li class="active"><a href="/contact"><i class="fas fa-phone-volume"></i>Contract</a></li>
-              <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+              <li><a href="/check-in"><i class="far fa-calendar-check"></i>Check-in</a></li>
+              <li><a href="/course"><i class="fas fa-book-open"></i>Course</a></li>
+              <li class="active"><a href="/contact"><i class="fas fa-phone-volume"></i>Contact</a></li>
+              <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
           </div>
-        </div>
-        <div class="sidebarbg"></div>
-      </div>
-      <button onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+          <script src="/js/overlay-navbar.js"></script>
+      </nav>
     </div>
     <div class="content">
-      <!-- Main content goes here -->
-      <nav class="navigatebar">
-        <!--left topbar start-->
-        <div class="logonav">
-          <img src="/images/MFU-LOGO.png" alt="logo" width="75px" height="75px"/>
-          <div class="flex-logonav"><h4>MFU</h4><br><p>Check-in Class</p></div>
-          <div class="line90deg"></div>
-          <div class="line"></div>
-        </div>
-        <!--left topbar end-->
-      </nav>      
-        <!-- contact start-->
-        <!-- <div class="multiline-text">
-          <li><p>Mae Fah Luang University</p></li>
-          <li><p>333 Moo 1, Tha Sud Subdistrict, Mueang District, Chiang Rai</p></li>
-          <li><p>Province 57100 Telephone 0-5391-6000, 0-5391-7034</p></li>
-          <li><p>Fax 0-5391-6034, 0-5391-7049</p></li>
-          <li><p>Mae Fah Luang University Office, Bangkok</p></li>
-          <li><p>Telephone 0-2679-0038-9</p></li>
-          <li><p>Fax 0-2679-0038</p></li>
-        </div> -->
+      <!-- header -->
+      <div class="header-top-bar">
+          <img src="/images/MFU-LOGO.png" alt="logo">
+          <div class="vertical-line"></div>
+          <div class="text-header-top-bar">
+              <h2>Check-in Class</h2>
+              <hr style="color: white; opacity: 0.8;">
+              <p>MAE FAH LUANG UNIVERSITY</p>
+          </div>
+          <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+    <div class="content">
         <div class="col-md-5 d-flex align-items-stretch mx-auto custom-margin-top">
           <div class="info-wrap bg-primary w-100 p-lg-5 p-4">
             <h3 class="mb-4 mt-md-3">Contact us</h3>

@@ -69,7 +69,7 @@ public class System_Controller {
     //     this.MessagingService = MessagingTemplate;
     // }
 
-    private final int KEYSYNC_FIXED_LENGTH = 8; // BASE64URL version for safe GET method (64 ^ length) = space collision probability
+    private final int KEYSYNC_FIXED_LENGTH = 21; // BASE64URL version for safe GET method (64 ^ length) = space collision probability, total domain char is 64 (85 Ud chance) so it a best option for qrcode and have some big detail of dot.
     private final int GATE_AUTO_TIMEOUT = (60 * 1) * 1000; // TimeUnit.MILLISECONDS (1 minutes)
     private final int QR_CODE_AUTO_TIMEOUT = 5; // // TimeUnit.SECONDS (5 seconds is best option balance between real student in the class scan the qr and prevent some student send qr to others.)
     private final int GENERATE_PER_MILLISECONDS = 500;
@@ -140,6 +140,7 @@ public class System_Controller {
                     }
                 }
                 if (grantedAccess) {
+                    System.out.println("grantedAccess " + grantedAccess);
                     String QR_AUTHENTICATION_KEY = RECENT_KEY.getIfPresent(SUBJECT_ID);
                     if (QR_AUTHENTICATION_KEY == null) {
                         Date CanAuthentication = AUTHENTICATION_GATE.getIfPresent(SUBJECT_ID);
@@ -302,48 +303,47 @@ public class System_Controller {
 
 
 
-    @PostMapping("/register")
-    public ResponseEntity<HashMap<String, Object>> register(Model model, HttpServletResponse response, HttpServletRequest request,
-        @RequestParam String usertype) {
-            /*
-             * http://localhost:8100/register?usertype=LECTURER
-             * {
-             *  USER_ID: 1111
-             *  PASSWORD: "1234"
-             *  ...
-             *  School: "abc"
-             * }
-             */
-        User Myself = userService.VerifyJwtToken(request, response);
-        if (Myself.getRole() == "ADMIN") { // or using "Myself instanceof Admin"
-            if (usertype == "STUDENT") {
-                
-            } else if (usertype == "LECTURER") {
-                // Get form-data
-                Long USER_ID = Long.valueOf(request.getParameter("USER_ID"));
-                String PASSWORD = request.getParameter("PASSWORD");
-                String NAME = request.getParameter("NAME");
-                String Department = request.getParameter("Department");
-                String School = request.getParameter("School");
-                // INIT ENTITY
-                Lecturer NewLecturer = new Lecturer();
-                NewLecturer.setID(USER_ID);
-                NewLecturer.setPassword(BCrypt.hashpw(PASSWORD, BCrypt.gensalt())); // convert real-password to hashed password for more security incase database leak.
-                NewLecturer.setName(NAME);
-                NewLecturer.setDepartment(Department);
-                NewLecturer.setSchool(School);
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(null);
-        } else {
-            // Authentication failed, show an error messages
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new HashMap<String, Object>() {{
-                    put("success", "false");
-                    put("message", "AUTHORIZATION failed please try relogin.");
-                }});
-        }
-    }
+    // @PostMapping("/register")
+    // public ResponseEntity<HashMap<String, Object>> register(Model model, HttpServletResponse response, HttpServletRequest request,
+    //     @RequestParam String usertype) {
+    //         /*
+    //          * http://localhost:8100/register?usertype=LECTURER
+    //          * {
+    //          *  USER_ID: 1111
+    //          *  PASSWORD: "1234"
+    //          *  ...
+    //          *  School: "abc"
+    //          * }
+    //          */
+    //     User Myself = userService.VerifyJwtToken(request, response);
+    //     if (Myself.getRole() == "ADMIN") { // or using "Myself instanceof Admin"
+    //         if (usertype == "STUDENT") {
+    //         } else if (usertype == "LECTURER") {
+    //             // Get form-data
+    //             Long USER_ID = Long.valueOf(request.getParameter("USER_ID"));
+    //             String PASSWORD = request.getParameter("PASSWORD");
+    //             String NAME = request.getParameter("NAME");
+    //             String Department = request.getParameter("Department");
+    //             String School = request.getParameter("School");
+    //             // INIT ENTITY
+    //             Lecturer NewLecturer = new Lecturer();
+    //             NewLecturer.setID(USER_ID);
+    //             NewLecturer.setPassword(BCrypt.hashpw(PASSWORD, BCrypt.gensalt())); // convert real-password to hashed password for more security incase database leak.
+    //             NewLecturer.setName(NAME);
+    //             NewLecturer.setDepartment(Department);
+    //             NewLecturer.setSchool(School);
+    //         }
+    //         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    //             .body(null);
+    //     } else {
+    //         // Authentication failed, show an error messages
+    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+    //             .body(new HashMap<String, Object>() {{
+    //                 put("success", "false");
+    //                 put("message", "AUTHORIZATION failed please try relogin.");
+    //             }});
+    //     }
+    // }
     @GetMapping("/manage-course")
     public String viewCourses(Model model) {
         List<Course> courses = (List<Course>) CourseRepo.findAll();
@@ -532,5 +532,408 @@ public class System_Controller {
                 return ResponseEntity.badRequest().body(response);
             }
         }
+        @GetMapping("/manage-lecturer")
+        public String viewLecturer(Model model) {
+            List<Lecturer> Lecturers = LecturerRepo.findAll();
+            model.addAttribute("Lecturers", Lecturers);
+            return "[ADMIN] Lecturer";
+        }
+
+        @PostMapping("/add-lecturer")
+         public ResponseEntity<HashMap<String, Object>> addLecturer(@RequestBody Lecturer newlecturer) {
+            if(newlecturer.getName() != null) {
+                Lecturer Lecturer = new Lecturer();
+                Lecturer.setPassword(BCrypt.hashpw(newlecturer.getPassword(), BCrypt.gensalt()));
+                Lecturer.setName(newlecturer.getName());
+                Lecturer.setDepartment(newlecturer.getDepartment());
+                Lecturer.setSchool(newlecturer.getSchool());
+                LecturerRepo.save(Lecturer);
+                // List<Lecturer> Lecturers = LecturerRepo.findAll();
+                return ResponseEntity.status(HttpStatus.OK)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                        put("message", "Lecturer added successfully.");
+                        // put("Lecturers", Lecturers);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Lecturer with the same name already exists.");
+                    }});
+            }
+    }
+    @Transactional
+    @GetMapping("/delete-lecturer/{lecturerId}")
+    public ResponseEntity<HashMap<String, Object>> deleteLecturer(@PathVariable Long lecturerId) {
+        try {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<Student> students = StudentRepo.findByLecturer_ID(lecturerId);
+            
+            if (students != null && !students.isEmpty()) {
+                for (Student student : students) {
+                List<CourseSection> sections = CourseSectionRepo.findByStudentID(student.getID());
+                    for (CourseSection section : sections) {
+                        CourseSectionRepo.delete(section);
+                    }
+                    StudentRepo.delete(student);
+                }
+            }
     
+            LecturerRepo.deleteById(lecturerId);
+    
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("success", true);
+                    put("message", "Lecturer deleted successfully.");
+                }});
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new HashMap<String, Object>() {{
+                    put("success", false);
+                    put("message", "Lecturer not found.");
+                }});
+        }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new HashMap<String, Object>() {{
+                    put("success", false);
+                    put("message", "An error occurred during lecturer deletion.");
+                }});
+        }
+    }
+    @Transactional
+    @PostMapping("/update-lecturer/{lecturerId}")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> updatelecturer(@PathVariable Long lecturerId, @RequestBody Lecturer editedlecturer) {
+            Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+
+            if (lecturer != null) {
+                // Check for duplicate names
+                if (LecturerRepo.existsByNameIgnoreCase(editedlecturer.getName())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", false);
+                                put("message", "Lecturer name already exists.");
+                            }});
+                } else{
+                    lecturer.setName(editedlecturer.getName());
+                    lecturer.setDepartment(editedlecturer.getDepartment());
+                    lecturer.setSchool(editedlecturer.getSchool());
+                    LecturerRepo.save(lecturer);
+        
+                    // List<Lecturer> Lecturers = (List<Lecturer>) LecturerRepo.findAll();
+        
+                    return ResponseEntity.status(HttpStatus.OK)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", true);
+                                put("message", "Lecturer name updated successfully.");
+                                // put("Lecturers", Lecturers);
+                            }});
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", false);
+                            put("message", "Lecturer not found.");
+                        }});
+            }
+    } 
+
+    @GetMapping("/manage-lecturer/{lecturerId}/schedule")
+    public String viewLecturerSchedule(Model model, @PathVariable Long lecturerId) {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<CourseSection> sections = CourseSectionRepo.findByLecturerID(lecturerId);
+            model.addAttribute("lecturer", lecturer);
+            model.addAttribute("sections", sections);
+            return "[ADMIN] LSchedule";
+        } else {
+            return "redirect:/manage-lecturer";
+        }
+    }
+
+    @GetMapping("/manage-lecturer/{lecturerId}/schedule/link-course")
+    public String viewLecturerlinkCourse(Model model, @PathVariable Long lecturerId) {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<CourseSection> allSections = (List<CourseSection>) CourseSectionRepo.findAll();
+            List<CourseSection> lecturerSections = CourseSectionRepo.findByLecturerID(lecturerId);
+    
+            allSections.removeAll(lecturerSections);
+            model.addAttribute("lecturer", lecturer);
+            model.addAttribute("allSections", allSections);
+            return "[ADMIN] LlistCourse";
+        } else {
+            return "redirect:/manage-lecturer";
+        }
+    }
+
+    // ?instanceid=10000
+    @GetMapping("/manage-lecturer/{lecturerId}/link")
+    public ResponseEntity<HashMap<String, Object>> Linkcourse(Model model, @PathVariable Long lecturerId, @RequestParam Long instanceid) {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<CourseSection> allSections = (List<CourseSection>) CourseSectionRepo.findAll();
+            List<CourseSection> lecturerSections = CourseSectionRepo.findByLecturerID(lecturerId);
+            allSections.removeAll(lecturerSections);
+
+            CourseSection subject = null;
+            for (CourseSection v1 : allSections) {
+                System.out.println(v1.getID());
+                if (v1.getID().longValue() == instanceid) {
+                    subject = v1;
+                    break;
+                }
+            }
+            if (subject != null) {
+                subject.lecturer.add(lecturer);
+                CourseSectionRepo.save(subject);
+                return ResponseEntity.status(HttpStatus.OK)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Lecturer was already link to this course");
+                    }});
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "Lecturer not found.");
+            }});
+    }
+
+    @GetMapping("/manage-lecturer/{lecturerId}/unlink")
+    public ResponseEntity<HashMap<String, Object>> UnlinkCourse(Model model, @PathVariable Long lecturerId, @RequestParam Long instanceid) {
+        Lecturer lecturer = LecturerRepo.findByID(lecturerId);
+        if (lecturer != null) {
+            List<CourseSection> lecturerSections = CourseSectionRepo.findByLecturerID(lecturerId);
+            CourseSection subject = null;
+            for (CourseSection v1 : lecturerSections) {
+                if (v1.getID().longValue() == instanceid) {
+                    subject = v1;
+                    break;
+                }
+            }
+            if (subject != null) {
+                System.out.println("abc");
+                boolean IsRemoveSuccess = subject.lecturer.remove(lecturer);
+                CourseSectionRepo.save(subject);
+                return ResponseEntity.status(HttpStatus.OK)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Lecturer isn't in this course already.");
+                    }});
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "Lecturer not found.");
+            }});
+    }
+        @GetMapping("/manage-student")
+        public String viewStudent(Model model) {
+            List<Student> Students = (List<Student>) StudentRepo.findAll();
+            model.addAttribute("Students", Students);
+            return "[ADMIN] Student";
+    }
+        @PostMapping("/add-student")
+         public ResponseEntity<HashMap<String, Object>> addStudent(@RequestBody Student newstudent) {
+            if(newstudent.getName() != null) {
+                Student Student = new Student();
+                Student.setPassword(BCrypt.hashpw(newstudent.getPassword(), BCrypt.gensalt()));
+                Student.setName(newstudent.getName());
+                Student.setDepartment(newstudent.getDepartment());
+                Student.setSchool(newstudent.getSchool());
+                StudentRepo.save(newstudent);
+                return ResponseEntity.status(HttpStatus.OK)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                        put("message", "Student added successfully.");
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Student with the same name already exists.");
+                    }});
+            }
+    }
+    @Transactional
+    @GetMapping("/delete-student/{studentId}")
+    public ResponseEntity<HashMap<String, Object>> deleteStudent(@PathVariable Long studentId) {
+        try {
+        Student student = StudentRepo.findByID(studentId);
+        if (student != null) {
+                    StudentRepo.delete(student);
+    
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("success", true);
+                    put("message", "Student deleted successfully.");
+                }});
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new HashMap<String, Object>() {{
+                    put("success", false);
+                    put("message", "Student not found.");
+                }});
+        }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new HashMap<String, Object>() {{
+                    put("success", false);
+                    put("message", "An error occurred during student deletion.");
+                }});
+        }
+    }
+    @Transactional
+    @PostMapping("/update-student/{studentId}")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> updatestudent(@PathVariable Long studentId, @RequestBody Student editedstudent) {
+            Student student = StudentRepo.findByID(studentId);
+
+            if (student != null) {
+                // Check for duplicate names
+                if (StudentRepo.existsByNameIgnoreCase(editedstudent.getName())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", false);
+                                put("message", "Student name already exists.");
+                            }});
+                } else{
+                    student.setName(editedstudent.getName());
+                    student.setDepartment(editedstudent.getDepartment());
+                    student.setSchool(editedstudent.getSchool());
+                    StudentRepo.save(student);
+        
+                    return ResponseEntity.status(HttpStatus.OK)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", true);
+                                put("message", "Student name updated successfully.");
+                            }});
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", false);
+                            put("message", "Student not found.");
+                        }});
+            }
+    } 
+
+    @GetMapping("/manage-student/{studentId}/schedule")
+    public String viewStudentSchedule(Model model, @PathVariable Long studentId) {
+        Student student = StudentRepo.findByID(studentId);
+        if (student != null) {
+            List<CourseSection> sections = CourseSectionRepo.findByStudentID(studentId);
+            model.addAttribute("student", student);
+            model.addAttribute("sections", sections);
+            return "[ADMIN] SSchedule";
+        } else {
+            return "redirect:/manage-student";
+        }
+    }
+    // ?instanceid=10000
+    @GetMapping("/manage-student/{studentId}/link")
+    public ResponseEntity<HashMap<String, Object>> LinkcourseStudent(Model model, @PathVariable Long studentId, @RequestParam Long instanceid) {
+        Student student = StudentRepo.findByID(studentId);
+        if (student != null) {
+            List<CourseSection> allSections = (List<CourseSection>) CourseSectionRepo.findAll();
+            List<CourseSection> studentSections = CourseSectionRepo.findByStudentID(studentId);
+            allSections.removeAll(studentSections);
+
+            CourseSection subject = null;
+            for (CourseSection v1 : allSections) {
+                System.out.println(v1.getID());
+                if (v1.getID().longValue() == instanceid) {
+                    subject = v1;
+                    break;
+                }
+            }
+            if (subject != null) {
+                subject.student.add(student);
+                CourseSectionRepo.save(subject);
+                return ResponseEntity.status(HttpStatus.OK)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Student was already link to this course");
+                    }});
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "Student not found.");
+            }});
+    }
+
+    @GetMapping("/manage-student/{studentId}/unlink")
+    public ResponseEntity<HashMap<String, Object>> UnlinkCourseStudent(Model model, @PathVariable Long studentId, @RequestParam Long instanceid) {
+        Student student = StudentRepo.findByID(studentId);
+        if (student != null) {
+            List<CourseSection> studentSections = CourseSectionRepo.findByStudentID(studentId);
+            CourseSection subject = null;
+            for (CourseSection v1 : studentSections) {
+                if (v1.getID().longValue() == instanceid) {
+                    subject = v1;
+                    break;
+                }
+            }
+            if (subject != null) {
+                System.out.println("abc");
+                boolean IsRemoveSuccess = subject.student.remove(student);
+                CourseSectionRepo.save(subject);
+                return ResponseEntity.status(HttpStatus.OK)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Student isn't in this course already.");
+                    }});
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "Student not found.");
+            }});
+    }
+    @GetMapping("/manage-student/{studentId}/schedule/link-course")
+    public String viewStudentlinkCourse(Model model, @PathVariable Long studentId) {
+        Student student = StudentRepo.findByID(studentId);
+        if (student != null) {
+            List<CourseSection> allSections = (List<CourseSection>) CourseSectionRepo.findAll();
+            List<CourseSection> studentSections = CourseSectionRepo.findByStudentID(studentId);
+    
+            allSections.removeAll(studentSections);
+            model.addAttribute("student", student);
+            model.addAttribute("allSections", allSections);
+            return "[ADMIN] SlistCourse";
+        } else {
+            return "redirect:/manage-student";
+        }
+    }
 }
