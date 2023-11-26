@@ -3,8 +3,22 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Home</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href="/css/ADMIN-Sections.css">
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="/css/dataTables.bootstrap5.min.css"> -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+        <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script defer src="https://code.jquery.com/jquery-3.6.4.slim.min.js"></script>
+        <script defer src="https://code.jquery.com/jquery-3.7.0.js"></script>
+        <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+        <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+        <script defer src="/js/DataTable.js"></script>
         <style>
-            .container {
+            /* .container {
                 position: relative;
                 display: flex;
                 align-items: flex-start;
@@ -30,7 +44,7 @@
             th,
             td {
                 padding: .5em 1em;
-            }
+            } */
         </style>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script th:inline="javascript">
@@ -64,7 +78,33 @@
     <body th:if="${userdata.getRole().equals('LECTURER')}">
         <span th:text="${subject.getCourse().getID()}"></span>
         <span th:text="${subject.getCourse().getName()}"></span>
-        <div class="container">
+        <div class="container pt-5">
+            <table id="student-table week-table" class="table table-striped" style="width:100%">
+              <thead>
+                  <tr>
+                      <th>StudentID</th>
+                  </tr>
+              </thead>
+              <tbody>
+              </tbody>
+              <tfoot>
+                  <tr>
+                      <th>StudentID</th>
+                  </tr>
+              </tfoot>
+            </table>
+          </div>
+          <script>
+            $(document).ready(function() {
+                $('#student-table').DataTable({
+
+                });
+                $('#week-table').DataTable({
+                    scrollX: true
+                });
+            });
+        </script>
+        <!-- <div class="container">
             <div class="table-left">
                 <table id="student-table">
                     <tr>
@@ -73,9 +113,9 @@
                 </table>
             </div>
             <div class="table-center">
-                <table id="week-table">
+                <table id="week-table"> -->
                     <!-- INSERT WEEK TOTAL -->
-                </table>
+                <!-- </table>
             </div>
             <div class="table-right">
                 <table id="total-checkin">
@@ -84,7 +124,7 @@
                     </tr>
                 </table>
             </div>
-        </div>
+        </div> -->
         <!-- <div class="table" id="course">
             <div class="header">
                 <div class="cell">Student-Id</div>
