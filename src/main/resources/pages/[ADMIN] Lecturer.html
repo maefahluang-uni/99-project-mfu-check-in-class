@@ -18,7 +18,7 @@
     <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script defer src="/js/DataTable.js"></script>
-    <script defer src="/js/managelecturer.js"></script>
+    <script defer src="/js/managelecturers.js"></script>
 </head>
 <body>
     <!--Nav Bar-->
@@ -32,8 +32,8 @@
         <div class="nav-menu">
             <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
             <li><a href="/manage-course"><i class="far fa-calendar-check"></i>Course</a></li>
-            <li class="active"><a href="/manage-lecturer"><i class="fas fa-book-open"></i>Lecturer</a></li>
-            <li><a href="#"><i class="fas fa-phone-volume"></i>Student</a></li>
+            <li class="active"><a href="/manage-lecturer"><i class="fas fa-user-tie"></i>Lecturer</a></li>
+            <li><a href="/manage-student"><i class="fas fa-user-graduate"></i>Student</a></li>
             <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
         </div>
         <script src="/js/overlay-navbar.js"></script>
@@ -74,7 +74,7 @@
               <td th:text="${Lecturer.getDepartment()}"></td>
               <td th:text="${Lecturer.getSchool()}"></td>
               <td>
-                  <a class="btnSCH" href="#"><i class="fas fa-book" title="Schedule"></i></a>
+                  <a class="btnSCH" th:href="@{/manage-lecturer/{lecturerId}/schedule(lecturerId=${Lecturer.getID()})}"><i class="fas fa-book" title="Schedule"></i></a>
                   <a class="btnEdit" href="#"><i class="fas fa-pencil-alt" title="Edit"></i></a>
                   <a class="btnDelete" href="#"><i class="fas fa-trash-alt" title="Delete"></i></a>
               </td>
