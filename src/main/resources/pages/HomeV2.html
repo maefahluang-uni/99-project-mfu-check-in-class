@@ -18,6 +18,12 @@
     <script defer src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <style> /* OVERWRITE */
+      p {
+          margin-top: 0;
+          margin-bottom: 0rem;
+      }
+    </style>
   </head>
   <body>
     <!--Nav Bar-->
@@ -104,7 +110,7 @@
                       <li>Program <div></div><span th:text="${userdata.getProgram()}"></span></li>
                       <li>School <div></div><span th:text="${userdata.getSchool()}"></span></li>
                       <li>Department <div></div><span th:text="${userdata.getDepartment()}"></span></li>
-                      <li>Advisor <div></div><span th:text="${advisorName}"></span></li>
+                      <li>Advisor <div></div><span th:text="${userdata.getLecturer().getName()}"></span></li>
                     </div>
                   </ul>
                   <ul th:if="${userdata.getRole().equals('LECTURER')}">

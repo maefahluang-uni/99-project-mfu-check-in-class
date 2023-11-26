@@ -82,7 +82,7 @@
               <td th:text="${courseInfo.getSection()}"></td>
               <td>
                   <a class="btnView view-btn" th:data-section-id="${courseInfo.getID()}" style="cursor: pointer;"><i class="fas fa-eye" title="View"></i></a>
-                  <a class="btnQrcode" href="#"><i class="fas fa-qrcode" title="Qrcode"></i></a>
+                  <a class="btnQrcode" th:data-section-id="${courseInfo.getID()}" style="cursor: pointer;"><i class="fas fa-qrcode" title="Qrcode"></i></a>
               </td>
             </tr>
             <script th:inline="javascript">
@@ -92,6 +92,13 @@
                             button.addEventListener('click', function() {
                                 var sectionId = button.getAttribute('data-section-id');
                                 var url = '/check-in/view?instanceid=' + sectionId;
+                                window.location.href = url;
+                            });
+                        });
+                        document.querySelectorAll('.btnQrcode').forEach(function(button) {
+                            button.addEventListener('click', function() {
+                                var sectionId = button.getAttribute('data-section-id');
+                                var url = '/qr?instanceid=' + sectionId;
                                 window.location.href = url;
                             });
                         });
@@ -110,11 +117,10 @@
         </table>
         <script th:inline="javascript">
             /*<![CDATA[*/
-            var userdata = /*[[${userdata}]]*/ 'default';
-            var mycourse = /*[[${mycourse}]]*/ 'default';
-            var semester = /*[[${semester}]]*/ 'default';
-
-          /*]]>*/
+                var userdata = /*[[${userdata}]]*/ 'default';
+                var mycourse = /*[[${mycourse}]]*/ 'default';
+                var semester = /*[[${semester}]]*/ 'default';
+            /*]]>*/
           var CurrentSemester;
           function getSemester(NOW) {
               for (const idx in semester) {
@@ -151,12 +157,6 @@
                         }
                     });
                 }
-                var scanButtons = document.getElementsByClassName("scanButton");
-                Array.from(scanButtons).forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        window.location.href = "/scan";
-                    });
-                });
             },
         }
         PROXY.SelectDate = new Date();
