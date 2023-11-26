@@ -753,6 +753,7 @@ public class System_Controller {
                 Student.setName(newstudent.getName());
                 Student.setDepartment(newstudent.getDepartment());
                 Student.setSchool(newstudent.getSchool());
+                Student.setProgram(newstudent.getProgram());
                 StudentRepo.save(Student);
                 return ResponseEntity.status(HttpStatus.OK)
                     .body(new HashMap<String, Object>() {{
@@ -773,7 +774,11 @@ public class System_Controller {
         try {
             Student student = StudentRepo.findByID(studentId);
             if (student != null) {
-                StudentRepo.delete(student);
+                List<CourseSection> sections = CourseSectionRepo.findByStudentID(student.getID());
+                    for (CourseSection section : sections) {
+                        CourseSectionRepo.delete(section);
+                    }
+                    StudentRepo.delete(student);
             return ResponseEntity.status(HttpStatus.OK)
                 .body(new HashMap<String, Object>() {{
                     put("success", true);

@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var studentPassword = document.getElementById('studentPassword').value;
         var studentName = document.getElementById('studentName').value;
+        var studentProgram = document.getElementById('studentProgram').value;
         var studentDepartment = document.getElementById('studentDepartment').value;
         var studentSchool = document.getElementById('studentSchool').value;
 
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
             data: JSON.stringify({
                 password: studentPassword,
                 name: studentName,
+                program: studentProgram,
                 department: studentDepartment,
                 school: studentSchool
             }),
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     location.reload();
                     // Clear the form fields
                     document.getElementById('studentName').value = '';
+                    document.getElementById('studentProgram').value = '';
                     document.getElementById('studentPassword').value = '';
                     document.getElementById('studentDepartment').value = '';
                     document.getElementById('studentSchool').value = '';
@@ -41,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     alert('Student with the same name already exists.');
                     // Clear the form fields
                     document.getElementById('studentName').value = '';
+                    document.getElementById('studentProgram').value = '';
                     document.getElementById('studentPassword').value = '';
                     document.getElementById('studentDepartment').value = '';
                     document.getElementById('studentSchool').value = '';
