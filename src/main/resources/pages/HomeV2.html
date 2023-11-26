@@ -39,8 +39,8 @@
           <div th:if="${userdata.getRole().equals('ADMIN')}">
             <li class="active"><a href="/home"><i class="fas fa-home"></i>Home</a></li>
             <li><a href="/manage-course"><i class="fas fa-book-open"></i>Course</a></li>
-            <li><a href="#"><i class="fas fa-user-tie"></i>Lecturer</a></li>
-            <li><a href="#"><i class="fas fa-user-graduate"></i>Student</a></li>
+            <li><a href="/manage-lecturer"><i class="fas fa-user-tie"></i>Lecturer</a></li>
+            <li><a href="/manage-student"><i class="fas fa-user-graduate"></i>Student</a></li>
             <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
           </div>
         </div>
@@ -88,8 +88,8 @@
                     </ul>
                   <ul th:if="${userdata.getRole().equals('ADMIN')}">
                   <li><a href="/manage-course"><i class="fas fa-book-open"></i><p>Course</p></a></li>
-                  <li><a href="#"><i class="fas fa-user-tie"></i><p>Lecturer</p></a></li>
-                  <li><a href="#"><i class="fas fa-user-graduate"></i><p>Student</p></a></li>
+                  <li><a href="/manage-lecturer"><i class="fas fa-user-tie"></i><p>Lecturer</p></a></li>
+                  <li><a href="/manage-student"><i class="fas fa-user-graduate"></i><p>Student</p></a></li>
                   </ul>
                 </div>
                 <div class="profile">

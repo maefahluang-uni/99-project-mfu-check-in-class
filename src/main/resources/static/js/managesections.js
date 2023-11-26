@@ -89,18 +89,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 success: function (response) {
                     if (response.success) {
                         dataTable.row(row).remove().draw(false);
-                        alert('Delete section succeed.');
+                        // alert('Delete section succeed.');
                         // updateSectionTable(response);
                     } else {
-                        alert(response.message);
+                        // alert(response.message);
                     }
                 },
                 error: function (xhr, status, error) {
                     if (xhr.status === 404) {
-                        alert('Section not found.');
+                        // alert('Section not found.');
                     } else {
                         console.error('Error deleting section:', error);
-                        alert('Error deleting section. Please try again.');
+                        // alert('Error deleting section. Please try again.');
                     }
                 }
             });
