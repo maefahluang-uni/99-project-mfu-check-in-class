@@ -50,6 +50,8 @@ public class Check_in_Controller {
     private DateUtils DateService;
 
     @Autowired
+    private StudentRepository StudentRepo;
+    @Autowired
     private CourseSectionRepository CourseSectionRepo;
     @Autowired
     private SemesterRepository SemesterRepo;
@@ -183,5 +185,39 @@ public class Check_in_Controller {
             .body(new HashMap<String, Object>() {{
                 put("DATA", Subject.lecturer);
             }});    
+    }
+
+    @GetMapping("/check-in/edit/student/{studentId}/unlink")
+    public ResponseEntity<HashMap<String, Object>> UnlinkCourseStudent(Model model, @PathVariable Long studentId, @RequestParam Long instanceid) {
+        Student student = StudentRepo.findByID(studentId);
+        if (student != null) {
+            List<CourseSection> studentSections = CourseSectionRepo.findByStudentID(studentId);
+            CourseSection subject = null;
+            for (CourseSection v1 : studentSections) {
+                if (v1.getID().longValue() == instanceid) {
+                    subject = v1;
+                    break;
+                }
+            }
+            if (subject != null) {
+                boolean IsRemoveSuccess = subject.student.remove(student);
+                CourseSectionRepo.save(subject);
+                return ResponseEntity.status(HttpStatus.OK)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", true);
+                    }});
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Student isn't in this course already.");
+                    }});
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new HashMap<String, Object>() {{
+                put("success", false);
+                put("message", "Student not found.");
+            }});
     }
 }

@@ -17,6 +17,20 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script defer src="/js/DataTable.js"></script>
   </head>
+  <style>
+        .btnAction button {
+            float: right;
+        }
+
+        #linkCourseBtn {
+            margin-left: 10px;
+        }
+        .schedule-header {
+            float: left;
+            font-size: 30px;
+            /* font-weight: bold; */
+        }
+  </style>
   <body>
     <!--Nav Bar-->
     <div class="overlay" id="overlay"></div>
@@ -51,6 +65,29 @@
     </div>
 
     <!-- SHOW STUDENT HISTORY -->
+    <div class="container pt-3 pb-1 btnAction">
+        <div class="schedule-header">
+            <tr th:each="subject : ${subject}">
+                <td th:text="${subject.getCourse().getID()}"></td>
+                <td th:text="${subject.getCourse().getName()}"></td>
+            </tr>
+        </div>
+            <button class="btn btn-primary link-course-btn" th:data-section-id="${subject.getID()}" id="linkCourseBtn"><i class="fa fa-plus"></i> Edit Student</button>
+            <button class="btn btn-primary" id="backBtn" onclick="window.location.href='/check-in'"><i class="far fa-arrow-alt-circle-left"></i> Back</button>
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.querySelectorAll('.link-course-btn').forEach(function(button) {
+                        button.addEventListener('click', function() {
+                            var sectionId = button.getAttribute('data-section-id');
+                            var url = '/check-in/edit/student?instanceid=' + sectionId;
+                            window.location.href = url;
+                        });
+                    });
+                });
+                /*]]>*/
+            </script>
+        </div>
     <div class="container pt-5">
       <table id="datatable" class="table table-striped" style="width:100%">
         <thead>
