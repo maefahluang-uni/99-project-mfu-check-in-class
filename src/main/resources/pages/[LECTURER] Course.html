@@ -1,117 +1,813 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Course</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="/css/Lec-Course.css">
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Check-in</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        #calendar-model {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 4;
+            display: none; /* toggle flex, none */
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        header {
+            font-size: 175%; 
+            font-weight: bold;
+        }
+        .wrapper {
+            width: 450px;
+            background-color: #fff;
+            border-radius: 10px;
+            margin-top: -5vh;
+        }
+        .calendar {
+            padding: 20px;
+            /* margin-top: 5vh; */
+        }
+        .calendar ul {
+            display:flex;
+            list-style: none;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+        .wrapper header {
+            display: flex;
+            align-items: center;
+            padding: 25px 30px 10px ;
+            justify-content: space-between;
+        }
+        header .current-date {
+            font-size: 2.45rem;
+            font-weight: 500;
+        }
+        header .icons span {
+            height: 38px;
+            width: 38px;
+            color: #878787;
+            font-size: 1.9rem;
+            margin: 0 1px;
+            cursor: pointer;
+            text-align: center;
+            line-height: 38px;
+            border-radius: 50%;
+        }
+        header .icons span:hover {
+            background: #f2f2f2;
+        }
+        header .icons span:last-child {
+            margin-right: -10px;
+        }
+        .calendar ul li {
+            position: relative;
+            width: calc(100% / 7);
+        } 
+        .calendar .days {
+            margin-bottom: 20px;
+        }
+        .calendar .weeks li {
+            font-weight: 500;
+        }
+        .calendar .days li {
+            z-index: 1;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+        .days li.inactive {
+            color:rgb(200, 200, 200);
+        }
+        .days li.active {
+            color: #fff;;
+        }
+        .calendar .days li::before {
+            position: absolute;
+            content: "";
+            height: 40px;
+            width: 40px;
+            top: 50%;
+            left: 50%;
+            z-index: -1;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .days li:hover ::before {
+            background: #ffffff;
+        }
+        .days li.highlight-week::before {
+            background: #e2d380;
+        }
+        .days li.active::before {
+            background: #850000;
+        }
+        .icons .material-icons {
+            font-family: 'Material Icons', sans-serif;
+        }
+        .days li:not(.active):not(.current-date):hover::before{
+            background: #f2f2f2;
+        }
+        .days li.current-date {
+            color: rgb(17, 5, 121);
+        }
+        .days li.current-date::before {
+            background: rgb(170, 165, 216);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        .header {
+            display: table-header-group;
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+        .row {
+            display: table-row;
+        }
+        .cell {
+            display: table-cell;
+            padding: 8px;
+            text-align: center;
+        }
+        .hide-button {
+            display: none;
+        }
+        
+        .cell-side-button {
+            padding: 20px;
+            margin: 5px;
+        }
+        #sideDayControl {
+            margin: 1%;
+            display: flex;
+            justify-content: center;
+        }
+        #daysListContainer {
+            z-index: -2;
+            display: flex;
+            align-items: center;
+        }
+        #daysList {
+            list-style-type: none;
+            justify-content: center;
+            padding: 100px;
+            display: flex;
+        }
+        #daysList button {
+            border: none;
+            padding: 20px 24px;
+            border-radius: 50%;
+            margin: 5%;
+        }
+        /* #previousButton,
+        #nextButton {
+            margin-left: 5%;
+            margin-right: 5%;
+        } */
+
+        #calendar-sidelist {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            flex-direction: column;
+            width: 100%;
+            height: 25vh;
+            background-color: #d4d4d4;
+        }
+        #calendar-sidelist-top {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-content: center;
+            width: 100%;
+            height: 30%;
+        }
+        .calendar-sidelist-top-element {
+            margin: 0.9%;
+        }
+        #month-year-sidelist {
+            font-size: 2.75vh;
+            font-weight: 800; 
+        }
+        #toggleCalendar {
+            font-size: 2.5vh;
+            border-radius: 4px;
+            background-color: #ff7c7c;
+            border: 2px solid #ffffff;
+        }
+        #calendar-sidelist-bottom-daylabel {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-content: center;
+            width: 100%;
+            height: 40%;
+        }
+        #calendar-sidelist-bottom-date {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-content: center;
+            width: 100%;
+            height: 40%;
+        }
+        .calendar-sidelist-bottom-daylabel-element,
+        .calendar-sidelist-bottom-date-element {
+            width: 3.5vh;
+            height: auto;
+            margin: 3%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5dvh;
+        }
+        .highlight {
+            border-radius: 4px;
+            background-color: #850000;
+            color: #ffffff;
+        }
+        .calendar-sidelist-bottom-daylabel-element {
+            font-weight: bold; 
+        }
+        .calendar-sidelist-bottom-date-element:hover:not(.highlight) {
+            background: #969595;
+        }
+        #calendar-sidelist-bottom {
+            width: 100%;
+            height: 70%;
+        }
+        #toggleCalendar {
+            padding: 1vh;
+        }
+    </style>
+    <link rel="stylesheet" href="/css/ADMIN-Courses.css">
     <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-    <script defer src="/js/caledar.js"></script>
-</head>
-<body>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-3.6.4.slim.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script defer src="/js/DataTable.js"></script>
+    <style>
+        .custom-margin-top {
+            margin-top: 5.5rem;
+        }
+        ol, ul {
+              padding-left: 0rem;
+          }
+      </style>
+  </head>
+  <body>
     <!--Nav Bar-->
     <div class="overlay" id="overlay"></div>
     <div class="sidebar" id="sidebar">
-    <nav class="nav-side-bar">
-        <div class="header-side-bar">
-            <h1>CHECK.MFU</h1>
-            <button class="closebtn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="nav-menu">
-            <li><a href="#"><i class="fas fa-home"></i>Home</a></li>
-            <li class="active"><a href="#"><i class="far fa-calendar-check"></i>Course</a></li>
-            <li><a href="#"><i class="fas fa-book-open"></i>Lecturer</a></li>
-            <li><a href="#"><i class="fas fa-phone-volume"></i>Student</a></li>
-            <li id="logout"><a href="#"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
-        </div>
-        <script src="/js/overlay-navbar.js"></script>
-    </nav>
+      <nav class="nav-side-bar">
+          <div class="header-side-bar">
+              <h1>CHECK.MFU</h1>
+              <button class="closebtn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="nav-menu">
+              <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+              <li><a href="/check-in"><i class="far fa-calendar-check"></i>Check-in</a></li>
+              <li class="active"><a href="/course"><i class="fas fa-book-open"></i>Course</a></li>
+              <li><a href="/contact"><i class="fas fa-phone-volume"></i>Contact</a></li>
+              <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+          </div>
+          <script src="/js/overlay-navbar.js"></script>
+      </nav>
     </div>
     <div class="content">
-        <!-- header -->
-        <div class="header-top-bar">
-            <img src="/images/MFU-LOGO.png" alt="logo">
-            <div class="vertical-line"></div>
-            <div class="text-header-top-bar">
-                <h2>Course</h2>
-                <hr style="color: white; opacity: 0.8;">
-                <p>MAE FAH LUANG UNIVERSITY</p>
+      <!-- header -->
+      <div class="header-top-bar">
+          <img src="/images/MFU-LOGO.png" alt="logo">
+          <div class="vertical-line"></div>
+          <div class="text-header-top-bar">
+              <h2>Check-in Class</h2>
+              <hr style="color: white; opacity: 0.8;">
+              <p>MAE FAH LUANG UNIVERSITY</p>
+          </div>
+          <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+
+    <!-- CALENDAR MODEL -->
+    <div id="calendar-model">
+        <div class="wrapper">
+            <header>
+              <p class="currnet-date" id="month-year">November 2023</p>
+                <div class="icons">
+                  <span id="prev-month" class="material-icons">chevron_left</span>
+                  <span id="next-month" class="material-icons">chevron_right</span>
+                  <span class="material-icons" onclick="closeCalendar()">close</span>
+                </div>
+            </header>
+            <div class="calendar">
+              <ul class="weeks">
+                <li>Sun</li>
+                <li>Mon</li>
+                <li>Tue</li>
+                <li>Wed</li>
+                <li>Thu</li>
+                <li>Fri</li>
+                <li>Sat</li>
+              </ul>
+              <ul class="days" id="calendar-days">
+                <!-- <li class="inactive">29</li>
+                <li class="inactive">30</li>
+                <li class="inactive">31</li>
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+                <li>4</li>
+                <li>5</li>
+                <li>6</li>
+                <li>7</li>
+                <li>8</li>
+                <li>9</li>
+                <li>10</li>
+                <li>11</li>
+                <li>12</li>
+                <li>13</li>
+                <li>14</li>
+                <li>15</li>
+                <li>16</li>
+                <li>17</li>
+                <li>18</li>
+                <li>19</li>
+                <li>20</li>
+                <li>21</li>
+                <li>22</li>
+                <li>23</li>
+                <li>24</li>
+                <li>25</li>
+                <li>26</li>
+                <li class="active">27</li>
+                <li>28</li>
+                <li>29</li>
+                <li>30</li>
+                <li class="inactive">1</li> -->
+              </ul>
             </div>
-            <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
         </div>
-    </div>   
-    <!-- Course start-->
-  
-
-
-
-  </body>
-
-
-</body>    
+    </div>
     
+    <!-- CALENDAR SIDELIST -->
+    <div id="calendar-sidelist">
+        <div id="calendar-sidelist-top">
+            <button id="toggleCalendar" class="calendar-sidelist-top-element fas fa-calendar-alt" style="color:white"></button>
+            <p class="calendar-sidelist-top-element" id="month-year-sidelist">September 2023</p>
+        </div>
+        <div id="calendar-sidelist-bottom">
+            <div id="calendar-sidelist-bottom-daylabel">
+                <p class="calendar-sidelist-bottom-daylabel-element">Sun</p>
+                <p class="calendar-sidelist-bottom-daylabel-element">Mon</p>
+                <p class="calendar-sidelist-bottom-daylabel-element">Tue</p>
+                <p class="calendar-sidelist-bottom-daylabel-element">Wed</p>
+                <p class="calendar-sidelist-bottom-daylabel-element">Thu</p>
+                <p class="calendar-sidelist-bottom-daylabel-element">Fri</p>
+                <p class="calendar-sidelist-bottom-daylabel-element">Sat</p>
+            </div>
+            <div id="calendar-sidelist-bottom-date">
+                <!-- <p class="calendar-sidelist-bottom-date-element">1</p>
+                <p class="calendar-sidelist-bottom-date-element">2</p>
+                <p class="calendar-sidelist-bottom-date-element">3</p>
+                <p class="calendar-sidelist-bottom-date-element highlight">4</p>
+                <p class="calendar-sidelist-bottom-date-element">5</p>
+                <p class="calendar-sidelist-bottom-date-element">6</p>
+                <p class="calendar-sidelist-bottom-date-element">7</p> -->
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBJECT FILTER -->
+    <!-- <div class="container pt-3 pb-1">
+        
+    </div> -->
+    <div class="container pt-5">
+      <table id="datatable" class="table table-striped" style="width:100%">
+        <thead>
+            <tr>
+                <th>CourseID</th>
+                <th>Subject</th>
+                <th>Section</th>
+                <th>Location</th>
+                <th>Period</th>
+            </tr>
+        </thead>
+        <tbody>
+          <!-- <tr th:each="subject : ${mycourse}">
+            <td th:text="${subject.getCourse().getID()}"></td>
+            <td th:text="${subject.getCourse().getName()}"></td>
+            <td th:text="${subject.getSection()}"></td>
+            <td th:text="${subject.getLocation()}"></td>
+            <td th:text="${subject.getPeriod()}"></td>
+            <td th:text="__WAIT_FOR_ACTION__"></td>
+          </tr> -->
+        </tbody>
+      </table>
+    </div>
+    <!-- <td>
+        <a class="btnEdit" th:href="@{/update-course/{courseId}(courseId=${course.getID()})}"><i class="fas fa-pencil-alt" title="Edit"></i></a>
+    </td> -->
 
 
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"></script>
+    <script src="https://unpkg.com/observable-slim"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+            let userdata = /*[[${userdata}]]*/ 'default';
+            console.log(userdata);
+            let mycourse = /*[[${mycourse}]]*/ 'default';
+            console.log(mycourse);
+            let semester = /*[[${semester}]]*/ 'default';
+            console.log(semester);
+        /*]]>*/
 
+        let cal_overlay = document.getElementById("calendar-model");
+        cal_overlay.style.display = "none";
+        document.getElementById("toggleCalendar").onclick = function() {
+            if (cal_overlay.style.display == "none") {
+                updateCalendar(PROXY.CalendarNow); // Update the calendar when it is displayed
+                cal_overlay.style.display = "flex";
+            } else {
+                cal_overlay.style.display = "none";
+            }
+        }
 
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     var dataTable = $('#datatable').DataTable();
+        //     dataTable.row.add(["asdsad", "asdasdsa", "asdasd", "asdasd", "bghbgf"])
+        //     dataTable.draw(false);
+        // });
+        
+        function closeCalendar() {
+            cal_overlay.style.display = 'none';
+        }
 
+        function updateCalendar(DATE) {
+            let month = DATE.getMonth();
+            let year = DATE.getFullYear();
+            let firstDay = new Date(year, month, 1).getDay(); // Get the day of the week for the first day of the month
+            let daysInMonth = new Date(year, month + 1, 0).getDate();
+            // set month label
+            var monthYearSideListElement = document.getElementById('month-year-sidelist');
+            var monthYearElement = document.getElementById('month-year');
+            monthYearSideListElement.innerText = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(DATE);
+            monthYearElement.innerText = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(DATE);
+            // clean daysContainer
+            var daysContainer = document.getElementById('calendar-days');
+            daysContainer.innerHTML = '';
+            // Determine how many days to display from the previous month
+            let prevMonthDays = firstDay === 0 ? 7 : firstDay; // If the month doesn't start on Sunday, get the days from the previous month
+            let prevMonth = month === 0 ? 11 : month - 1; // Determine the previous month
+            let prevYear = month === 0 ? year - 1 : year; // Determine the previous year
+            let prevMonthDaysCount = new Date(prevYear, prevMonth + 1, 0).getDate(); // Get the number of days in the previous month
+            // Display the previous month's days
+            if (prevMonthDays !== 7) {
+                for (let i = prevMonthDays - 1; i >= 0; i--) {
+                    let dayElement = document.createElement('li');
+                    dayElement.classList.add('inactive');
+                    dayElement.classList.add('calendar-day');
+                    dayElement.innerText = prevMonthDaysCount - i;
+                    daysContainer.appendChild(dayElement);
+                }
+            }
+            // Display the days of the current month
+            const NOW = new Date();
+            if (NOW.toDateString() == PROXY.SelectDate.toDateString()) {
+                //SelectedElement.innerHTML = '';
+            } else {
+                //SelectedElement.innerHTML = 'Selected Date: ' + PROXY.SelectDate.toLocaleDateString('en-US');
+            }
+            for (let day = 1; day <= daysInMonth; day++) {
+                let eachDay = new Date(year, month, day);
+                let dayElement = document.createElement('li');
+                dayElement.classList.add('calendar-day');
+                dayElement.innerText = day;
+                if (eachDay.getMonth() !== month) {
+                    dayElement.classList.add('inactive'); // dayElement.classList.add('day-not-in-month');
+                } else {
+                    dayElement.onclick = function () {
+                        PROXY.SelectDate = eachDay;
+                        //SelectedElement.innerHTML = 'Selected Date: ' + PROXY.SelectDate.toLocaleDateString('en-US');
+                        closeCalendar(); // Close the calendar after selecting a date
+                    };
+                    // Highlight the previously selected date
+                    if (NOW.toDateString() == eachDay.toDateString()) {
+                        dayElement.classList.add('current-date');
+                    } else if (PROXY.SelectDate.toDateString() == eachDay.toDateString()) {
+                        dayElement.classList.add('active');
+                    }
+                }
+                if (RoundWeek(DATE).toDateString() == RoundWeek(eachDay).toDateString()) {
+                    dayElement.classList.add('highlight-week');
+                }
+                daysContainer.appendChild(dayElement);
+            }
+            // Fill in days after the current month until Saturday
+            let remainingDays = 7 - daysContainer.querySelectorAll('.calendar-day').length % 7; // class calendar-day is just for count
+            if (remainingDays !== 7) { // Check if there are remaining days to fill
+                for (let i = 1; i <= remainingDays; i++) {
+                    let dayElement = document.createElement('li');
+                    dayElement.classList.add('calendar-day');
+                    dayElement.classList.add('inactive');
+                    dayElement.innerText = i;
+                    daysContainer.appendChild(dayElement);
+                }
+            }
+        }
+        function changeMonth(delta) {
+            PROXY.CalendarNow.setMonth(PROXY.CalendarNow.getMonth() + delta);
+            PROXY.CalendarNow = new Date(PROXY.CalendarNow); 
+        }
 
+        var CurrentSemester;
+        function getSemester(NOW) {
+            for (const idx in semester) {
+                const DATE_OBJECT = semester[idx]
+                const DATE_START = new Date(DATE_OBJECT.dateStart)
+                const DATE_FINISH = new Date(DATE_OBJECT.dateFinish)
+                if ((NOW.getTime() >= DATE_START.getTime()) && (NOW.getTime() <= DATE_FINISH.getTime())) {
+                    return DATE_OBJECT;
+                }
+            }
+            return null;
+        }
 
+        function convertStringToDate(dateString) {
+            const [day, timeRange] = dateString.split(', ');
+            const [startTime, endTime] = timeRange.split(' - ');
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            const currentDay = currentDate.getDate();
+            const daysOfWeek = {
+                "Sun": 0,
+                "Mon": 1,
+                "Tue": 2,
+                "Wed": 3,
+                "Thu": 4,
+                "Fri": 5,
+                "Sat": 6
+            };
+            const dayIndex = daysOfWeek[day];
+            const [startHour, startMinute] = startTime.split(':');
+            const startDate = new Date(currentYear, currentMonth, currentDay, startHour, startMinute);
+            startDate.setDate(currentDate.getDate() + (dayIndex - currentDate.getDay() + 7) % 7);
+            const [endHour, endMinute] = endTime.split(':');
+            const endDate = new Date(currentYear, currentMonth, currentDay, endHour, endMinute);
+            endDate.setDate(currentDate.getDate() + (dayIndex - currentDate.getDay() + 7) % 7);
+            return {
+                startDate,
+                endDate
+            };
+        }
 
+        function calculateWeeks(startDate, endDate) {
+            const start = startDate;
+            const end = endDate;
+            const millisecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+            const differenceInTime = end.getTime() - start.getTime();
+            const weeksElapsed = Math.floor(differenceInTime / millisecondsPerWeek);
+            return weeksElapsed;
+        } // ChronoUnit.WEEKS.between (in java)
+        
+        // function addCourse(subject) {
+        //     var listItem = document.createElement("li");
+        //     // subject.id // instanceid
+        //     listItem.innerHTML = `
+        //         <strong>STATE:</strong> <span id="state-${subject.id}">LOADING</span><br>
+        //         <strong>COURSEID:</strong> <span>${subject.course.id}</span><br>
+        //         <strong>NAME:</strong> <span>${subject.course.name}</span><br>
+        //         <strong>SECTION:</strong> <span>${subject.section}</span><br>
+        //         <strong>LOCATION:</strong> <span>${subject.location}</span><br>
+        //         <strong>PERIOD:</strong> <span>${subject.period}</span><br>
+        //         <button class="scanButton" id="subject-${subject.id}">Scan</button><br>
+        //     `;
+        //     document.getElementById("courseList").appendChild(listItem);
+        // }
+        let connections = {};
+        function addCourse(subject) {
+            let datePeriod = convertStringToDate(subject.period);
+            async function notificator () {
+                let state = "UNDEFINED";
+                let state_now_instance = document.querySelector(`.state-${subject.id}`);
+                let scan_button_instance = document.querySelector(`.btnScan-${subject.id}`);
+                if (!state_now_instance) { return; }
+                let status_icon = state_now_instance.querySelector('i.fas');
+                let scan_icon = scan_button_instance.querySelector('i.fa');
+                const query = { instanceid: subject.id };
+                let response;
+                try {
+                    response = await axios.post('/qr', new URLSearchParams(query), {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        }
+                    });
+                } catch(e) {}
+                const NOW = new Date();
+                const WEEK_NUMBER = calculateWeeks(new Date(CurrentSemester.dateStart), PROXY.SelectDate);
+                let MIDNIGHT_SAFER = new Date(PROXY.SelectDate);
+                MIDNIGHT_SAFER.setHours(23, 59, 59, 999);
+                scan_icon.className = 'fa fa-minus';
+                scan_icon.style.color = 'black';
+                status_icon.style.color = 'black';
+                scan_button_instance.href = "#";
+                console.log(response);
+                const ATTENDANCE_HISTORY = (response && response.data.history) || subject.attendanceHistory || {};
+                if (ATTENDANCE_HISTORY) {
+                    const MY_ATTENDANCE = ATTENDANCE_HISTORY[userdata.id] || {}; // idx in object doesn't matter cause it will auto turn to string.
+                    if (MY_ATTENDANCE) {
+                        if (MY_ATTENDANCE[WEEK_NUMBER]) {
+                            state = "CHECKED";
+                            status_icon.style.color = 'green';
+                            return;
+                        }
+                        if (NOW.getTime() >= MIDNIGHT_SAFER.getTime()) {
+                            state = "MISSING";
+                            status_icon.style.color = 'red';
+                            return
+                        }
+                    }
+                }
+                if (response && response.data.success) {
+                    if (PROXY.SelectDate.toDateString() == NOW.toDateString()) {
+                        state = "OPEN";
+                        status_icon.style.color = '#ff9900';
+                        scan_icon.className = 'fa fa-qrcode';
+                        scan_icon.style.color = 'blue';
+                        scan_button_instance.href = '/scan';
+                        return;
+                    }
+                }
+                state = "NOT OPEN";
+                return;
+            }
+            setTimeout(notificator, 0);
+            var dataTable = $('#datatable').DataTable();
+            connections[subject.id] = setInterval(notificator, 2000); // every 2 seconds for updator
+            dataTable.row.add([
+                subject.course.id,
+                subject.course.name,
+                subject.section,
+                subject.location,
+                subject.period,
+            ]);
+            // init data.....
+            // var tableBody = document.getElementById("datatable").getElementsByTagName("tbody")[0];
+            // var newRow = tableBody.insertRow();
+            // var cell1 = newRow.insertCell(0);
+            // var cell2 = newRow.insertCell(1);
+            // var cell3 = newRow.insertCell(2);
+            // var cell4 = newRow.insertCell(3);
+            // var cell5 = newRow.insertCell(4);
+            // // var cell6 = newRow.insertCell(5);
+            // // var cell7 = newRow.insertCell(6); // Action cell
+            // cell1.innerHTML = subject.course.id;
+            // cell2.innerHTML = subject.course.name;
+            // cell3.innerHTML = subject.section;
+            // cell4.innerHTML = subject.location;
+            // cell5.innerHTML = subject.period;
+            // // cell6.innerHTML = `<a class="state-${subject.id}"><i class="fas fa-circle" title="State"></i></a>`;
+            // // cell7.innerHTML = `<a class="btnScan-${subject.id}" href="/scan"><i class="fa fa-qrcode" title="Scan"></i></a>`;
+        }
 
+        const LISTENER = {
+            SelectDate: function(SYNC) {
+                const newValue = SYNC.newValue;
+                const previousValue = SYNC.previousValue;
+                // data sync
+                PROXY.CalendarNow = new Date(newValue); // math floor to sunday
+                CurrentSemester = getSemester(newValue);
+                var dataTable = $('#datatable').DataTable();
+                dataTable.clear();
+                for (const key in connections) {
+                    if (connections[key]) {
+                        clearInterval(connections[key]);
+                    }
+                }
+                if (CurrentSemester) {
+                    mycourse.forEach(subject => {
+                        if (subject.semester) {
+                            if (subject.semester.id == CurrentSemester.id) { // or check getTime is in range but lazy xd
+                                let datePeriod = convertStringToDate(subject.period);
+                                if (datePeriod.startDate.getDay() == newValue.getDay()) { // check if select date is daylabel? (sun - sat)
+                                    addCourse(subject);
+                                }
+                            }
+                        }
+                    });
+                }
+                dataTable.draw(false);
+            },
+            CalendarNow: function(SYNC) {
+                const newValue = SYNC.newValue;
+                const previousValue = SYNC.previousValue;
+                // data sync
+                displayWeek(RoundWeek(newValue));
+                updateCalendar(newValue);
+            }
+        }
+        var PROXY = ObservableSlim.create({}, true, (changes) => {
+            changes.forEach(LOG => {
+                const EVENT = LISTENER[LOG.property]
+                if (EVENT) {
+                    EVENT(LOG)
+                }
+            });
+        });
+        function displayWeek(startOfWeek) {
+            var daysList = document.getElementById("calendar-sidelist-bottom-date");
+            daysList.innerHTML = ""; // Clear the previous content
+            for (var i = 0; i < 7; i++) {
+                let each_date = new Date(startOfWeek);
+                each_date.setDate(startOfWeek.getDate() + i);
+                let dayOfMonth = each_date.getDate();
+                let button = document.createElement("p");
+                button.classList.add("calendar-sidelist-bottom-date-element");
+                if (PROXY.SelectDate.toDateString() == each_date.toDateString()) {
+                    button.classList.add("highlight");
+                }
+                button.textContent = dayOfMonth;
+                button.addEventListener("click", function() {
+                    PROXY.SelectDate = each_date; // each_date is each of date object
+                });
+                daysList.appendChild(button);
+            }
+        }
+        function RoundWeek(date) { // Clamp to sunday
+            const day = date.getDay(); // Get the day of the week (0 - Sunday, 1 - Monday, ..., 6 - Saturday)
+            const diff = 0 - day; // Calculate the difference to the previous Sunday
+            const roundedDate = new Date(date); // Create a new date object to avoid mutating the original date
+            roundedDate.setDate(date.getDate() + diff); // Set the date to the nearest Sunday
+            return roundedDate;
+        }
 
+        PROXY.SelectDate = new Date(); // dynamic init we'll use this to filter
 
+        // var prevWeekButton = document.getElementById("previousButton");
+        // prevWeekButton.addEventListener("click", function() {
+        //     PROXY.CalendarNow.setDate(PROXY.CalendarNow.getDate() - 7);
+        //     PROXY.CalendarNow = new Date(PROXY.CalendarNow);
+        // })
+        // var nextWeekButton = document.getElementById("nextButton");
+        // nextWeekButton.addEventListener("click", function() {
+        //     PROXY.CalendarNow.setDate(PROXY.CalendarNow.getDate() + 7);
+        //     PROXY.CalendarNow = new Date(PROXY.CalendarNow);
+        // })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        var prevMonthButton = document.getElementById("prev-month");
+        prevMonthButton.addEventListener("click", function() {
+            changeMonth(-1);
+        })
+        var nextMonthButton = document.getElementById("next-month");
+        nextMonthButton.addEventListener("click", function() {
+            changeMonth(1);
+        })
+    </script>
+    
+  </body>
+</html>
