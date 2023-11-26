@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Section</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="/css/ADMIN-Sections.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="/css/dataTables.bootstrap5.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-3.6.4.slim.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script defer src="/js/DataTable.js"></script>
+    <script defer src="/js/managesections.js"></script>
+</head>
+<body>
+        <!--Nav Bar-->
+        <div class="overlay" id="overlay"></div>
+        <div class="sidebar" id="sidebar">
+        <nav class="nav-side-bar">
+            <div class="header-side-bar">
+                <h1>CHECK.MFU</h1>
+                <button class="closebtn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="nav-menu">
+                <li><a href="/home"><i class="fas fa-home"></i>Home</a></li>
+                <li class="active"><a href="/manage-course"><i class="far fa-calendar-check"></i>Course</a></li>
+                <li><a href="#"><i class="fas fa-book-open"></i>Lecturer</a></li>
+                <li><a href="#"><i class="fas fa-phone-volume"></i>Student</a></li>
+                <li id="logout"><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+            </div>
+            <script src="/js/overlay-navbar.js"></script>
+        </nav>
+        </div>
+        <div class="content">
+            <!-- header -->
+            <div class="header-top-bar">
+                <img src="/images/MFU-LOGO.png" alt="logo">
+                <div class="vertical-line"></div>
+                <div class="text-header-top-bar">
+                    <h2>Check-in Class</h2>
+                    <hr style="color: white; opacity: 0.8;">
+                    <p>MAE FAH LUANG UNIVERSITY</p>
+                </div>
+                <button class="openbtn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+    
+          <!-- Main content goes here -->
+          <div class="container pt-3 pb-1 btnAction">
+            <div class="course-header">
+                <tr th:each="course : ${course}">
+                    <td th:text="${course.getID()}"></td>
+                    <td th:text="${course.getName()}"></td>
+                </tr>
+            </div>
+                <button class="btn btn-primary" id="addSectionBtn"><i class="fa fa-plus"></i> Add Section</button>
+                <button class="btn btn-primary" id="backBtn" onclick="window.location.href='/manage-course'"><i class="far fa-arrow-alt-circle-left"></i> Back</button>
+          </div>
+          <div class="container pt-5">
+            <table id="datatable" class="table table-striped" style="width:100%">
+              <thead>
+                  <tr>
+                      <th>SectionID</th>
+                      <th>Section</th>
+                      <th>Location</th>
+                      <th>Period</th>
+                      <th>Action</th>
+                  </tr>
+              </thead>
+              <tbody>
+                <tr th:each="sections : ${sections}">
+                  <td th:text="${sections.getID()}"></td>
+                  <td th:text="${sections.getSection()}"></td>
+                  <td th:text="${sections.getLocation()}"></td>
+                  <td th:text="${sections.getPeriod()}"></td>
+                  <td>
+                      <a class="btnEdit" href="#"><i class="fas fa-pencil-alt" title="Edit"></i></a>
+                      <a class="btnDelete" href="#"><i class="fas fa-trash-alt" title="Delete"></i></a>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                  <tr>
+                      <th>SectionID</th>
+                      <th>Section</th>
+                      <th>Location</th>
+                      <th>Period</th>
+                      <th>Action</th>
+                  </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+    <!-- Function Add -->
+    <div class="modal fade" id="addSectionModal" tabindex="-1" aria-labelledby="addSectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSectionModalLabel">Add Section</h5>
+                    <button id="closeModalBtn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addSectionForm">
+                        <div class="mb-3">
+                            <label for="section" class="form-label">Section:</label>
+                            <input type="text" class="form-control" id="section" placeholder="LECT 1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location:</label>
+                            <input type="text" class="form-control" id="location" placeholder="C3 102" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="period" class="form-label">Period:</label>
+                            <input type="text" class="form-control" id="period" placeholder="Fri, 13:00 - 14:50" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="closeModalBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Section</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Function Edit -->
+    <div class="modal fade" id="editSectionModal" tabindex="-1" aria-labelledby="editSectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editSectionModalLabel">Edit Section</h5>
+                    <button id="closeModalBtn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editSectionForm">
+                        <div class="mb-3">
+                            <label for="editLocation" class="form-label">Edited Location:</label>
+                            <input type="text" class="form-control" id="editLocation" placeholder="C3 102" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPeriod" class="form-label">Edited Period:</label>
+                            <input type="text" class="form-control" id="editPeriod" placeholder="Fri, 13:00 - 14:50" required>
+                        </div>
+                        <!-- Additional form fields if any -->
+                        <div class="modal-footer">
+                            <button id="cancelEditSectionBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

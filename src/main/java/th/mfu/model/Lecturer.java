@@ -2,6 +2,7 @@ package th.mfu.model;
 
 import th.mfu.model.interfaces.*;
 import javax.persistence.*;
+import java.util.*;
 
 @Entity
 @Table(name = "Lecturer")
@@ -15,6 +16,15 @@ public class Lecturer implements User {
     private String Department;
     private String School;
     
+    // @OneToMany(mappedBy = "lecturer")
+    // private List<Student> students = new ArrayList<>();
+    // public List<Student> getStudents() {
+    //     return students;
+    // }
+    // public void setStudents(List<Student> students) {
+    //     this.students = students;
+    // }
+
     public Long getID() { // interfaces.User
         return ID;
     }
@@ -39,7 +49,6 @@ public class Lecturer implements User {
     public void setRole(String role) { // interfaces.User
         this.Role = role;
     }
-
     public String getDepartment() {
         return Department;
     }

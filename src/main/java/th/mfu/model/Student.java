@@ -1,10 +1,8 @@
 package th.mfu.model;
 
 import th.mfu.model.interfaces.*;
-
-import java.util.HashMap;
-
 import javax.persistence.*;
+import java.util.*;
 
 @Entity
 @Table(name = "Student")
@@ -19,9 +17,10 @@ public class Student implements User {
     private String School;
     private String Department;
 
-    // store as json (for flexible data length)
-    private String jAdvisors;
-    private String jSchedules;
+    @ManyToOne
+    @JoinColumn(name = "LECTURER_ID")
+    private Lecturer lecturer;
+    
 
     public Long getID() { // interfaces.User
         return ID;
@@ -47,7 +46,6 @@ public class Student implements User {
     public void setRole(String role) { // interfaces.User
         this.Role = role;
     }
-
     public String getProgram() {
         return Program;
     }
@@ -67,16 +65,11 @@ public class Student implements User {
         Department = deparment;
     }
 
-    // public String getjAdvisors() {
-    //     return jAdvisors;
-    // }
-    // public void setjAdvisors(String jAdvisors) {
-    //     this.jAdvisors = jAdvisors;
-    // }
-    // public String getjSchedules() {
-    //     return jSchedules;
-    // }
-    // public void setjSchedules(String jSchedules) {
-    //     this.jSchedules = jSchedules;
-    // }    
+    
+    public Lecturer getLecturer() {
+        return lecturer;
+    }
+    public void setLecturer(Lecturer lecturer) {
+        this.lecturer = lecturer;
+    }
 }

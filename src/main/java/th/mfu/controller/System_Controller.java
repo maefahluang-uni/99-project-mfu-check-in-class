@@ -8,7 +8,9 @@ import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import javax.servlet.http.*;
+import javax.transaction.Transactional;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.context.annotation.Bean;
@@ -271,6 +273,35 @@ public class System_Controller {
         }
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        request.getSession().invalidate();
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    cookie.setValue("");
+                    cookie.setPath("/");
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                }
+            }
+        }
+        return "redirect:/login";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
     @PostMapping("/register")
     public ResponseEntity<HashMap<String, Object>> register(Model model, HttpServletResponse response, HttpServletRequest request,
         @RequestParam String usertype) {
@@ -289,16 +320,23 @@ public class System_Controller {
                 
             } else if (usertype == "LECTURER") {
                 // Get form-data
-                String USER_ID = request.getParameter("USER_ID");
+                Long USER_ID = Long.valueOf(request.getParameter("USER_ID"));
                 String PASSWORD = request.getParameter("PASSWORD");
                 String NAME = request.getParameter("NAME");
                 String Department = request.getParameter("Department");
                 String School = request.getParameter("School");
+                // INIT ENTITY
+                Lecturer NewLecturer = new Lecturer();
+                NewLecturer.setID(USER_ID);
+                NewLecturer.setPassword(BCrypt.hashpw(PASSWORD, BCrypt.gensalt())); // convert real-password to hashed password for more security incase database leak.
+                NewLecturer.setName(NAME);
+                NewLecturer.setDepartment(Department);
+                NewLecturer.setSchool(School);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(null);
         } else {
-            // Authentication failed, show an error message
+            // Authentication failed, show an error messages
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new HashMap<String, Object>() {{
                     put("success", "false");
@@ -306,28 +344,11 @@ public class System_Controller {
                 }});
         }
     }
-
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
-        request.getSession().invalidate();
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
-                }
-            }
-        }
-        return "redirect:/login";
-    }
     @GetMapping("/manage-course")
     public String viewCourses(Model model) {
         List<Course> courses = (List<Course>) CourseRepo.findAll();
         model.addAttribute("courses", courses);
-        return "Manage-course";
+        return "[ADMIN] Course";
     }
 
     @GetMapping("/test-ca")
@@ -342,9 +363,7 @@ public class System_Controller {
                 Course newCourse = new Course();
                 newCourse.setName(courseName);
                 CourseRepo.save(newCourse);
-    
                 List<Course> courses = (List<Course>) CourseRepo.findAll();
-    
                 return ResponseEntity.status(HttpStatus.OK)
                     .body(new HashMap<String, Object>() {{
                         put("success", true);
@@ -366,4 +385,152 @@ public class System_Controller {
                 }});
         }
     }
+    @Transactional
+    @GetMapping("/delete-course/{courseId}")
+    public ResponseEntity<HashMap<String, Object>> deleteCourse(@PathVariable Long courseId) {
+        Course course = CourseRepo.findByID(courseId);
+        if (course != null) {
+            List<CourseSection> sections = CourseSectionRepo.findByCourseID(courseId);
+            for (CourseSection section : sections) {
+                CourseSectionRepo.delete(section);
+            }
+            CourseRepo.deleteById(courseId);
+            List<Course> courses = (List<Course>) CourseRepo.findAll();
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("success", true);
+                    put("message", "Course deleted successfully.");
+                    put("courses", courses);
+                }});
+
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new HashMap<String, Object>() {{
+                    put("success", false);
+                    put("message", "Course not found.");
+                }});
+        }
+    }
+    @Transactional
+    @PostMapping("/update-course/{courseId}")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> updateCourseName(@PathVariable Long courseId,@RequestParam String editedCourseName) {
+        try {
+            Course course = CourseRepo.findByID(courseId);
+    
+            if (course != null) {
+                // Check for duplicate names
+                if (CourseRepo.existsByNameIgnoreCase(editedCourseName)) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", false);
+                                put("message", "Course name already exists.");
+                            }});
+                } else{
+                    // Update the course name
+                    course.setName(editedCourseName);
+                    CourseRepo.save(course);
+        
+                    // Retrieve the updated list of courses
+                    List<Course> courses = (List<Course>) CourseRepo.findAll();
+        
+                    return ResponseEntity.status(HttpStatus.OK)
+                            .body(new HashMap<String, Object>() {{
+                                put("success", true);
+                                put("message", "Course name updated successfully.");
+                                put("courses", courses);
+                            }});
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new HashMap<String, Object>() {{
+                            put("success", false);
+                            put("message", "Course not found.");
+                        }});
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Error updating course name.");
+                    }});
+        }
+    } 
+    
+    @GetMapping("/manage-course-section/{courseId}")
+    public String viewCourseSections(Model model, @PathVariable Long courseId) {
+        Course course = CourseRepo.findByID(courseId);
+        if (course != null) {
+            List<CourseSection> sections = CourseSectionRepo.findByCourseID(courseId);
+            model.addAttribute("course", course);
+            model.addAttribute("sections", sections);
+            return "[ADMIN] Section";
+        } else {
+            return "redirect:/[ADMIN] Course";
+        }
+    }
+
+    @DeleteMapping("/delete-section/{sectionId}")
+    public ResponseEntity<HashMap<String, Object>> deleteSection(@PathVariable Long sectionId) {
+        CourseSectionRepo.delete(CourseSectionRepo.findByID(sectionId));
+        // List<CourseSection> sections = (List<CourseSection>) CourseSectionRepo.findAll();
+    
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new HashMap<String, Object>() {{
+                    put("success", true);
+                    put("message", "Section deleted successfully.");
+                    // put("sections", sections);
+                }});
+    }
+    
+        // Add Section
+        @PostMapping("/manage-course-section/{courseId}/add-section")
+        public ResponseEntity<?> addSection(@PathVariable Long courseId, @RequestBody CourseSection newSection) {
+            try {
+                newSection.setCourse(CourseRepo.findByID(courseId));
+        
+                CourseSectionRepo.save(newSection);
+        
+                // List<CourseSection> sections = CourseSectionRepo.findByCourseID(courseId);
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("message", "Section added successfully");
+                // response.put("sections", sections);
+        
+                return ResponseEntity.ok().body(response);
+            } catch (Exception e) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", e.getMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+        }
+    
+        // Update Section
+    @PostMapping("/manage-course-section/{courseId}/update-section/{sectionId}")
+    public ResponseEntity<?> updateSection(@PathVariable Long courseId, @PathVariable Long sectionId, @RequestBody CourseSection updatedSection) {
+            try {
+                CourseSection existingSection = CourseSectionRepo.findById(sectionId)
+                        .orElseThrow(() -> new Exception("Section not found"));
+    
+                existingSection.setLocation(updatedSection.getLocation());
+                existingSection.setPeriod(updatedSection.getPeriod());
+    
+                CourseSectionRepo.save(existingSection);
+    
+                // List<CourseSection> sections = (List<CourseSection>) CourseSectionRepo.findByCourseID(courseId);
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("message", "Section updated successfully");
+                // response.put("sections", sections);
+    
+                return ResponseEntity.ok().body(response);
+            } catch (Exception e) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", e.getMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+        }
+    
 }
