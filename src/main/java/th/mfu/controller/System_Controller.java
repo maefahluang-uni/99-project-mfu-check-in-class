@@ -350,6 +350,12 @@ public class System_Controller {
         model.addAttribute("courses", courses);
         return "[ADMIN] Course";
     }
+
+    @GetMapping("/test-ca")
+    public String viewca(Model model) {
+        return "test-calendar";
+    }
+
     @PostMapping("/add-course")
     public ResponseEntity<HashMap<String, Object>> addCourse(@RequestParam String courseName) {
         if (courseName != null && !courseName.trim().isEmpty()) {
